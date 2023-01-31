@@ -1,0 +1,5 @@
+C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.exe
+C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.dll
+C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.deps.json
+C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.runtimeconfig.json
+C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.pdb

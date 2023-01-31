@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>AutoTrust</id>
+    <version>1.0.0</version>
+    <authors>AutoTrust</authors>
+    <description>Package Description</description>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+  </metadata>
+  <files>
+    <file src="C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\obj\DotnetToolSettings.xml" target="tools\net7.0\any\DotnetToolSettings.xml" />
+    <file src="C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.dll" target="tools\net7.0\any\AutoTrust.dll" />
+    <file src="C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.deps.json" target="tools\net7.0\any\AutoTrust.deps.json" />
+    <file src="C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.runtimeconfig.json" target="tools\net7.0\any\AutoTrust.runtimeconfig.json" />
+    <file src="C:\Users\hallv\Prosjekt\Skole\AutoTrust\AutoTrust\bin\Debug\net7.0\publish\AutoTrust.pdb" target="tools\net7.0\any\AutoTrust.pdb" />
+  </files>
+</package>

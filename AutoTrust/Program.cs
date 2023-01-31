@@ -31,6 +31,14 @@ if(jokes == null || jokes.Total == 0)
     goto Start;
 }
 Console.WriteLine("Here are some jokes! Enjoy!");
+
+if (jokes.Result == null)
+{
+    Console.WriteLine("No jokes found!");
+    query = null;
+    goto Start;
+}
+
 foreach (ChuckNorrisJoke joke in jokes.Result)
 {
     Console.WriteLine("------------------------------------------------");

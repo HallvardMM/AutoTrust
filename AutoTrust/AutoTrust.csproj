@@ -7,7 +7,30 @@
     <Nullable>enable</Nullable>
 	<PackAsTool>true</PackAsTool>
 	<ToolCommandName>autotrust</ToolCommandName>
-	<PackageOutputPath>./nupkg</PackageOutputPath>  
+	<PackageOutputPath>./nupkg</PackageOutputPath>
+	<Title>Auto Trust</Title>
+	<Authors>hallvarm</Authors>
+	<Description>AutoTrust: Automatic software dependency
+auditing using trust criteria</Description>
+	<PackageProjectUrl>https://github.com/HallvardMM/AutoTrust</PackageProjectUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<RepositoryUrl>https://github.com/HallvardMM/AutoTrust</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageTags>CLI Dotnet Security Dependency AutoTrust </PackageTags>
+	<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+	<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

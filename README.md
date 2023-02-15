@@ -74,3 +74,8 @@ dotnet tool uninstall --global AutoTrust
 ## License
 
 This project is licensed under the Apache License - see the [LICENSE](LICENSE) file for details.
+
+## API Flow
+
+Planned!:
+![api flow](./Images/Api_flow.drawio.svg)

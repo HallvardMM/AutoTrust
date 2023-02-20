@@ -3,13 +3,14 @@ using System;
 using System.Net.Http.Json;
 using System.Diagnostics;
 
-
-Console.WriteLine("Fetching relevant data..."); //TODO remove this
+string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
+string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
 
 var httpClient = new HttpClient
 {
-    BaseAddress = new Uri("https://api.chucknorris.io/")
+  BaseAddress = new Uri("https://api.nuget.org/v3-flatcontainer/")
 };
+
 
 
 // Heads up: add and update are used similarly in dotnet
@@ -17,91 +18,93 @@ var httpClient = new HttpClient
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
 
 
-// Write code that fetches the package name and version
-
-//var args = Environment.GetCommandLineArgs();
-
-
-
-
 var query = args.AsQueryable();
 
 if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "package")
 {
-    // Fetch metadata about the package from the NuGet API, GitHub API, and security databases
-    try
-    {
-        var packageName = query.ElementAt(2);
-        string packageVersion;
+  // Fetch metadata about the package from the NuGet API, GitHub API, and security databases
+  try
+  {
+    var packageName = query.ElementAtOrDefault(2);
+    string packageVersion;
 
-        //TODO: This leads to out of bounds error if no version is specified
-        if (query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version")
+    if (query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version")
+    {
+      packageVersion = query.ElementAtOrDefault(4);
+    }
+    else
+    {
+      packageVersion = "latest";
+    }
+
+    var versionsObject = await httpClient.GetFromJsonAsync<APINugetPackageVersion>($"{packageName.ToLower()}/index.json");  
+    
+    if (versionsObject is not null)
+    {
+      Console.WriteLine("Latest stable version: " + APINugetPackageVersion.GetLatestStableVersion(versionsObject.Versions));
+    }
+
+    Console.WriteLine("Do you still want to add this package? (y/n)");
+
+    var addPackageQuery = Console.ReadLine()!.Trim();
+
+    if (POSITIVE_RESPONSE.Any(addPackageQuery.Contains))
+    {
+      using (Process dotnetProcess = new Process())
+      {
+        dotnetProcess.StartInfo.UseShellExecute = false;
+        dotnetProcess.StartInfo.CreateNoWindow = true;
+        dotnetProcess.StartInfo.RedirectStandardInput = true;
+        dotnetProcess.StartInfo.RedirectStandardOutput = true;
+        dotnetProcess.StartInfo.FileName = "dotnet.exe";
+
+        if (packageVersion == "latest")
         {
-            packageVersion = query.ElementAt(4);
+          dotnetProcess.StartInfo.Arguments = "add package " + packageName;
         }
         else
         {
-            packageVersion = "latest";
-        }
-        
-
-        
-        using (Process dotnetProcess = new Process())
-        {
-            // Run the command using dotnet.exe
-            // dotnet add package <PACKAGE_NAME> -v <VERSION>
-            dotnetProcess.StartInfo.UseShellExecute = false;
-            dotnetProcess.StartInfo.CreateNoWindow = true;
-            dotnetProcess.StartInfo.RedirectStandardInput = true;
-            dotnetProcess.StartInfo.RedirectStandardOutput = true;
-            dotnetProcess.StartInfo.FileName = "dotnet.exe";
-            
-            if (packageVersion == "latest")
-            {
-                dotnetProcess.StartInfo.Arguments = "add package " + packageName;
-                Console.WriteLine("This is ran: " + dotnetProcess.StartInfo.FileName + " " + dotnetProcess.StartInfo.Arguments);
-            }
-            else
-            {
-                dotnetProcess.StartInfo.Arguments = "add package " + packageName + " -v " + packageVersion;
-                Console.WriteLine("This is ran: " + dotnetProcess.StartInfo.FileName +" "+ dotnetProcess.StartInfo.Arguments);
-
-            }
-            dotnetProcess.Start();
-            dotnetProcess.StandardInput.Flush();
-            dotnetProcess.StandardInput.Close();
-            dotnetProcess.WaitForExit();
-            Console.WriteLine(dotnetProcess.StandardOutput.ReadToEnd());
+          {
+            dotnetProcess.StartInfo.Arguments = "add package " + packageName + " -v " + packageVersion;
+          }
+          dotnetProcess.Start();
+          dotnetProcess.StandardInput.Flush();
+          dotnetProcess.StandardInput.Close();
+          dotnetProcess.WaitForExit();
+          Console.WriteLine(dotnetProcess.StandardOutput.ReadToEnd());
 
         }
+      }
     }
-    catch (Exception e)
-    {
-        Console.WriteLine(e.Message);
-    }
+    
+  }
+   catch (Exception e)
+  {
+    Console.WriteLine(e.Message);
+  }
 }
 else
 {
-    try
+  try
+  {
+    using (Process dotnetProcess = new Process())
     {
-        using (Process dotnetProcess = new Process())
-        {
-            dotnetProcess.StartInfo.UseShellExecute = false;
-            dotnetProcess.StartInfo.CreateNoWindow = true;
-            dotnetProcess.StartInfo.RedirectStandardInput = true;
-            dotnetProcess.StartInfo.RedirectStandardOutput = true;
-            dotnetProcess.StartInfo.FileName = "dotnet.exe";
-            dotnetProcess.StartInfo.Arguments = string.Join(" ", query.ToArray());
-            Console.WriteLine("This is ran: " + dotnetProcess.StartInfo.FileName +" "+ dotnetProcess.StartInfo.Arguments);
-            dotnetProcess.Start();
-            dotnetProcess.StandardInput.Flush();
-            dotnetProcess.StandardInput.Close();
-            dotnetProcess.WaitForExit();
-            Console.WriteLine(dotnetProcess.StandardOutput.ReadToEnd());
-        }
+      dotnetProcess.StartInfo.UseShellExecute = false;
+      dotnetProcess.StartInfo.CreateNoWindow = true;
+      dotnetProcess.StartInfo.RedirectStandardInput = true;
+      dotnetProcess.StartInfo.RedirectStandardOutput = true;
+      dotnetProcess.StartInfo.FileName = "dotnet.exe";
+      dotnetProcess.StartInfo.Arguments = string.Join(" ", query.ToArray());
+      Console.WriteLine("This is ran: " + dotnetProcess.StartInfo.FileName + " " + dotnetProcess.StartInfo.Arguments);
+      dotnetProcess.Start();
+      dotnetProcess.StandardInput.Flush();
+      dotnetProcess.StandardInput.Close();
+      dotnetProcess.WaitForExit();
+      Console.WriteLine(dotnetProcess.StandardOutput.ReadToEnd());
     }
-    catch (Exception e)
-    {
-        Console.WriteLine(e.Message);
-    }
+  }
+  catch (Exception e)
+  {
+    Console.WriteLine(e.Message);
+  }
 }

@@ -6,9 +6,14 @@ using System.Text.Json;
 
 namespace AutoTrust
 {
-  public class APINugetPackageVersion
+  public class NugetPackageVersion
   {
     public List<string>? Versions { get; set; }
+
+    public static string GetVersionsUrl(string packageName)
+    {
+     return ($"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower()}/index.json");
+    }
 
     public static string GetLatestStableVersion(List<string> versions)
     {
@@ -21,5 +26,7 @@ namespace AutoTrust
       }
       return null;
     }
+
   }
+
 }

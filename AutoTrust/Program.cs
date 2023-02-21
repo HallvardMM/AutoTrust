@@ -6,10 +6,7 @@ using System.Diagnostics;
 string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
 string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
 
-var httpClient = new HttpClient
-{
-  BaseAddress = new Uri("https://api.nuget.org/v3-flatcontainer/")
-};
+var httpClient = new HttpClient();
 
 
 
@@ -26,7 +23,18 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
   try
   {
     var packageName = query.ElementAtOrDefault(2);
-    string packageVersion;
+
+
+    // Version handeling
+    string packageVersion = null;
+    string stableVersion = null;
+
+    var versionsObject = await httpClient.GetFromJsonAsync<NugetPackageVersion>
+      (NugetPackageVersion.GetVersionsUrl(packageName));
+
+
+      stableVersion = NugetPackageVersion.GetLatestStableVersion(versionsObject?.Versions);
+      Console.WriteLine("Latest stable version: " + stableVersion);
 
     if (query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version")
     {
@@ -34,15 +42,31 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     }
     else
     {
-      packageVersion = "latest";
+      packageVersion = stableVersion;
     }
 
-    var versionsObject = await httpClient.GetFromJsonAsync<APINugetPackageVersion>($"{packageName.ToLower()}/index.json");  
-    
-    if (versionsObject is not null)
+
+
+    // Fetch package data
+    var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
+          (NugetPackage.GetNugetPackageUrl(packageName,packageVersion));
+
+    if (nugetPackage?.Listed == true && nugetPackage?.CatalogEntry != null)
     {
-      Console.WriteLine("Latest stable version: " + APINugetPackageVersion.GetLatestStableVersion(versionsObject.Versions));
+      Console.WriteLine($"Lastest stable version of package published: {nugetPackage?.Published}");
+      
+      string ManifestUrl = NugetPackage.GetManifestUrlFromPackageContentUrl(nugetPackage.CatalogEntry);
+      var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(nugetPackage.CatalogEntry);
+
+      Console.WriteLine($"Author(s) on NuGet: {string.Join(",", nugetCatalogEntry?.Authors)}");
     }
+    else
+    {
+      throw new Exception("Package is not listed!");
+    }
+
+
+    Console.WriteLine($"Nuget site for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
 
     Console.WriteLine("Do you still want to add this package? (y/n)");
 
@@ -76,9 +100,9 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
         }
       }
     }
-    
+
   }
-   catch (Exception e)
+  catch (Exception e)
   {
     Console.WriteLine(e.Message);
   }

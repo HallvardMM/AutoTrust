@@ -27,6 +27,11 @@ namespace AutoTrust
       return null;
     }
 
+    public override string ToString()
+    {
+      return $"[{string.Join(", ", Versions)}]";
+    }
+
   }
 
 }

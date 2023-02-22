@@ -1,14 +1,18 @@
 ﻿using AutoTrust;
 using System;
+using System.IO;
+using System.Net;
 using System.Net.Http.Json;
 using System.Diagnostics;
+using System.Xml;
+using System.Xml.Serialization;
 
 string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
 string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
 
+bool VERBOSE = false;
+
 var httpClient = new HttpClient();
-
-
 
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
@@ -27,15 +31,18 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
 
     // Version handeling
     string packageVersion = null;
-    string stableVersion = null;
-
+    
     var versionsObject = await httpClient.GetFromJsonAsync<NugetPackageVersion>
       (NugetPackageVersion.GetVersionsUrl(packageName));
 
-
-      stableVersion = NugetPackageVersion.GetLatestStableVersion(versionsObject?.Versions);
+    string stableVersion = NugetPackageVersion.GetLatestStableVersion(versionsObject?.Versions);
+    
+    if (VERBOSE)
+    {
+      Console.WriteLine("All versions found: " + versionsObject.ToString());
       Console.WriteLine("Latest stable version: " + stableVersion);
-
+    }
+    
     if (query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version")
     {
       packageVersion = query.ElementAtOrDefault(4);
@@ -51,22 +58,38 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
           (NugetPackage.GetNugetPackageUrl(packageName,packageVersion));
 
-    if (nugetPackage?.Listed == true && nugetPackage?.CatalogEntry != null)
-    {
-      Console.WriteLine($"Lastest stable version of package published: {nugetPackage?.Published}");
-      
-      string ManifestUrl = NugetPackage.GetManifestUrlFromPackageContentUrl(nugetPackage.CatalogEntry);
+    Console.WriteLine(nugetPackage.ToString());
+
+    var downloadPackage = false; // This is set to false while working on the project
+
+    if (downloadPackage) { 
+    NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
+    }
+    
+    if (nugetPackage?.CatalogEntry != null)
+    {    
       var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(nugetPackage.CatalogEntry);
-
-      Console.WriteLine($"Author(s) on NuGet: {string.Join(",", nugetCatalogEntry?.Authors)}");
-    }
-    else
-    {
-      throw new Exception("Package is not listed!");
+      if(nugetCatalogEntry != null)
+      {
+        Console.WriteLine(nugetCatalogEntry.ToString());
+      }
     }
 
+    // Create a web client to download the XML file
+    WebClient client = new WebClient();
+    Stream stream = client.OpenRead(NugetPackageManifest.GetNugetPackageManifestUrl(packageName, packageVersion));
 
-    Console.WriteLine($"Nuget site for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
+    // Deserialize the XML file into a NuGetPackage object
+    XmlSerializer serializer = new XmlSerializer(typeof(NugetPackageManifest));
+    NugetPackageManifest package = (NugetPackageManifest)serializer.Deserialize(stream);
+
+    Console.WriteLine(package.ToString());
+
+    var nugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(NugetDownloadCount.GetNugetDownloadCountUrl(packageName, packageVersion));
+
+    Console.WriteLine(nugetDownloadCount.ToString(packageVersion));
+    
+    Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
 
     Console.WriteLine("Do you still want to add this package? (y/n)");
 
@@ -96,7 +119,6 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
           dotnetProcess.StandardInput.Close();
           dotnetProcess.WaitForExit();
           Console.WriteLine(dotnetProcess.StandardOutput.ReadToEnd());
-
         }
       }
     }

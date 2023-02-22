@@ -12,8 +12,6 @@ string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
 
 var httpClient = new HttpClient();
 
-
-
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
@@ -55,11 +53,16 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
           (NugetPackage.GetNugetPackageUrl(packageName,packageVersion));
 
+    var downloadPackage = false;
+    
+    if (downloadPackage) { 
+    NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
+    }
+    
     if (nugetPackage?.Listed == true && nugetPackage?.CatalogEntry != null)
     {
       Console.WriteLine($"Lastest stable version of package published: {nugetPackage?.Published}");
-      
-      string ManifestUrl = NugetPackage.GetManifestUrlFromPackageContentUrl(nugetPackage.CatalogEntry);
+    
       var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(nugetPackage.CatalogEntry);
 
       Console.WriteLine($"Author(s) on NuGet: {string.Join(",", nugetCatalogEntry?.Authors)}");
@@ -103,6 +106,8 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     Console.WriteLine($"Copyright: {package.Metadata.Copyright}");
     Console.WriteLine($"Tags: {package.Metadata.Tags}");
     Console.WriteLine($"Repository: {package.Metadata.Repository?.Type}, {package.Metadata.Repository?.Url}, {package.Metadata.Repository?.Commit}");
+
+
 
 
 
@@ -157,7 +162,6 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
           dotnetProcess.StandardInput.Close();
           dotnetProcess.WaitForExit();
           Console.WriteLine(dotnetProcess.StandardOutput.ReadToEnd());
-
         }
       }
     }

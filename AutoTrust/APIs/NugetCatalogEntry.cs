@@ -53,6 +53,70 @@ namespace AutoTrust
     public Deprecation? Deprecation { get; set; }
     public string? Language { get; set; }
     public string? Summary { get; set; }
+
+    public override string ToString()
+    {
+      string returnString = "";
+
+      returnString += $"Id: {Id}\n";
+      returnString += $"Type: [{string.Join(", ", Type)}]\n";
+      returnString += $"PackageName: {PackageName}\n";
+      returnString += $"Version: {Version}\n";
+      returnString += $"Authors: [{string.Join(", ", Authors)}]\n";
+      returnString += $"CommitId: {CommitId}\n";
+      returnString += $"CommitTimeStamp: {CommitTimeStamp}\n";
+      returnString += $"Copyright: {Copyright}\n";
+      returnString += $"Created: {Created}\n";
+      returnString += $"Description: {Description}\n";
+      returnString += $"IconFile: {IconFile}\n";
+      returnString += $"IconUrl: {IconUrl}\n";
+      returnString += $"IsPrerelease: {IsPrerelease}\n";
+      returnString += $"LastEdited: {LastEdited}\n";
+      returnString += $"LicenseExpression: {LicenseExpression}\n";
+      returnString += $"LicenseUrl: {LicenseUrl}\n";
+      returnString += $"Listed: {Listed}\n";
+      returnString += $"MinClientVersion: {MinClientVersion}\n";
+      returnString += $"PackageHash: {PackageHash}\n";
+      returnString += $"PackageHashAlgorithm: {PackageHashAlgorithm}\n";
+      returnString += $"PackageSize: {PackageSize}\n";
+      returnString += $"ProjectUrl: {ProjectUrl}\n";
+      returnString += $"Published: {Published}\n";
+      returnString += $"Repository: {Repository}\n";
+      returnString += $"RequireLicenseAcceptance: {RequireLicenseAcceptance}\n";
+      returnString += $"Title: {Title}\n";
+      returnString += $"VerbatimVersion: {VerbatimVersion}\n";
+      returnString += $"Tags: [{string.Join(", ", Tags)}]\n";
+      if (Deprecation != null)
+      {
+        returnString += $"Deprecation:\n {Deprecation.ToString()}";
+      }
+      returnString += $"Language: {Language}\n";
+      returnString += $"Summary: {Summary}\n";
+      if(DependencyGroups != null)
+      {
+        returnString += $"Dependencies:\n";
+        foreach (PackageDependencyGroup dependencyGroup in DependencyGroups)
+        {
+          returnString += dependencyGroup.ToString();
+        }
+      }
+      if (PackageEntries != null) {
+        returnString += $"Package entries:\n";
+        foreach (PackageEntries packageEntry in PackageEntries)
+        {
+          returnString += packageEntry.ToString();
+        } 
+      }
+      if(Vulnerabilities != null)
+      {
+        returnString += $"Vulnerabilities:\n";
+        foreach (Vulnerabilities vulnerability in Vulnerabilities)
+        {
+          returnString += vulnerability.ToString();
+        }
+      }
+      return returnString;
+    }
   }
 
   public class PackageDependencyGroup
@@ -66,6 +130,20 @@ namespace AutoTrust
     public List<PackageDependency> Dependencies { get; set; }
 
     public string TargetFramework { get; set; }
+
+    public override string ToString()
+    {
+
+      string returnString = $"Target framework: {TargetFramework}\n";
+      if(Dependencies != null)
+      {
+        foreach (PackageDependency dependency in Dependencies)
+        {
+          returnString += dependency.ToString();
+        }
+      }
+      return returnString;
+    }
   }
 
   public class PackageDependency
@@ -80,6 +158,11 @@ namespace AutoTrust
     public string PackageName { get; set; }
 
     public string Range { get; set; }
+
+    public override string ToString()
+    {
+      return $"Package name: {PackageName}, Range: {Range}\n";
+    }
   }
 
   public class PackageEntries
@@ -97,6 +180,16 @@ namespace AutoTrust
     public int Length { get; set; }
 
     public string Name { get; set; }
+
+    // Write toString
+    public override string ToString()
+    {
+      string returnString = $"Package name: {Name}\n";
+      returnString += $"Package full name: {FullName}\n";
+      returnString += $"Package length: {Length}\n";
+      returnString += $"Package compressed length: {CompressedLength}\n";
+      return returnString;
+    }
   }
 
   public class Vulnerabilities
@@ -110,6 +203,13 @@ namespace AutoTrust
     public string AdvisoryUrl { get; set; }
 
     public string Severity { get; set; }
+
+    public override string ToString()
+    {
+      return $"Type: {Type}, Severity: {Severity}, Advisory: {AdvisoryUrl}\n";
+    }
+
+
   }
 
   public class Deprecation
@@ -118,7 +218,17 @@ namespace AutoTrust
     public string Id { get; set; }
     public string? Message { get; set; }
     public List<string> Reasons { get; set; }
-    public AlternatePackage AlternatePackage { get; set; }  
+    public AlternatePackage AlternatePackage { get; set; }
+    
+    public override string ToString()
+    {
+      string returnString = $"Message: {Message}, Reasons: [{string.Join(", ", Reasons)}]";
+      if(AlternatePackage != null)
+      {
+        returnString += $", AlternatePackage: [{ AlternatePackage.ToString()}]\n";
+      }
+      return returnString;
+    }
   }
 
   public class AlternatePackage
@@ -130,7 +240,10 @@ namespace AutoTrust
     [JsonPropertyName("range")]
     [JsonConverter(typeof(StringOrObjectConverter<string>))]
     public string? Range { get; set; } //TODO: Can be an object or "*" this needs more testing
-    
+    public override string ToString()
+    {
+      return $"Name: {AlternatePackageName}, Range: {Range}";
+    }
   }
 
 }

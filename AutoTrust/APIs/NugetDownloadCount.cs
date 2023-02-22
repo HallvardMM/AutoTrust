@@ -16,6 +16,18 @@ namespace AutoTrust
     {
       return ($"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLower()}");
     }
+
+    public string ToString(string packageVersion)
+    {
+      if (TotalHits == 1)
+      {
+        return Data[0]?.ToString(packageVersion);
+      }
+      else
+      {
+        return "Warning: More than one package fits the Id!";
+      }
+    }
   }
 
   public class NugetDownloadCountItem
@@ -43,6 +55,33 @@ namespace AutoTrust
     public bool? Verified { get; set; }
     public List<NugetDownloadCountPackageType>? PackageTypes { get; set; }
     public List<NugetDownloadCountVersion>? Versions { get; set; }
+
+    public string ToString(string packageVersion)
+    {
+      string returnString = "";
+
+      returnString += $"Total downloads for package: {TotalDownloads}\n";
+
+      for (int i = 0; i < Versions?.Count; i++)
+      {
+        if (Versions[i]?.Version == packageVersion)
+        {
+          returnString +=  $"Total downloads for version {Versions[i]?.Version}: {Versions[i]?.Downloads}\n";
+          if (Versions[i]?.Downloads != 0)
+          {
+            returnString += $"Total downloads/Version downloads: {TotalDownloads / Versions[i]?.Downloads}";
+            return returnString;
+          }
+          else
+          {
+            returnString += "Warning: No downloads for this package!";
+            return returnString;
+          }
+        }
+      }
+      returnString += "Warning: Did not find download statistics for package!";
+      return returnString;
+    }
   }
 
   public class NugetDownloadCountPackageType

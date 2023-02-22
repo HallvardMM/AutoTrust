@@ -16,6 +16,11 @@ namespace AutoTrust
     {
       return ($"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower()}/{packageVersion.ToLower()}/{packageName.ToLower()}.nuspec");
     }
+    
+    public override string ToString()
+    {
+      return Metadata.ToString();
+    }
   }
   
   [XmlRoot(ElementName = "metadata", Namespace = "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd")]
@@ -53,6 +58,36 @@ namespace AutoTrust
     public Dependencies Dependencies { get; set; }
     [XmlAttribute(AttributeName = "minClientVersion")]
     public string MinClientVersion { get; set; }
+
+    public override string ToString()
+    {
+      string returnString = "";
+
+      returnString += $"Package Id: {Id}\n";
+      returnString += $"Package Version: {Version}\n";
+      returnString += $"Package Title: {Title}\n";
+      returnString += $"Package Authors: {Authors}\n";
+      returnString += $"Package License: {License}\n";
+      returnString += $"Package LicenseUrl: {LicenseUrl}\n";
+      returnString += $"Package Icon: {Icon}\n";
+      returnString += $"Package Readme: {Readme}\n";
+      returnString += $"Package ProjectUrl: {ProjectUrl}\n";
+      returnString += $"Package IconUrl: {IconUrl}\n";
+      returnString += $"Package Description: {Description}\n";
+      returnString += $"Package Copyright: {Copyright}\n";
+      returnString += $"Package Tags: {Tags}\n";
+      returnString += $"Package MinClientVersion: {MinClientVersion}\n";
+      returnString += $"Package Repository: {Repository?.Url}, {Repository?.Type}, {Repository?.Commit}\n";
+      foreach (var group in Dependencies.Group)
+      {
+        returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";
+        foreach (var dependency in group.Dependency)
+        {
+          returnString += $"Dependency: {dependency.Id}, Version: {dependency.Version}, Exclude: {dependency.Exclude}\n";
+        }
+      }
+      return returnString;
+    }
   }
 
   public class License

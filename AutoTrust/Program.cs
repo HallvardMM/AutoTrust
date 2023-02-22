@@ -1,7 +1,11 @@
 ﻿using AutoTrust;
 using System;
+using System.IO;
+using System.Net;
 using System.Net.Http.Json;
 using System.Diagnostics;
+using System.Xml;
+using System.Xml.Serialization;
 
 string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
 string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
@@ -59,14 +63,71 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
       var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(nugetPackage.CatalogEntry);
 
       Console.WriteLine($"Author(s) on NuGet: {string.Join(",", nugetCatalogEntry?.Authors)}");
+
+      if (nugetCatalogEntry?.Deprecation != null)
+      {
+        Console.WriteLine($"Package is deprecated: {string.Join(",", nugetCatalogEntry?.Deprecation.Reasons)}");
+        if (nugetCatalogEntry?.Deprecation.AlternatePackage != null)
+        {
+          Console.WriteLine($"Alternative package: {nugetCatalogEntry?.Deprecation.AlternatePackage.AlternatePackageName}");
+          if (nugetCatalogEntry?.Deprecation.AlternatePackage.Range != null)
+          {
+            Console.WriteLine($"Alternative package version: {nugetCatalogEntry?.Deprecation.AlternatePackage.Range}");
+          }
+        }
+      }
     }
     else
     {
-      throw new Exception("Package is not listed!");
+      Console.WriteLine("Warning: Package is not listed!");
     }
+    // Create a web client to download the XML file
+    WebClient client = new WebClient();
+    Stream stream = client.OpenRead(NugetPackageManifest.GetNugetPackageManifestUrl(packageName, packageVersion));
+
+    // Deserialize the XML file into a NuGetPackage object
+    XmlSerializer serializer = new XmlSerializer(typeof(NugetPackageManifest));
+    NugetPackageManifest package = (NugetPackageManifest)serializer.Deserialize(stream);
+
+    Console.WriteLine($"Id: {package.Metadata.Id}");
+    Console.WriteLine($"Version: {package.Metadata.Version}");
+    Console.WriteLine($"Title: {package.Metadata.Title}");
+    Console.WriteLine($"Authors: {package.Metadata.Authors}");
+    Console.WriteLine($"License: {package.Metadata.License}");
+    Console.WriteLine($"LicenseUrl: {package.Metadata.LicenseUrl}");
+    Console.WriteLine($"Icon: {package.Metadata.Icon}");
+    Console.WriteLine($"Readme: {package.Metadata.Readme}");
+    Console.WriteLine($"ProjectUrl: {package.Metadata.ProjectUrl}");
+    Console.WriteLine($"IconUrl: {package.Metadata.IconUrl}");
+    Console.WriteLine($"Description: {package.Metadata.Description}");
+    Console.WriteLine($"Copyright: {package.Metadata.Copyright}");
+    Console.WriteLine($"Tags: {package.Metadata.Tags}");
+    Console.WriteLine($"Repository: {package.Metadata.Repository?.Type}, {package.Metadata.Repository?.Url}, {package.Metadata.Repository?.Commit}");
 
 
-    Console.WriteLine($"Nuget site for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
+
+    var nugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(NugetDownloadCount.GetNugetDownloadCountUrl(packageName, packageVersion));
+
+    if (nugetDownloadCount?.TotalHits == 1)
+    {
+      Console.WriteLine($"Total downloads for package: {nugetDownloadCount?.Data[0].TotalDownloads}");
+      for (int i = 0; i < nugetDownloadCount?.Data[0].Versions.Count; i++)
+      {
+        if (nugetDownloadCount?.Data[0].Versions[i].Version == packageVersion)
+        {
+          Console.WriteLine($"Total downloads for version {nugetDownloadCount?.Data[0].Versions[i].Version}: {nugetDownloadCount?.Data[0].Versions[i].Downloads}");
+          Console.WriteLine($"Total downloads/Total downloads for version: {nugetDownloadCount?.Data[0].TotalDownloads/nugetDownloadCount?.Data[0].Versions[i].Downloads}");
+        }
+      }
+    }
+    else
+    {
+      Console.WriteLine("Warning: More than one package fits the Id!");
+    }
+    
+    
+
+    Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
 
     Console.WriteLine("Do you still want to add this package? (y/n)");
 

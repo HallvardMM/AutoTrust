@@ -8,11 +8,15 @@ namespace AutoTrust
 {
   public class NugetCatalogEntry
   {
+    // https://learn.microsoft.com/en-us/nuget/api/catalog-resource#catalog-leaf
     [JsonPropertyName("@id")]
     public string? Id { get; set; }
+    [JsonConverter(typeof(SingleOrArrayConverter<string>))]
     [JsonPropertyName("@type")]
     public List<string>? Type { get; set; }
-    
+    [JsonPropertyName("id")]
+    public string PackageName { get; set; }
+    public string Version { get; set; }
     [JsonPropertyName("authors")]
     [JsonConverter(typeof(SingleOrArrayConverter<string>))]
     public List<string>? Authors { get; set; } 
@@ -24,8 +28,7 @@ namespace AutoTrust
     public DateTimeOffset? Created { get; set; }
     public string? Description { get; set; }
     public string? IconFile { get; set; }
-    [JsonPropertyName("id")]
-    public string? PackageName { get; set; }
+    public string? IconUrl { get; set; }
     public bool? IsPrerelease { get; set; }
     public DateTimeOffset? LastEdited { get; set; }
     public string? LicenseExpression { get; set; }
@@ -40,12 +43,16 @@ namespace AutoTrust
     public string? Repository { get; set; }
     public bool? RequireLicenseAcceptance { get; set; }
     public string? Title { get; set; }
-    public string? Version { get; set; }
     public string? VerbatimVersion { get; set; }
     public List<PackageDependencyGroup>? DependencyGroups { get; set; }
     public List<PackageEntries>? PackageEntries { get; set; }
+    [JsonPropertyName("tags")]
+    [JsonConverter(typeof(SingleOrArrayConverter<string>))]
     public List<string>? Tags { get; set; }
     public List<Vulnerabilities>? Vulnerabilities { get; set; }
+    public Deprecation? Deprecation { get; set; }
+    public string? Language { get; set; }
+    public string? Summary { get; set; }
   }
 
   public class PackageDependencyGroup
@@ -103,6 +110,27 @@ namespace AutoTrust
     public string AdvisoryUrl { get; set; }
 
     public string Severity { get; set; }
+  }
+
+  public class Deprecation
+  {
+    [JsonPropertyName("@id")]
+    public string Id { get; set; }
+    public string? Message { get; set; }
+    public List<string> Reasons { get; set; }
+    public AlternatePackage AlternatePackage { get; set; }  
+  }
+
+  public class AlternatePackage
+  {
+    [JsonPropertyName("@id")]
+    public string Id { get; set; }
+    [JsonPropertyName("id")]
+    public string AlternatePackageName { get; set; }
+    [JsonPropertyName("range")]
+    [JsonConverter(typeof(StringOrObjectConverter<string>))]
+    public string? Range { get; set; } //TODO: Can be an object or "*" this needs more testing
+    
   }
 
 }

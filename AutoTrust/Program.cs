@@ -99,28 +99,45 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     if (package.Metadata.Repository?.Url?.ToLower().Contains("github.com") ?? false)
     {
       // Github returns forbidden. Needs headers: {'User-Agent': 'request'}
-    var githubApiUrl = package.Metadata.Repository.Url.Replace("https://", "https://api.").Replace("github.com", "github.com/repos");
+      var githubApiUrl = GithubPackage.GetGithubApiUrl(package.Metadata.Repository.Url);
 
       Console.WriteLine(githubApiUrl);
       httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-      var gitHubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
-      if (gitHubData != null)
+      var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+      if (githubData != null)
       {
-        Console.WriteLine(gitHubData.FullName + " " + gitHubData.Description + " " + gitHubData.Url);
+        Console.WriteLine(githubData.ToString());
       }
-
+      
+      var githubIssuesUrl = githubApiUrl.Replace("repos/", "search/issues?q=repo:") + "+type:issue+state:open&per_page=1";
+      Console.WriteLine(githubIssuesUrl);
+      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+      GithubIssues githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
+      if (githubIssueData != null)
+      {
+        Console.WriteLine(githubIssueData.ToString());
+        Console.WriteLine($"Open PRs: {githubData.OpenIssuesCount - githubIssueData.TotalCount}");
+      }
     }
     else if(package.Metadata.ProjectUrl?.ToLower().Contains("github.com") ?? false)
     {
-      var githubApiUrl = package.Metadata.ProjectUrl.Replace("https://", "https://api.").Replace("github.com", "github.com/repos");
+      var githubApiUrl = GithubPackage.GetGithubApiUrl(package.Metadata.ProjectUrl);
 
       Console.WriteLine(githubApiUrl);
       httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-      var gitHubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
-      if (gitHubData != null)
+      var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+      if (githubData != null)
       {
-        Console.WriteLine(gitHubData.FullName + " " + gitHubData.Description + " " + gitHubData.Url);
-    }
+        Console.WriteLine(githubData.ToString());
+      }
+      var githubIssuesUrl = githubApiUrl.Replace("repos/", "search/issues?q=repo:") + "+type:issue+state:open&per_page=1";
+      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+      GithubIssues githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
+      if (githubIssueData != null)
+      {
+        Console.WriteLine(githubIssueData.ToString());
+        Console.WriteLine($"Open PRs: {githubData.OpenIssuesCount - githubIssueData.TotalCount}\n");
+      }
     }
     
 

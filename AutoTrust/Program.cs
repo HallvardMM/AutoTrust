@@ -60,12 +60,21 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
 
     Console.WriteLine(nugetPackage.ToString());
 
+
+
+
+
+    // Download the package to the local machine
+
     var downloadPackage = false; // This is set to false while working on the project
 
     if (downloadPackage) { 
     NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
     }
-    
+
+
+    // Get the package catalog entry with a lot of data such as potential vulnerabilities
+
     if (nugetPackage?.CatalogEntry != null)
     {    
       var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(nugetPackage.CatalogEntry);
@@ -84,6 +93,36 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     NugetPackageManifest package = (NugetPackageManifest)serializer.Deserialize(stream);
 
     Console.WriteLine(package.ToString());
+    
+
+    //TODO: Move this logic into seperate file
+    if (package.Metadata.Repository?.Url?.ToLower().Contains("github.com") ?? false)
+    {
+      // Github returns forbidden. Needs headers: {'User-Agent': 'request'}
+    var githubApiUrl = package.Metadata.Repository.Url.Replace("https://", "https://api.").Replace("github.com", "github.com/repos");
+
+      Console.WriteLine(githubApiUrl);
+      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+      var gitHubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+      if (gitHubData != null)
+      {
+        Console.WriteLine(gitHubData.FullName + " " + gitHubData.Description + " " + gitHubData.Url);
+      }
+
+    }
+    else if(package.Metadata.ProjectUrl?.ToLower().Contains("github.com") ?? false)
+    {
+      var githubApiUrl = package.Metadata.ProjectUrl.Replace("https://", "https://api.").Replace("github.com", "github.com/repos");
+
+      Console.WriteLine(githubApiUrl);
+      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+      var gitHubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+      if (gitHubData != null)
+      {
+        Console.WriteLine(gitHubData.FullName + " " + gitHubData.Description + " " + gitHubData.Url);
+    }
+    }
+    
 
     var nugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(NugetDownloadCount.GetNugetDownloadCountUrl(packageName, packageVersion));
 
@@ -141,6 +180,7 @@ else
       dotnetProcess.StartInfo.RedirectStandardOutput = true;
       dotnetProcess.StartInfo.FileName = "dotnet.exe";
       dotnetProcess.StartInfo.Arguments = string.Join(" ", query.ToArray());
+      //TODO: Remove only for debug
       Console.WriteLine("This is ran: " + dotnetProcess.StartInfo.FileName + " " + dotnetProcess.StartInfo.Arguments);
       dotnetProcess.Start();
       dotnetProcess.StandardInput.Flush();

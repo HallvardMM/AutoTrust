@@ -6,6 +6,9 @@ using System.Net.Http.Json;
 using System.Diagnostics;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Text.Json;
+using System.Threading.Tasks;
+
 
 string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
 string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
@@ -58,11 +61,14 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
           (NugetPackage.GetNugetPackageUrl(packageName,packageVersion));
 
-    Console.WriteLine(nugetPackage.ToString());
-
-
-
-
+    if (nugetPackage != null)
+    {
+      Console.WriteLine(nugetPackage.ToString());
+    }
+    else
+    {
+      Console.WriteLine("Error: Package not found!");
+    }
 
     // Download the package to the local machine
 
@@ -81,6 +87,7 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
       if(nugetCatalogEntry != null)
       {
         Console.WriteLine(nugetCatalogEntry.ToString());
+        packageName = nugetCatalogEntry.PackageName;
       }
     }
 
@@ -144,7 +151,38 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     var nugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(NugetDownloadCount.GetNugetDownloadCountUrl(packageName, packageVersion));
 
     Console.WriteLine(nugetDownloadCount.ToString(packageVersion));
+
+    var osvJSONPost = $"{{\"version\": \"{packageVersion}\", \"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
+
+    Console.WriteLine(osvJSONPost);
+
+    var content = new StringContent(osvJSONPost, System.Text.Encoding.UTF8, "application/json");
+    var response = await httpClient.PostAsync("https://api.osv.dev/v1/query", content);
+    if (response.StatusCode == HttpStatusCode.OK)
+    {
+      var responseStream = await response.Content.ReadAsStreamAsync();
+      var osvData = await JsonSerializer.DeserializeAsync<OSVData>(responseStream);
+      if (osvData != null)
+      {
+        try
+        {
+          Console.WriteLine(osvData.ToString());
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine(e);
+        }
+
+      }
+    }
+    else
+    {
+      string errorResponse = await response.Content.ReadAsStringAsync();
+      Console.WriteLine($"An error occurred. Status code: {response.StatusCode}. Error message: {errorResponse}");
+    }
     
+    
+
     Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
 
     Console.WriteLine("Do you still want to add this package? (y/n)");

@@ -63,6 +63,12 @@ Creating a package:
 dotnet pack
 ```
 
+Run Project:
+
+```bash
+dotnet run add package PACKAGE VERSION
+```
+
 Testing the package locally:
 
 ```bash

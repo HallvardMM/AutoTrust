@@ -77,7 +77,14 @@ namespace AutoTrust
       returnString += $"Package Copyright: {Copyright}\n";
       returnString += $"Package Tags: {Tags}\n";
       returnString += $"Package MinClientVersion: {MinClientVersion}\n";
-      returnString += $"Package Repository: {Repository?.Url}, {Repository?.Type}, {Repository?.Commit}\n";
+      if (Repository != null)
+      {
+        returnString += $"Package Repository: {Repository.Url}\n";
+        if (Repository.Commit != null)
+        {
+          returnString += $"Package Commit: {Repository.Url}/commit/{Repository.Commit}\n";
+        }
+      }
       foreach (var group in Dependencies.Group)
       {
         returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";

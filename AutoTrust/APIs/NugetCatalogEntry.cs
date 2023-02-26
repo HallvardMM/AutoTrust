@@ -225,7 +225,7 @@ namespace AutoTrust
       string returnString = $"Message: {Message}, Reasons: [{string.Join(", ", Reasons)}]";
       if(AlternatePackage != null)
       {
-        returnString += $", AlternatePackage: [{ AlternatePackage.ToString()}]\n";
+        returnString += $", AlternatePackage: [{ AlternatePackage?.ToString()}]\n";
       }
       return returnString;
     }

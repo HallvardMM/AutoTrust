@@ -87,5 +87,6 @@ This project is licensed under the Apache License - see the [LICENSE](LICENSE) f
 
 ## API Flow
 
-Planned!:
+The flow of where the data is fetch is shown below.
+
 ![api flow](./Images/Api_flow.drawio.svg)

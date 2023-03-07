@@ -4,10 +4,8 @@ using System.IO;
 using System.Net;
 using System.Net.Http.Json;
 using System.Diagnostics;
-using System.Xml;
-using System.Xml.Serialization;
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 
 string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
@@ -34,25 +32,24 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
 
     // Version handeling
     string packageVersion = null;
-    
-    var versionsObject = await httpClient.GetFromJsonAsync<NugetPackageVersion>
-      (NugetPackageVersion.GetVersionsUrl(packageName));
 
-    string stableVersion = NugetPackageVersion.GetLatestStableVersion(versionsObject?.Versions);
-    
-    if (VERBOSE)
-    {
-      Console.WriteLine("All versions found: " + versionsObject.ToString());
-      Console.WriteLine("Latest stable version: " + stableVersion);
-    }
-    
+
     if (query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version")
     {
       packageVersion = query.ElementAtOrDefault(4);
     }
     else
     {
-      packageVersion = stableVersion;
+      string? latestVersion = await NugetPackageVersion.GetLatestStableVersion(httpClient, packageName);
+      if (latestVersion != null)
+      {
+        packageVersion = latestVersion;
+      }
+      else
+      {
+        Console.WriteLine("Error: Package version not found!");
+        return;
+      }
     }
 
     NugetPackage? nugetPackage = await NugetPackage.GetNugetPackage(httpClient, packageName, packageVersion);
@@ -63,7 +60,7 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     }
     else
     {
-      Console.WriteLine("Error: Package not found!");
+      Console.WriteLine($"Error: Package {packageName} with version {packageVersion} not found!");
     }
 
     // Download the package to the local machine
@@ -78,106 +75,90 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     // Get the package catalog entry with a lot of data such as potential vulnerabilities
 
     if (nugetPackage?.CatalogEntry != null)
-    {    
-      var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(nugetPackage.CatalogEntry);
+    {
+      NugetCatalogEntry? nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(httpClient,nugetPackage.CatalogEntry);
       if(nugetCatalogEntry != null)
       {
         Console.WriteLine(nugetCatalogEntry.ToString());
         packageName = nugetCatalogEntry.PackageName;
       }
+      else
+      {
+        Console.WriteLine($"Error: Package catalog entry for {packageName} with version {packageVersion} not found!");
+      }
     }
 
-    // Create a web client to download the XML file
-    WebClient client = new WebClient();
-    Stream stream = client.OpenRead(NugetPackageManifest.GetNugetPackageManifestUrl(packageName, packageVersion));
+    NugetPackageManifest? packageManifest = await NugetPackageManifest.GetNugetPackageManifest(httpClient, packageName, packageVersion);
 
-    // Deserialize the XML file into a NuGetPackage object
-    XmlSerializer serializer = new XmlSerializer(typeof(NugetPackageManifest));
-    NugetPackageManifest package = (NugetPackageManifest)serializer.Deserialize(stream);
-
-    Console.WriteLine(package.ToString());
-    
-
-    //TODO: Move this logic into seperate file
-    if (package.Metadata.Repository?.Url?.ToLower().Contains("github.com") ?? false)
+    if (packageManifest != null)
     {
-      // Github returns forbidden. Needs headers: {'User-Agent': 'request'}
-      var githubApiUrl = GithubPackage.GetGithubApiUrl(package.Metadata.Repository.Url);
+      Console.WriteLine(packageManifest.ToString());
+    }
+    else
+    {
+      Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
+    }
 
-      Console.WriteLine(githubApiUrl);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-      var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+    string repositoryUrl = "";
+
+    if (packageManifest.Metadata.Repository?.Url?.ToLower().Contains("github.com") ?? false)
+    {
+      repositoryUrl = packageManifest.Metadata.Repository.Url;
+    }
+    else if (packageManifest.Metadata.ProjectUrl?.ToLower().Contains("github.com") ?? false)
+    {
+      repositoryUrl = packageManifest.Metadata.ProjectUrl;
+    }
+
+    if (repositoryUrl != "")
+    {
+      GithubPackage? githubData = await GithubPackage.GetGithubPackage(httpClient, repositoryUrl);
       if (githubData != null)
       {
         Console.WriteLine(githubData.ToString());
       }
-      
-      var githubIssuesUrl = githubApiUrl.Replace("repos/", "search/issues?q=repo:") + "+type:issue+state:open&per_page=1";
-      Console.WriteLine(githubIssuesUrl);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-      GithubIssues githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
+      else
+      {
+        Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
+      }
+
+      GithubIssues? githubIssueData = await GithubIssues.GetGithubIssues(httpClient, repositoryUrl);
       if (githubIssueData != null)
       {
         Console.WriteLine(githubIssueData.ToString());
         Console.WriteLine($"Open PRs: {githubData.OpenIssuesCount - githubIssueData.TotalCount}");
       }
-    }
-    else if(package.Metadata.ProjectUrl?.ToLower().Contains("github.com") ?? false)
-    {
-      var githubApiUrl = GithubPackage.GetGithubApiUrl(package.Metadata.ProjectUrl);
-
-      Console.WriteLine(githubApiUrl);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-      var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
-      if (githubData != null)
+      else
       {
-        Console.WriteLine(githubData.ToString());
-      }
-      var githubIssuesUrl = githubApiUrl.Replace("repos/", "search/issues?q=repo:") + "+type:issue+state:open&per_page=1";
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-      GithubIssues githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
-      if (githubIssueData != null)
-      {
-        Console.WriteLine(githubIssueData.ToString());
-        Console.WriteLine($"Open PRs: {githubData.OpenIssuesCount - githubIssueData.TotalCount}\n");
-      }
-    }
-    
-
-    var nugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(NugetDownloadCount.GetNugetDownloadCountUrl(packageName, packageVersion));
-
-    Console.WriteLine(nugetDownloadCount.ToString(packageVersion));
-
-    var osvJSONPost = $"{{\"version\": \"{packageVersion}\", \"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
-
-    Console.WriteLine(osvJSONPost);
-
-    var content = new StringContent(osvJSONPost, System.Text.Encoding.UTF8, "application/json");
-    var response = await httpClient.PostAsync("https://api.osv.dev/v1/query", content);
-    if (response.StatusCode == HttpStatusCode.OK)
-    {
-      var responseStream = await response.Content.ReadAsStreamAsync();
-      var osvData = await JsonSerializer.DeserializeAsync<OSVData>(responseStream);
-      if (osvData != null)
-      {
-        try
-        {
-          Console.WriteLine(osvData.ToString());
-        }
-        catch (Exception e)
-        {
-          Console.WriteLine(e);
-        }
-
+        Console.WriteLine($"Error: Github issues data not found for {packageName} with version {packageVersion}!");
       }
     }
     else
     {
-      string errorResponse = await response.Content.ReadAsStringAsync();
-      Console.WriteLine($"An error occurred. Status code: {response.StatusCode}. Error message: {errorResponse}");
+      Console.WriteLine($"Error: No GitHub repository found for {packageName} with version {packageVersion}!");
     }
+
+    NugetDownloadCount? nugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(httpClient, packageName, packageVersion);
+
+    if (nugetDownloadCount != null)
+    {
+      Console.WriteLine(nugetDownloadCount.ToString(packageVersion));
+    }
+    else
+    {
+      Console.WriteLine($"Error: NuGet download count not found for {packageName} with version {packageVersion}!");
+    }
+
+    OSVData? osvData = await OSVData.GetOSVData(httpClient, packageName, packageVersion);
     
-    
+    if (osvData != null)
+    {
+      Console.WriteLine(osvData.ToString());
+    }
+    else
+    {
+      Console.WriteLine($"Error: OSV data not found for {packageName} with version {packageVersion}!");
+    }
 
     Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
 

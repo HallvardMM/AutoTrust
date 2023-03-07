@@ -26,7 +26,7 @@ namespace AutoTrust
       return ($"https://api.nuget.org/v3/registration5-semver1/{packageName.ToLower()}/{packageVersion.ToLower()}.json");
     }
 
-    public async static Task<NugetPackage> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion)
+    public async static Task<NugetPackage?> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion)
     {
       try
       {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http.Json;
 
 namespace AutoTrust
 {
@@ -53,6 +54,28 @@ namespace AutoTrust
     public Deprecation? Deprecation { get; set; }
     public string? Language { get; set; }
     public string? Summary { get; set; }
+
+
+    public async static Task<NugetCatalogEntry?> GetNugetCatalogEntry(HttpClient httpClient, string catalogEntryUrl)
+    {
+      try
+      {
+        // Fetch package data
+        NugetCatalogEntry? nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(catalogEntryUrl);
+        return nugetCatalogEntry;
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (JsonException ex)
+      {
+        // Handle any exceptions thrown during JSON deserialization.
+        Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      }
+      return null;
+    }
 
     public override string ToString()
     {

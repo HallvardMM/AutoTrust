@@ -55,8 +55,6 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
       packageVersion = stableVersion;
     }
 
-
-
     // Fetch package data
     var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
           (NugetPackage.GetNugetPackageUrl(packageName,packageVersion));
@@ -197,7 +195,7 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
         dotnetProcess.StartInfo.CreateNoWindow = true;
         dotnetProcess.StartInfo.RedirectStandardInput = true;
         dotnetProcess.StartInfo.RedirectStandardOutput = true;
-        dotnetProcess.StartInfo.FileName = "dotnet.exe";
+        dotnetProcess.StartInfo.FileName = "dotnet";
 
         if (packageVersion == "latest")
         {
@@ -233,7 +231,7 @@ else
       dotnetProcess.StartInfo.CreateNoWindow = true;
       dotnetProcess.StartInfo.RedirectStandardInput = true;
       dotnetProcess.StartInfo.RedirectStandardOutput = true;
-      dotnetProcess.StartInfo.FileName = "dotnet.exe";
+      dotnetProcess.StartInfo.FileName = "dotnet";
       dotnetProcess.StartInfo.Arguments = string.Join(" ", query.ToArray());
       //TODO: Remove only for debug
       Console.WriteLine("This is ran: " + dotnetProcess.StartInfo.FileName + " " + dotnetProcess.StartInfo.Arguments);

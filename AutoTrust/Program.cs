@@ -55,10 +55,8 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
       packageVersion = stableVersion;
     }
 
-    // Fetch package data
-    var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
-          (NugetPackage.GetNugetPackageUrl(packageName,packageVersion));
-
+    NugetPackage? nugetPackage = await NugetPackage.GetNugetPackage(httpClient, packageName, packageVersion);
+    
     if (nugetPackage != null)
     {
       Console.WriteLine(nugetPackage.ToString());

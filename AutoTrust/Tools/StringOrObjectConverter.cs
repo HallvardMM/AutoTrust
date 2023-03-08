@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 public class StringOrObjectConverter<T> : JsonConverter<T>
 {
-  public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+  public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
   {
     using JsonDocument document = JsonDocument.ParseValue(ref reader);
 

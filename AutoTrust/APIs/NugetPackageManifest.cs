@@ -20,7 +20,7 @@ namespace AutoTrust
 
         // Deserialize the XML file into a NuGetPackage object
         XmlSerializer serializer = new XmlSerializer(typeof(NugetPackageManifest));
-        NugetPackageManifest packageManifest = (NugetPackageManifest)serializer.Deserialize(stream);
+        NugetPackageManifest? packageManifest = (NugetPackageManifest?)serializer.Deserialize(stream);
         return packageManifest;
       }
       catch (HttpRequestException ex)

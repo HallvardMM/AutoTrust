@@ -1,16 +1,7 @@
 ﻿using AutoTrust;
-using System;
-using System.IO;
-using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Xml.Serialization;
-
 
 string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
 string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
-
-bool VERBOSE = false;
 
 var httpClient = new HttpClient();
 
@@ -18,20 +9,21 @@ var httpClient = new HttpClient();
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
 
-
 var query = args.AsQueryable();
 
 if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "package")
 {
   // Fetch metadata about the package from the NuGet API, GitHub API, and security databases
   var packageName = query.ElementAtOrDefault(2);
+  if (packageName is null) {
+    Console.WriteLine("Error: Package name not provided!");
+    return;
+  }
 
+  // Version handling
+  string? packageVersion;
 
-  // Version handeling
-  string packageVersion = null;
-
-
-  if (query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version")
+  if ((query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version"))
   {
     packageVersion = query.ElementAtOrDefault(4);
   }
@@ -48,10 +40,14 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
       return;
     }
   }
+  if (packageVersion is null) {
+    Console.WriteLine("Error: Package version not found!");
+    return;
+  }
 
   NugetPackage? nugetPackage = await NugetPackage.GetNugetPackage(httpClient, packageName, packageVersion);
 
-  if (nugetPackage != null)
+  if (nugetPackage is not null)
   {
     Console.WriteLine(nugetPackage.ToString());
   }
@@ -64,9 +60,9 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
 
   var downloadPackage = false; // This is set to false while working on the project
 
-  if (downloadPackage)
+  if (downloadPackage && nugetPackage is not null)
   {
-    NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
+    await NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
   }
 
 
@@ -99,11 +95,11 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
 
   string repositoryUrl = "";
 
-  if (packageManifest.Metadata.Repository?.Url?.ToLower().Contains("github.com") ?? false)
+  if (packageManifest?.Metadata.Repository?.Url?.ToLower().Contains("github.com") ?? false)
   {
     repositoryUrl = packageManifest.Metadata.Repository.Url;
   }
-  else if (packageManifest.Metadata.ProjectUrl?.ToLower().Contains("github.com") ?? false)
+  else if (packageManifest?.Metadata.ProjectUrl?.ToLower().Contains("github.com") ?? false)
   {
     repositoryUrl = packageManifest.Metadata.ProjectUrl;
   }
@@ -124,7 +120,7 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
     if (githubIssueData != null)
     {
       Console.WriteLine(githubIssueData.ToString());
-      Console.WriteLine($"Open PRs: {githubData.OpenIssuesCount - githubIssueData.TotalCount}");
+      Console.WriteLine($"Open PRs: {githubData?.OpenIssuesCount - githubIssueData.TotalCount}");
     }
     else
     {

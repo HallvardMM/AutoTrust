@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Net.Http.Json;
-
 
 namespace AutoTrust
 {
   public class NugetPackageVersion
   {
-    public List<string>? Versions { get; set; }
+    public List<string> Versions { get; set; } = new List<string>();
 
     public static string GetVersionsUrl(string packageName)
     {
@@ -22,10 +18,11 @@ namespace AutoTrust
       {
 
         // Fetch all versions data
-        var allVersionsForPackageObject = await httpClient.GetFromJsonAsync<NugetPackageVersion>
+        NugetPackageVersion? allVersionsForPackageObject = await httpClient.GetFromJsonAsync<NugetPackageVersion>
           (NugetPackageVersion.GetVersionsUrl(packageName));
-        string? stableVersion = FilterLatestStableVersion(allVersionsForPackageObject?.Versions);
-        return stableVersion;
+        if (allVersionsForPackageObject?.Versions != null) {
+          return FilterLatestStableVersion(allVersionsForPackageObject.Versions);
+        }
       }
       catch (HttpRequestException ex)
       {
@@ -49,7 +46,7 @@ namespace AutoTrust
           return versions[i];
         }
       }
-      return null;
+      return null; // TODO: Should maybe return an error?
     }
 
     public override string ToString()

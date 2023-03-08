@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Net.Http.Json;
@@ -33,7 +30,7 @@ namespace AutoTrust
         // Fetch package data
         var githubIssuesUrl = GetGithubIssuesUrl(repositoryUrl);
         httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-        GithubIssues githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
+        GithubIssues? githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
         return githubIssueData;
       }
       catch (HttpRequestException ex)

@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
+// Nuget Search JSON properties description:
+// https://learn.microsoft.com/en-us/nuget/api/search-query-service-resource
 
 namespace AutoTrust
 {
   public class NugetDownloadCount
   {
-    public int? TotalHits { get; set; }
-    public List<NugetDownloadCountItem>? Data { get; set; }
+    public required int TotalHits { get; set; }
+    public required List<NugetDownloadCountItem> Data { get; set; } = new List<NugetDownloadCountItem>();
 
     public static string GetNugetDownloadCountUrl(string packageName, string packageVersion)
     {
@@ -21,7 +19,7 @@ namespace AutoTrust
     {
       if (TotalHits == 1)
       {
-        return Data[0]?.ToString(packageVersion);
+        return Data[0].ToString(packageVersion);
       }
       else
       {
@@ -33,28 +31,28 @@ namespace AutoTrust
   public class NugetDownloadCountItem
   {
     [JsonPropertyName("@id")]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
     [JsonPropertyName("@type")]
-    public string? Type { get; set; }
-    public string? Registration { get; set; }
+    public string Type { get; set; } = string.Empty;
+    public string Registration { get; set; } = string.Empty;
     [JsonPropertyName("Id")]
-    public string? PackageName { get; set; }
-    public string? Version { get; set; }
-    public string? Description { get; set; }
-    public string? Summary { get; set; }
-    public string? Title { get; set; }
-    public string? IconUrl { get; set; }
-    public string? LicenseUrl { get; set; }
-    public string? ProjectUrl { get; set; }
-    public List<string>? Tags { get; set; }
+    public required string PackageName { get; set; }
+    public required string Version { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public string Summary { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string IconUrl { get; set; } = string.Empty;
+    public string LicenseUrl { get; set; } = string.Empty;
+    public string ProjectUrl { get; set; } = string.Empty;
+    public List<string> Tags { get; set; } = new List<string>();
     [JsonPropertyName("authors")]
     [JsonConverter(typeof(SingleOrArrayConverter<string>))]
-    public List<string>? Authors { get; set; }
-    public List<string>? Owners { get; set; }
-    public long? TotalDownloads { get; set; }
-    public bool? Verified { get; set; }
-    public List<NugetDownloadCountPackageType>? PackageTypes { get; set; }
-    public List<NugetDownloadCountVersion>? Versions { get; set; }
+    public List<string> Authors { get; set; } = new List<string>();
+    public List<string> Owners { get; set; } = new List<string>();
+    public long TotalDownloads { get; set; }
+    public bool Verified { get; set; }
+    public required List<NugetDownloadCountPackageType> PackageTypes { get; set; }
+    public required List<NugetDownloadCountVersion> Versions { get; set; }
 
     public string ToString(string packageVersion)
     {
@@ -86,15 +84,15 @@ namespace AutoTrust
 
   public class NugetDownloadCountPackageType
   {
-    public string? Name { get; set; }
+    public required string Name { get; set; }
   }
 
   public class NugetDownloadCountVersion
   {
-    public string? Version { get; set; }
-    public long? Downloads { get; set; }
+    public required string Version { get; set; }
+    public required long Downloads { get; set; }
     [JsonPropertyName("@id")]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
   }
 
 }

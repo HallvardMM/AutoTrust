@@ -1,58 +1,56 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Serialization;
+
+// JSON object properties description of Catalog leaf:
+// https://learn.microsoft.com/en-us/nuget/api/catalog-resource#catalog-leaf
 
 namespace AutoTrust
 {
   public class NugetCatalogEntry
   {
-    // https://learn.microsoft.com/en-us/nuget/api/catalog-resource#catalog-leaf
     [JsonPropertyName("@id")]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
     [JsonConverter(typeof(SingleOrArrayConverter<string>))]
     [JsonPropertyName("@type")]
-    public List<string>? Type { get; set; }
+    public required List<string> Type { get; set; }
     [JsonPropertyName("id")]
-    public string PackageName { get; set; }
-    public string Version { get; set; }
+    public required string PackageName { get; set; }
+    public required string Version { get; set; }
     [JsonPropertyName("authors")]
     [JsonConverter(typeof(SingleOrArrayConverter<string>))]
-    public List<string>? Authors { get; set; } 
+    public List<string> Authors { get; set; } = new List<string>();
     [JsonPropertyName("catalog:commitId")]
-    public string? CommitId { get; set; }
+    public required string CommitId { get; set; }
     [JsonPropertyName("catalog:commitTimeStamp")]
-    public DateTimeOffset? CommitTimeStamp { get; set; }
-    public string? Copyright { get; set; }
-    public DateTimeOffset? Created { get; set; }
-    public string? Description { get; set; }
-    public string? IconFile { get; set; }
-    public string? IconUrl { get; set; }
-    public bool? IsPrerelease { get; set; }
-    public DateTimeOffset? LastEdited { get; set; }
-    public string? LicenseExpression { get; set; }
-    public string? LicenseUrl { get; set; }
-    public bool? Listed { get; set; }
-    public string? MinClientVersion { get; set; }
-    public string? PackageHash { get; set; }
-    public string? PackageHashAlgorithm { get; set; }
-    public int? PackageSize { get; set; }
-    public string? ProjectUrl { get; set; }
-    public DateTimeOffset? Published { get; set; }
-    public string? Repository { get; set; }
-    public bool? RequireLicenseAcceptance { get; set; }
-    public string? Title { get; set; }
-    public string? VerbatimVersion { get; set; }
+    public required DateTimeOffset CommitTimeStamp { get; set; }
+    public string Copyright { get; set; } = string.Empty;
+    public DateTimeOffset Created { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public string IconFile { get; set; } = string.Empty;
+    public string IconUrl { get; set; } = string.Empty;
+    public bool IsPrerelease { get; set; }
+    public DateTimeOffset LastEdited { get; set; }
+    public string LicenseExpression { get; set; } = string.Empty;
+    public string LicenseUrl { get; set; } = string.Empty;
+    public bool Listed { get; set; }
+    public string MinClientVersion { get; set; } = string.Empty;
+    public string PackageHash { get; set; } = string.Empty;
+    public string PackageHashAlgorithm { get; set; } = string.Empty;
+    public int PackageSize { get; set; }
+    public string ProjectUrl { get; set; } = string.Empty;
+    public required DateTimeOffset Published { get; set; }
+    public string Repository { get; set; } = string.Empty;
+    public bool RequireLicenseAcceptance { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string VerbatimVersion { get; set; } = string.Empty;
     public List<PackageDependencyGroup>? DependencyGroups { get; set; }
     public List<PackageEntries>? PackageEntries { get; set; }
     [JsonPropertyName("tags")]
     [JsonConverter(typeof(SingleOrArrayConverter<string>))]
-    public List<string>? Tags { get; set; }
+    public List<string> Tags { get; set; } = new List<string>();
     public List<Vulnerabilities>? Vulnerabilities { get; set; }
     public Deprecation? Deprecation { get; set; }
-    public string? Language { get; set; }
-    public string? Summary { get; set; }
+    public string Language { get; set; } = string.Empty;
+    public string Summary { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -122,14 +120,14 @@ namespace AutoTrust
   public class PackageDependencyGroup
   {
     [JsonPropertyName("@id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     [JsonPropertyName("@type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
 
-    public List<PackageDependency> Dependencies { get; set; }
+    public List<PackageDependency> Dependencies { get; set; } = new List<PackageDependency>();
 
-    public string TargetFramework { get; set; }
+    public string TargetFramework { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -149,15 +147,15 @@ namespace AutoTrust
   public class PackageDependency
   {
     [JsonPropertyName("@id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     [JsonPropertyName("@type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
 
     [JsonPropertyName("id")]
-    public string PackageName { get; set; }
+    public string PackageName { get; set; } = string.Empty;
 
-    public string Range { get; set; }
+    public string Range { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -168,18 +166,18 @@ namespace AutoTrust
   public class PackageEntries
   {
     [JsonPropertyName("@id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     [JsonPropertyName("@type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
 
     public int CompressedLength { get; set; }
 
-    public string FullName { get; set; }
+    public string FullName { get; set; } = string.Empty;
 
     public int Length { get; set; }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     // Write toString
     public override string ToString()
@@ -195,14 +193,14 @@ namespace AutoTrust
   public class Vulnerabilities
   {
     [JsonPropertyName("@id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     [JsonPropertyName("@type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
 
-    public string AdvisoryUrl { get; set; }
+    public required string AdvisoryUrl { get; set; }
 
-    public string Severity { get; set; }
+    public required string Severity { get; set; }
 
     public override string ToString()
     {
@@ -215,17 +213,17 @@ namespace AutoTrust
   public class Deprecation
   {
     [JsonPropertyName("@id")]
-    public string Id { get; set; }
-    public string? Message { get; set; }
-    public List<string> Reasons { get; set; }
-    public AlternatePackage AlternatePackage { get; set; }
+    public required string Id { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public required List<string> Reasons { get; set; }
+    public AlternatePackage? AlternatePackage { get; set; }
     
     public override string ToString()
     {
       string returnString = $"Message: {Message}, Reasons: [{string.Join(", ", Reasons)}]";
       if(AlternatePackage != null)
       {
-        returnString += $", AlternatePackage: [{ AlternatePackage?.ToString()}]\n";
+        returnString += $", AlternatePackage: [{ AlternatePackage.ToString()}]\n";
       }
       return returnString;
     }
@@ -234,12 +232,12 @@ namespace AutoTrust
   public class AlternatePackage
   {
     [JsonPropertyName("@id")]
-    public string Id { get; set; }
+    public required string Id { get; set; }
     [JsonPropertyName("id")]
-    public string AlternatePackageName { get; set; }
+    public required string AlternatePackageName { get; set; }
     [JsonPropertyName("range")]
     [JsonConverter(typeof(StringOrObjectConverter<string>))]
-    public string? Range { get; set; } //TODO: Can be an object or "*" this needs more testing
+    public string Range { get; set; } = string.Empty; //TODO: Can be an object or "*" this needs more testing
     public override string ToString()
     {
       return $"Name: {AlternatePackageName}, Range: {Range}";

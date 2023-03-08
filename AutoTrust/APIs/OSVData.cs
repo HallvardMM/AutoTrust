@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.ComponentModel;
+
+// API docs: https://osv.dev/docs/#tag/api/operation/OSV_QueryAffectedBatch
+// Info about properties details and format: https://ossf.github.io/osv-schema/
 
 namespace AutoTrust
 {
   public class OSVData
   {
     [JsonPropertyName("vulns")]
-    public List<OSVVulnerabilities> Vulns { get; set; }
+    public List<OSVVulnerabilities>? Vulns { get; set; }
  
     public override string ToString()
     {
@@ -30,25 +28,23 @@ namespace AutoTrust
   public class OSVVulnerabilities
   {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public required string Id { get; set; }
     [JsonPropertyName("summary")]
-    public string Summary { get; set; }
+    public required string Summary { get; set; }
     [JsonPropertyName("details")]
-    public string Details { get; set; }
+    public required string Details { get; set; } 
     [JsonPropertyName("modified")]
-    public string Modified { get; set; }
+    public string Modified { get; set; } = string.Empty;
     [JsonPropertyName("published")]
-    public string Published { get; set; }
-    [JsonPropertyName("database_specific")]
-    public DatabaseSpecific DatabaseSpecific { get; set; }
+    public string Published { get; set; } = string.Empty;
     [JsonPropertyName("references")]
-    public List<Reference> References { get; set; }
+    public List<Reference> References { get; set; } = new List<Reference>();
     [JsonPropertyName("affected")]
-    public List<Affected> Affected { get; set; }
+    public required List<Affected> Affected { get; set; }
     [JsonPropertyName("schema_version")]
-    public string SchemaVersion { get; set; }
+    public string SchemaVersion { get; set; } = string.Empty;
     [JsonPropertyName("severity")]
-    public List<Severity> Severity { get; set; }
+    public List<Severity> Severity { get; set; }= new List<Severity>();
 
     public override string ToString()
     {
@@ -66,37 +62,17 @@ namespace AutoTrust
         $"Summary: {Summary}\n" +
         $"Details: {Details}\n" +
         $"Published: {Published}\n" +
-         DatabaseSpecific.ToString() +
         $"Refrences: \n{stringReferences}" +
         $"Affected: \n{affectedReferences}";
-    }
-  }
-
-  public class DatabaseSpecific
-  {
-    [JsonPropertyName("cwe_ids")]
-    public List<string> CweIds { get; set; }
-    [JsonPropertyName("severity")]
-    public string Severity { get; set; }
-    [JsonPropertyName("github_reviewed")]
-    public bool GithubReviewed { get; set; }
-    [JsonPropertyName("github_reviewed_at")]
-    public DateTimeOffset GithubReviewedAt { get; set; }
-    [JsonPropertyName("nvd_published_at")]
-    public DateTimeOffset? NvdPublishedAt { get; set; }
-
-    public override string ToString()
-    {
-      return $"CWE IDs: [{string.Join(", ", CweIds)}] Severity: {Severity} \n";
     }
   }
 
   public class Reference
   {
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
     [JsonPropertyName("url")]
-    public string Url { get; set; }
+    public string Url { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -107,9 +83,9 @@ namespace AutoTrust
   public class Severity
   {
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
     [JsonPropertyName("score")]
-    public string Score { get; set; }
+    public string Score { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -120,13 +96,11 @@ namespace AutoTrust
   public class Affected
   {
     [JsonPropertyName("package")]
-    public OSVPackage Package { get; set; }
+    public required OSVPackage Package { get; set; }
     [JsonPropertyName("ranges")]
-    public List<Range> Ranges { get; set; }
+    public List<Range> Ranges { get; set; } = new List<Range>();
     [JsonPropertyName("versions")]
-    public List<string> Versions { get; set; }
-    [JsonPropertyName("database_specific")]
-    public OSVSource Source { get; set; }
+    public List<string> Versions { get; set; } = new List<string>();
 
     public override string ToString()
     {
@@ -135,7 +109,6 @@ namespace AutoTrust
       {
         returnString += range.ToString();
       }
-      returnString += Source.ToString();
       return returnString;
     }
   }
@@ -143,11 +116,11 @@ namespace AutoTrust
   public class OSVPackage
   {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     [JsonPropertyName("ecosystem")]
-    public string Ecosystem { get; set; }
+    public string Ecosystem { get; set; } = string.Empty;
     [JsonPropertyName("purl")]
-    public string Purl { get; set; }
+    public string Purl { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -159,7 +132,7 @@ namespace AutoTrust
   public class OSVSource
   {
     [JsonPropertyName("source")]
-    public string Source { get; set; }
+    public string Source { get; set; } = string.Empty;
     public override string ToString()
     {
       return $"Source: {Source}\n";
@@ -169,21 +142,32 @@ namespace AutoTrust
   public class Range
   {
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
     [JsonPropertyName("events")]
-    public List<Dictionary<string, string>> Events { get; set; }
+    public List<Event> Events { get; set; }  = new List<Event>();
 
     public override string ToString()
     {
       string returnString = $"- Type: {Type}\n";
-      foreach (Dictionary<string, string> dict in Events)
+      foreach (Event e in Events)
       {
-        foreach (KeyValuePair<string, string> pair in dict)
-        {
-          returnString += $"- {pair.Key}: {pair.Value}\n";
-        }
+        returnString += $"- Event: {e.ToString()}\n";
       }
       return returnString;
+    }
+  }
+
+  public class Event {
+    [JsonPropertyName("introduced")]
+    public string Introduced { get; set; } = string.Empty;
+    [JsonPropertyName("fixed")]
+    public string Fixed { get; set; } = string.Empty;
+    [JsonPropertyName("limit")]
+    public string Limit { get; set; } = string.Empty;
+    
+    public override string ToString()
+    {
+      return $"Introduced: {Introduced} Fixed: {Fixed} Limit: {Limit}\n";
     }
   }
 }

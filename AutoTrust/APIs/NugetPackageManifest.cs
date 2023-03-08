@@ -1,16 +1,14 @@
-using System;
 using System.Xml.Serialization;
-using System.Collections.Generic;
 
-//TODO: Evaluate which fields are valuable and needed
-
+//TODO: Evaluate which properties are valuable and needed
+// Documentation for required properties: https://learn.microsoft.com/en-us/nuget/reference/nuspec
 namespace AutoTrust
 {
   [XmlRoot(ElementName = "package", Namespace = "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd")]
   public class NugetPackageManifest
   {
     [XmlElement(ElementName = "metadata")]
-    public Metadata Metadata { get; set; }
+    public required Metadata Metadata { get; set; }
 
     public static string GetNugetPackageManifestUrl(string packageName, string packageVersion)
     {
@@ -27,37 +25,37 @@ namespace AutoTrust
     public class Metadata
   {
     [XmlElement(ElementName = "id")]
-    public string Id { get; set; }
+    public required string Id { get; set; }
     [XmlElement(ElementName = "version")]
-    public string Version { get; set; }
+    public required string Version { get; set; } 
     [XmlElement(ElementName = "title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
     [XmlElement(ElementName = "authors")]
-    public string Authors { get; set; }
+    public required string Authors { get; set; }
     [XmlElement(ElementName = "license")]
-    public License License { get; set; }
+    public License? License { get; set; }
     [XmlElement(ElementName = "licenseUrl")]
-    public string LicenseUrl { get; set; }
+    public string LicenseUrl { get; set; } = string.Empty;
     [XmlElement(ElementName = "icon")]
-    public string Icon { get; set; }
+    public string Icon { get; set; } = string.Empty;
     [XmlElement(ElementName = "readme")]
-    public string Readme { get; set; }
+    public string Readme { get; set; } = string.Empty;
     [XmlElement(ElementName = "projectUrl")]
-    public string ProjectUrl { get; set; }
+    public string ProjectUrl { get; set; } = string.Empty;
     [XmlElement(ElementName = "iconUrl")]
-    public string IconUrl { get; set; }
+    public string IconUrl { get; set; } = string.Empty;
     [XmlElement(ElementName = "description")]
-    public string Description { get; set; }
+    public required string Description { get; set; } 
     [XmlElement(ElementName = "copyright")]
-    public string Copyright { get; set; }
+    public string Copyright { get; set; } = string.Empty;
     [XmlElement(ElementName = "tags")]
-    public string Tags { get; set; }
+    public string Tags { get; set; } = string.Empty;
     [XmlElement(ElementName = "repository")]
-    public Repository Repository { get; set; }
+    public Repository? Repository { get; set; }
     [XmlElement(ElementName = "dependencies")]
-    public Dependencies Dependencies { get; set; }
+    public Dependencies? Dependencies { get; set; }
     [XmlAttribute(AttributeName = "minClientVersion")]
-    public string MinClientVersion { get; set; }
+    public string MinClientVersion { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -85,12 +83,14 @@ namespace AutoTrust
           returnString += $"Package Commit: {Repository.Url}/commit/{Repository.Commit}\n";
         }
       }
-      foreach (var group in Dependencies.Group)
-      {
-        returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";
-        foreach (var dependency in group.Dependency)
+      if (Dependencies != null) {
+        foreach (var group in Dependencies.Group)
         {
-          returnString += $"Dependency: {dependency.Id}, Version: {dependency.Version}, Exclude: {dependency.Exclude}\n";
+          returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";
+          foreach (var dependency in group.Dependency)
+          {
+            returnString += $"Dependency: {dependency.Id}, Version: {dependency.Version}, Exclude: {dependency.Exclude}\n";
+          }
         }
       }
       return returnString;
@@ -100,43 +100,46 @@ namespace AutoTrust
   public class License
   {
     [XmlAttribute(AttributeName = "type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
     [XmlText]
-    public string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
   }
 
   public class Repository
   {
     [XmlAttribute(AttributeName = "type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
     [XmlAttribute(AttributeName = "url")]
-    public string Url { get; set; }
+    public string Url { get; set; } = string.Empty;
+    [XmlAttribute(AttributeName = "branch")]
+    public string Branch { get; set; } = string.Empty;
     [XmlAttribute(AttributeName = "commit")]
-    public string Commit { get; set; }
+    public string Commit { get; set; } = string.Empty;
   }
 
-  public class Dependencies
+  public class Dependencies 
   {
+    //TODO: Dependencies don't have to be in a group, so we need to add support for that as well
     [XmlElement(ElementName = "group")]
-    public List<Group> Group { get; set; }
+    public List<Group> Group { get; set; } = new List<Group>();
   }
 
   public class Group
   {
     [XmlAttribute(AttributeName = "targetFramework")]
-    public string TargetFramework { get; set; }
+    public string TargetFramework { get; set; } = string.Empty;
     [XmlElement(ElementName = "dependency")]
-    public List<Dependency> Dependency { get; set; }
+    public List<Dependency> Dependency { get; set; }  = new List<Dependency>();
   }
 
   public class Dependency
   {
     [XmlAttribute(AttributeName = "id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     [XmlAttribute(AttributeName = "version")]
-    public string Version { get; set; }
+    public string Version { get; set; } = string.Empty;
     [XmlAttribute(AttributeName = "exclude")]
-    public string Exclude { get; set; }
+    public string Exclude { get; set; } = string.Empty;
   }
 
 }

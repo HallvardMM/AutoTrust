@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http.Json;
 
 // REST API Documentation for "Get a repository": 
 // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-a-repository
@@ -172,6 +174,29 @@ namespace AutoTrust
         $"Pushed at: {PushedAt.ToString()}\n" +
         $"Homepage: {Homepage}\n" +
         $"Size: {Size}\n";
+    }
+
+    public async static Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string repositoryUrl)
+    {
+      try
+      {
+        // Fetch package data
+        var githubApiUrl = GithubPackage.GetGithubApiUrl(repositoryUrl);
+        httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+        var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+        return githubData;
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (JsonException ex)
+      {
+        // Handle any exceptions thrown during JSON deserialization.
+        Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      }
+      return null;
     }
 
     public static string GetGithubApiUrl(string RepositoryUrl)

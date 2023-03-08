@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http.Json;
 
 // JSON object properties description of Catalog leaf:
 // https://learn.microsoft.com/en-us/nuget/api/catalog-resource#catalog-leaf
@@ -51,6 +53,28 @@ namespace AutoTrust
     public Deprecation? Deprecation { get; set; }
     public string Language { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;
+
+
+    public async static Task<NugetCatalogEntry?> GetNugetCatalogEntry(HttpClient httpClient, string catalogEntryUrl)
+    {
+      try
+      {
+        // Fetch package data
+        NugetCatalogEntry? nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(catalogEntryUrl);
+        return nugetCatalogEntry;
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (JsonException ex)
+      {
+        // Handle any exceptions thrown during JSON deserialization.
+        Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      }
+      return null;
+    }
 
     public override string ToString()
     {

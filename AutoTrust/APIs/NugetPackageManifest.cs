@@ -1,7 +1,9 @@
+using System.Xml;
 using System.Xml.Serialization;
 
 //TODO: Evaluate which properties are valuable and needed
 // Documentation for required properties: https://learn.microsoft.com/en-us/nuget/reference/nuspec
+
 namespace AutoTrust
 {
   [XmlRoot(ElementName = "package", Namespace = "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd")]
@@ -9,6 +11,30 @@ namespace AutoTrust
   {
     [XmlElement(ElementName = "metadata")]
     public required Metadata Metadata { get; set; }
+
+    public async static Task<NugetPackageManifest?> GetNugetPackageManifest(HttpClient httpClient, string packageName, string packageVersion)
+    {
+      try
+      {
+        Stream stream = await httpClient.GetStreamAsync(NugetPackageManifest.GetNugetPackageManifestUrl(packageName, packageVersion));
+
+        // Deserialize the XML file into a NuGetPackage object
+        XmlSerializer serializer = new XmlSerializer(typeof(NugetPackageManifest));
+        NugetPackageManifest packageManifest = (NugetPackageManifest)serializer.Deserialize(stream);
+        return packageManifest;
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (InvalidOperationException ex)
+      {
+        // Handle any exceptions thrown during XML deserialization.
+        Console.WriteLine($"An XML error occurred: {ex.Message}");
+      }
+      return null;
+    }
 
     public static string GetNugetPackageManifestUrl(string packageName, string packageVersion)
     {

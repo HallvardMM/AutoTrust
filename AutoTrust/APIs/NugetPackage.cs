@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http.Json;
 
 
 namespace AutoTrust
@@ -19,6 +21,28 @@ namespace AutoTrust
     public static string GetNugetPackageUrl(string packageName, string packageVersion)
     {
       return ($"https://api.nuget.org/v3/registration5-semver1/{packageName.ToLower()}/{packageVersion.ToLower()}.json");
+    }
+
+    public async static Task<NugetPackage?> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion)
+    {
+      try
+      {
+        // Fetch package data
+        var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
+            (GetNugetPackageUrl(packageName, packageVersion));
+        return nugetPackage;
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (JsonException ex)
+      {
+        // Handle any exceptions thrown during JSON deserialization.
+        Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      }
+      return null;
     }
 
     public override string ToString()

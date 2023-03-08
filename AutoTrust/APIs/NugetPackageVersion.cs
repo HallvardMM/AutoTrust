@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Net.Http.Json;
+
 namespace AutoTrust
 {
   public class NugetPackageVersion
@@ -9,7 +12,32 @@ namespace AutoTrust
      return ($"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower()}/index.json");
     }
 
-    public static string? GetLatestStableVersion(List<string> versions)
+    public async static Task<string?> GetLatestStableVersion(HttpClient httpClient, string packageName)
+    {
+      try
+      {
+
+        // Fetch all versions data
+        NugetPackageVersion? allVersionsForPackageObject = await httpClient.GetFromJsonAsync<NugetPackageVersion>
+          (NugetPackageVersion.GetVersionsUrl(packageName));
+        if (allVersionsForPackageObject?.Versions != null) {
+          return FilterLatestStableVersion(allVersionsForPackageObject.Versions);
+        }
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (JsonException ex)
+      {
+        // Handle any exceptions thrown during JSON deserialization.
+        Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      }
+      return null;
+    }
+
+    public static string? FilterLatestStableVersion(List<string> versions)
     {
       for (int i = versions.Count - 1; i >= 0; i--)
       {

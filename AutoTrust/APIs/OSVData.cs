@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net;
 
 // API docs: https://osv.dev/docs/#tag/api/operation/OSV_QueryAffectedBatch
 // Info about properties details and format: https://ossf.github.io/osv-schema/
@@ -23,6 +25,42 @@ namespace AutoTrust
       }
       return returnString;
     }
+
+    public async static Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, string packageVersion)
+    {
+      try
+      {
+        // Fetch package data
+        var osvJSONPost = 
+          $"{{\"version\": \"{packageVersion}\", \"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
+
+        var content = new StringContent(osvJSONPost, System.Text.Encoding.UTF8, "application/json");
+        var response = await httpClient.PostAsync("https://api.osv.dev/v1/query", content);
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+          var responseStream = await response.Content.ReadAsStreamAsync();
+          var osvData = await JsonSerializer.DeserializeAsync<OSVData>(responseStream);
+          return osvData;
+        }
+        else
+        {
+          string errorResponse = await response.Content.ReadAsStringAsync();
+          Console.WriteLine($"An error occurred. Status code: {response.StatusCode}. Error message: {errorResponse}");
+        }
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (JsonException ex)
+      {
+        // Handle any exceptions thrown during JSON deserialization.
+        Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      }
+      return null;
+    }
+
   }
 
   public class OSVVulnerabilities

@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http.Json;
 
 // Nuget Search JSON properties description:
 // https://learn.microsoft.com/en-us/nuget/api/search-query-service-resource
@@ -13,6 +15,27 @@ namespace AutoTrust
     public static string GetNugetDownloadCountUrl(string packageName, string packageVersion)
     {
       return ($"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLower()}");
+    }
+
+    public async static Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName, string packageVersion)
+    {
+      try
+      {
+        // Fetch package data
+        var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName, packageVersion));
+        return getNugetDownloadCount;
+      }
+      catch (HttpRequestException ex)
+      {
+        // Handle any exceptions thrown by the HTTP client.
+        Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      }
+      catch (JsonException ex)
+      {
+        // Handle any exceptions thrown during JSON deserialization.
+        Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      }
+      return null;
     }
 
     public string ToString(string packageVersion)

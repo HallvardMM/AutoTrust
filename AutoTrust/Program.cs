@@ -1,16 +1,10 @@
-﻿using AutoTrust;
-using System;
-using System.IO;
-using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Xml.Serialization;
+// CA1852 Type 'Program' can be sealed because it has no subtypes in its containing assembly and is not externally visible
+// Warning related to: https://github.com/dotnet/runtime/issues/78270
+#pragma warning disable CA1852
+using AutoTrust;
 
-
-string[] POSITIVE_RESPONSE = { "y", "yes", "Yes", "YES" };
-string[] NEGATIVE_RESPONSE = { "n", "no", "No", "NO" };
-
-bool VERBOSE = false;
+string[] positive_response = { "y", "yes", "Yes", "YES" };
+string[] negative_response = { "n", "no", "No", "NO" };
 
 var httpClient = new HttpClient();
 
@@ -18,55 +12,62 @@ var httpClient = new HttpClient();
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
 
-
 var query = args.AsQueryable();
 
 if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "package")
 {
   // Fetch metadata about the package from the NuGet API, GitHub API, and security databases
   var packageName = query.ElementAtOrDefault(2);
-
-
-  // Version handeling
-  string packageVersion = null;
-
-
-  if (query.ElementAtOrDefault(3) == "-v" || query.ElementAtOrDefault(3) == "--version")
+  if (packageName is null)
   {
-    packageVersion = query.ElementAtOrDefault(4);
+	Console.WriteLine("Error: Package name not provided!");
+	return;
+  }
+
+  // Version handling
+  string? packageVersion;
+
+  if (query.ElementAtOrDefault(3) is "-v" or "--version")
+  {
+	packageVersion = query.ElementAtOrDefault(4);
   }
   else
   {
-    string? latestVersion = await NugetPackageVersion.GetLatestStableVersion(httpClient, packageName);
-    if (latestVersion != null)
-    {
-      packageVersion = latestVersion;
-    }
-    else
-    {
-      Console.WriteLine("Error: Package version not found!");
-      return;
-    }
+	var latestVersion = await NugetPackageVersion.GetLatestStableVersion(httpClient, packageName);
+	if (latestVersion != null)
+	{
+	  packageVersion = latestVersion;
+	}
+	else
+	{
+	  Console.WriteLine("Error: Package version not found!");
+	  return;
+	}
+  }
+  if (packageVersion is null)
+  {
+	Console.WriteLine("Error: Package version not found!");
+	return;
   }
 
-  NugetPackage? nugetPackage = await NugetPackage.GetNugetPackage(httpClient, packageName, packageVersion);
+  var nugetPackage = await NugetPackage.GetNugetPackage(httpClient, packageName, packageVersion);
 
-  if (nugetPackage != null)
+  if (nugetPackage is not null)
   {
-    Console.WriteLine(nugetPackage.ToString());
+	Console.WriteLine(nugetPackage.ToString());
   }
   else
   {
-    Console.WriteLine($"Error: Package {packageName} with version {packageVersion} not found!");
+	Console.WriteLine($"Error: Package {packageName} with version {packageVersion} not found!");
   }
 
   // Download the package to the local machine
 
   var downloadPackage = false; // This is set to false while working on the project
 
-  if (downloadPackage)
+  if (downloadPackage && nugetPackage is not null)
   {
-    NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
+	await NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
   }
 
 
@@ -74,99 +75,99 @@ if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "packa
 
   if (nugetPackage?.CatalogEntry != null)
   {
-    NugetCatalogEntry? nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(httpClient, nugetPackage.CatalogEntry);
-    if (nugetCatalogEntry != null)
-    {
-      Console.WriteLine(nugetCatalogEntry.ToString());
-      packageName = nugetCatalogEntry.PackageName;
-    }
-    else
-    {
-      Console.WriteLine($"Error: Package catalog entry for {packageName} with version {packageVersion} not found!");
-    }
+	var nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(httpClient, nugetPackage.CatalogEntry);
+	if (nugetCatalogEntry != null)
+	{
+	  Console.WriteLine(nugetCatalogEntry.ToString());
+	  packageName = nugetCatalogEntry.PackageName;
+	}
+	else
+	{
+	  Console.WriteLine($"Error: Package catalog entry for {packageName} with version {packageVersion} not found!");
+	}
   }
 
-  NugetPackageManifest? packageManifest = await NugetPackageManifest.GetNugetPackageManifest(httpClient, packageName, packageVersion);
+  var packageManifest = await NugetPackageManifest.GetNugetPackageManifest(httpClient, packageName, packageVersion);
 
   if (packageManifest != null)
   {
-    Console.WriteLine(packageManifest.ToString());
+	Console.WriteLine(packageManifest.ToString());
   }
   else
   {
-    Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
+	Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
   }
 
-  string repositoryUrl = "";
+  var repositoryUrl = "";
 
-  if (packageManifest.Metadata.Repository?.Url?.ToLower().Contains("github.com") ?? false)
+  if (packageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false)
   {
-    repositoryUrl = packageManifest.Metadata.Repository.Url;
+	repositoryUrl = packageManifest.Metadata.Repository.Url;
   }
-  else if (packageManifest.Metadata.ProjectUrl?.ToLower().Contains("github.com") ?? false)
+  else if (packageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false)
   {
-    repositoryUrl = packageManifest.Metadata.ProjectUrl;
+	repositoryUrl = packageManifest.Metadata.ProjectUrl;
   }
 
   if (repositoryUrl != "")
   {
-    GithubPackage? githubData = await GithubPackage.GetGithubPackage(httpClient, repositoryUrl);
-    if (githubData != null)
-    {
-      Console.WriteLine(githubData.ToString());
-    }
-    else
-    {
-      Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
-    }
+	var githubData = await GithubPackage.GetGithubPackage(httpClient, repositoryUrl);
+	if (githubData != null)
+	{
+	  Console.WriteLine(githubData.ToString());
+	}
+	else
+	{
+	  Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
+	}
 
-    GithubIssues? githubIssueData = await GithubIssues.GetGithubIssues(httpClient, repositoryUrl);
-    if (githubIssueData != null)
-    {
-      Console.WriteLine(githubIssueData.ToString());
-      Console.WriteLine($"Open PRs: {githubData.OpenIssuesCount - githubIssueData.TotalCount}");
-    }
-    else
-    {
-      Console.WriteLine($"Error: Github issues data not found for {packageName} with version {packageVersion}!");
-    }
+	var githubIssueData = await GithubIssues.GetGithubIssues(httpClient, repositoryUrl);
+	if (githubIssueData != null)
+	{
+	  Console.WriteLine(githubIssueData.ToString());
+	  Console.WriteLine($"Open PRs: {githubData?.OpenIssuesCount - githubIssueData.TotalCount}");
+	}
+	else
+	{
+	  Console.WriteLine($"Error: Github issues data not found for {packageName} with version {packageVersion}!");
+	}
   }
   else
   {
-    Console.WriteLine($"Error: No GitHub repository found for {packageName} with version {packageVersion}!");
+	Console.WriteLine($"Error: No GitHub repository found for {packageName} with version {packageVersion}!");
   }
 
-  NugetDownloadCount? nugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(httpClient, packageName, packageVersion);
+  var nugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(httpClient, packageName);
 
   if (nugetDownloadCount != null)
   {
-    Console.WriteLine(nugetDownloadCount.ToString(packageVersion));
+	Console.WriteLine(nugetDownloadCount.ToString(packageVersion));
   }
   else
   {
-    Console.WriteLine($"Error: NuGet download count not found for {packageName} with version {packageVersion}!");
+	Console.WriteLine($"Error: NuGet download count not found for {packageName} with version {packageVersion}!");
   }
 
-  OSVData? osvData = await OSVData.GetOSVData(httpClient, packageName, packageVersion);
+  var osvData = await OSVData.GetOSVData(httpClient, packageName, packageVersion);
 
   if (osvData != null)
   {
-    Console.WriteLine(osvData.ToString());
+	Console.WriteLine(osvData.ToString());
   }
   else
   {
-    Console.WriteLine($"Error: OSV data not found for {packageName} with version {packageVersion}!");
+	Console.WriteLine($"Error: OSV data not found for {packageName} with version {packageVersion}!");
   }
 
-  Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower()}/{packageVersion.ToLower()}");
+  Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.CurrentCulture)}");
 
   Console.WriteLine("Do you still want to add this package? (y/n)");
 
   var addPackageQuery = Console.ReadLine()!.Trim();
 
-  if (POSITIVE_RESPONSE.Any(addPackageQuery.Contains))
+  if (positive_response.Any(addPackageQuery.Contains))
   {
-    RunProcess.ProcessExecution("add package " + packageName + " -v " + packageVersion);
+	RunProcess.ProcessExecution("add package " + packageName + " -v " + packageVersion);
   }
 }
 else

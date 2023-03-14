@@ -86,7 +86,7 @@ public class OSVVulnerabilities {
       $"Summary: {this.Summary}\n" +
       $"Details: {this.Details}\n" +
       $"Published: {this.Published}\n" +
-      $"Refrences: \n{stringReferences}" +
+      $"References: \n{stringReferences}" +
       $"Affected: \n{affectedReferences}";
   }
 }

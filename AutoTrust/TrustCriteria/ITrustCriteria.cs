@@ -1,17 +1,17 @@
 namespace AutoTrust;
 
 public enum Status {
-    Pass,
-    Fail,
-    Error,
-  }
-interface ITrustCriteria
-{
-    
-    public abstract string Title { get; }
-    abstract static Status validate(DataHandler dataHandler);
+  Pass,
+  Fail,
+  Error,
+}
 
-    public void displayInConsole(Status status, string text) {
+internal interface ITrustCriteria {
+
+  public abstract string Title { get; }
+  static abstract Status validate(DataHandler dataHandler);
+
+  public void displayInConsole(Status status, string text) {
     switch (status) {
       case Status.Pass:
         PrettyPrint.SuccessPrint(text);
@@ -22,6 +22,8 @@ interface ITrustCriteria
       case Status.Error:
         PrettyPrint.WarningPrint(text);
         break;
+      default:
+        break;
     }
-  } 
+  }
 }

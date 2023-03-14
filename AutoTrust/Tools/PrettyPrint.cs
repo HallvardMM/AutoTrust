@@ -3,13 +3,6 @@ namespace AutoTrust;
 
 public class PrettyPrint
 {
-
-  /* Examples:   
- * PrettyPrint.SuccessPrint("This is success!");
- * PrettyPrint.WarningPrint("This is a warning!");
- * PrettyPrint.ErrorPrint("This is an error!");
- */
-
   public static void WarningPrint(string text)
   {
 	Console.ForegroundColor = ConsoleColor.Yellow;
@@ -17,7 +10,7 @@ public class PrettyPrint
 	Console.ForegroundColor = ConsoleColor.White;
   }
 
-  public static void ErrorPrint(string text)
+  public static void FailPrint(string text)
   {
 	Console.ForegroundColor = ConsoleColor.Red;
 	Console.WriteLine($"X: {text}");

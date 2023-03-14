@@ -10,28 +10,23 @@ public class NugetDownloadCount
 {
   public required int TotalHits { get; set; }
   public required List<NugetDownloadCountItem> Data { get; set; } = new List<NugetDownloadCountItem>();
-
   public static string GetNugetDownloadCountUrl(string packageName) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}";
 
-  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName)
-  {
-	try
-	{
-	  // Fetch package data
-	  var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName));
-	  return getNugetDownloadCount;
-	}
-	catch (HttpRequestException ex)
-	{
-	  // Handle any exceptions thrown by the HTTP client.
-	  Console.WriteLine($"An HTTP error occurred: {ex.Message}");
-	}
-	catch (JsonException ex)
-	{
-	  // Handle any exceptions thrown during JSON deserialization.
-	  Console.WriteLine($"A JSON error occurred: {ex.Message}");
-	}
-	return null;
+  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName) {
+		try {
+			// Fetch package data
+			var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName));
+			return getNugetDownloadCount;
+		}
+		catch (HttpRequestException ex) {
+			// Handle any exceptions thrown by the HTTP client.
+			Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+		}
+		catch (JsonException ex) {
+			// Handle any exceptions thrown during JSON deserialization.
+			Console.WriteLine($"A JSON error occurred: {ex.Message}");
+		}
+		return null;
   }
 
   public string ToString(string packageVersion)

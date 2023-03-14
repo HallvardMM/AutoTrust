@@ -14,7 +14,7 @@ root = true
 # All Files
 [*]
 charset = utf-8
-indent_style = tab
+indent_style = space
 indent_size = 2
 insert_final_newline = true
 trim_trailing_whitespace = true
@@ -203,7 +203,7 @@ dotnet_diagnostic.IDE0130.severity = suggestion
 [*.{cs,csx,cake}]
 # Newline options
 # https://docs.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/formatting-rules#new-line-options
-csharp_new_line_before_open_brace = all
+csharp_new_line_before_open_brace = false
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true

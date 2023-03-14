@@ -9,9 +9,9 @@ public enum Status {
 internal interface ITrustCriteria {
 
   public abstract string Title { get; }
-  static abstract Status validate(DataHandler dataHandler);
+  static abstract Status Validate(DataHandler dataHandler);
 
-  public void displayInConsole(Status status, string text) {
+  public void DisplayInConsole(Status status, string text) {
     switch (status) {
       case Status.Pass:
         PrettyPrint.SuccessPrint(text);

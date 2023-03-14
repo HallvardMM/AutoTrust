@@ -2,7 +2,7 @@ namespace AutoTrust;
 using System.Diagnostics;
 
 public class RunProcess {
-  public static void ProcessExecution(string argumentsString) {
+  public static void DotnetProcessExecution(string argumentsString) {
     try {
       using (var dotnetProcess = new Process()) {
         dotnetProcess.StartInfo.UseShellExecute = false;
@@ -22,4 +22,7 @@ public class RunProcess {
       Console.WriteLine(e.Message);
     }
   }
+
+  public static void DotnetProcess(string[] args) => DotnetProcessExecution(string.Join(" ", args.ToArray()));
+
 }

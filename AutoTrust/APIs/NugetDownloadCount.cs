@@ -10,12 +10,11 @@ public class NugetDownloadCount {
   public required int TotalHits { get; set; }
   public required List<NugetDownloadCountItem> Data { get; set; } = new List<NugetDownloadCountItem>();
 
-  public static string GetNugetDownloadCountUrl(string packageName) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}";
-
-  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName) {
+  public static string GetNugetDownloadCountUrl(string packageName, bool prerelease = false) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}&prerelease={prerelease}";
+  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName, bool prerelease = false) {
     try {
       // Fetch package data
-      var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName));
+      var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName, prerelease));
       return getNugetDownloadCount;
     }
     catch (HttpRequestException ex) {

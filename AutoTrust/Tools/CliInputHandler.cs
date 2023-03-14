@@ -54,7 +54,7 @@ public class CliInputHandler {
 
   public static async Task RunProgram(string[] args, HttpClient httpClient, string packageName) {
 
-    string? packageVersion = null;
+    string packageVersion = "";
     var packageVersionSetByUser = false;
 
     for (var i = 0; i < args.Length; i++) {
@@ -64,18 +64,13 @@ public class CliInputHandler {
       }
     }
 
+    var prerelease = (PrereleaseFlag.Any(args.Contains) || packageVersion.Contains('-'));
+
     // Version handling
-    if (packageVersion is null) {
-      var fetchedVersion = "";
-      if (PrereleaseFlag.Any(args.Contains)) {
-        fetchedVersion = await NugetPackageVersion.GetLatestVersion(httpClient, packageName, true);
-      }
-      else {
-        // Get latest stable version
-        fetchedVersion = await NugetPackageVersion.GetLatestVersion(httpClient, packageName);
-      }
-      if (fetchedVersion != null) {
-        packageVersion = fetchedVersion;
+    if (packageVersion is "") {
+      var latestVersion = await NugetPackageVersion.GetLatestVersion(httpClient, packageName, prerelease);
+      if (latestVersion != null) {
+        packageVersion = latestVersion;
       }
       else {
         Console.WriteLine("Error: Package version not found!");
@@ -154,7 +149,7 @@ public class CliInputHandler {
       Console.WriteLine($"Error: No GitHub repository found for {packageName} with version {packageVersion}!");
     }
 
-    var nugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(httpClient, packageName);
+    var nugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(httpClient, packageName, prerelease);
 
     if (nugetDownloadCount != null) {
       Console.WriteLine(nugetDownloadCount.ToString(packageVersion));

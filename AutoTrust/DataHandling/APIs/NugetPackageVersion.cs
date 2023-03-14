@@ -13,7 +13,10 @@ public class NugetPackageVersion {
       // Fetch all versions data
       var allVersionsForPackageObject = await httpClient.GetFromJsonAsync<NugetPackageVersion>
         (GetVersionsUrl(packageName));
+
+
       if (allVersionsForPackageObject?.Versions != null) {
+
         if (prerelease) {
           return FilterLatestVersion(allVersionsForPackageObject.Versions);
         }
@@ -41,6 +44,7 @@ public class NugetPackageVersion {
   }
 
   public static string FilterLatestVersion(List<string> versions) => versions.Last();
+
 
   public override string ToString() => $"[{string.Join(", ", this.Versions)}]";
 

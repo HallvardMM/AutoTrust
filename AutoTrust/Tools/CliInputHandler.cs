@@ -78,94 +78,10 @@ public class CliInputHandler {
       }
     };
 
-    var nugetPackage = await NugetPackage.GetNugetPackage(httpClient, packageName, packageVersion);
-
-    if (nugetPackage is not null) {
-      Console.WriteLine(nugetPackage.ToString());
-    }
-    else {
-      Console.WriteLine($"Error: Package {packageName} with version {packageVersion} not found!");
-    }
-
-    // Download the package to the local machine
-
-    var downloadPackage = false; // This is set to false while working on the project
-
-    if (downloadPackage && nugetPackage is not null) {
-      await NugetPackageDownload.DownloadNugetPackage(httpClient, nugetPackage, packageName, packageVersion);
-    }
-
-
-    // Get the package catalog entry with a lot of data such as potential vulnerabilities
-
-    if (nugetPackage?.CatalogEntry != null) {
-      var nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(httpClient, nugetPackage.CatalogEntry);
-      if (nugetCatalogEntry != null) {
-        Console.WriteLine(nugetCatalogEntry.ToString());
-        packageName = nugetCatalogEntry.PackageName;
-      }
-      else {
-        Console.WriteLine($"Error: Package catalog entry for {packageName} with version {packageVersion} not found!");
-      }
-    }
-
-    var packageManifest = await NugetPackageManifest.GetNugetPackageManifest(httpClient, packageName, packageVersion);
-
-    if (packageManifest != null) {
-      Console.WriteLine(packageManifest.ToString());
-    }
-    else {
-      Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
-    }
-
-    var repositoryUrl = "";
-
-    if (packageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
-      repositoryUrl = packageManifest.Metadata.Repository.Url;
-    }
-    else if (packageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
-      repositoryUrl = packageManifest.Metadata.ProjectUrl;
-    }
-
-    if (repositoryUrl != "") {
-      var githubData = await GithubPackage.GetGithubPackage(httpClient, repositoryUrl);
-      if (githubData != null) {
-        Console.WriteLine(githubData.ToString());
-      }
-      else {
-        Console.WriteLine($"Error: Package manifest for {packageName} with version {packageVersion} not found!");
-      }
-
-      var githubIssueData = await GithubIssues.GetGithubIssues(httpClient, repositoryUrl);
-      if (githubIssueData != null) {
-        Console.WriteLine(githubIssueData.ToString());
-        Console.WriteLine($"Open PRs: {githubData?.OpenIssuesCount - githubIssueData.TotalCount}");
-      }
-      else {
-        Console.WriteLine($"Error: Github issues data not found for {packageName} with version {packageVersion}!");
-      }
-    }
-    else {
-      Console.WriteLine($"Error: No GitHub repository found for {packageName} with version {packageVersion}!");
-    }
-
-    var nugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(httpClient, packageName, prerelease);
-
-    if (nugetDownloadCount != null) {
-      Console.WriteLine(nugetDownloadCount.ToString(packageVersion));
-    }
-    else {
-      Console.WriteLine($"Error: NuGet download count not found for {packageName} with version {packageVersion}!");
-    }
-
-    var osvData = await OSVData.GetOSVData(httpClient, packageName, packageVersion);
-
-    if (osvData != null) {
-      Console.WriteLine(osvData.ToString());
-    }
-    else {
-      Console.WriteLine($"Error: OSV data not found for {packageName} with version {packageVersion}!");
-    }
+    var dataHandler = new DataHandler(httpClient, packageName, packageVersion);
+    // Need to call fetchData to fetch the dataHandler object data
+    await dataHandler.fetchData();
+    Popularity.validate(dataHandler);
 
     Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.CurrentCulture)}");
 

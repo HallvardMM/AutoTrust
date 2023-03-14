@@ -2,37 +2,37 @@ namespace AutoTrust;
 
 public class Popularity : ITrustCriteria {
   public string Title => "Package Popularity";
-  private static readonly long downloadsThreshold = 10000;
-  private static readonly long stargazersCountThreshold = 2;
-  private static readonly long forksCountThreshold = 1; 
-  private static readonly long watchersThreshold = 1; 
+  private static readonly long DownloadsThreshold = 10000;
+  private static readonly long StargazersCountThreshold = 2;
+  private static readonly long ForksCountThreshold = 1;
+  private static readonly long WatchersThreshold = 1;
 
-  public static Status validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler) {
     // Check download count
-    if (dataHandler.nugetDownloadCount == null) {
+    if (dataHandler.NugetDownloadCount == null) {
       PrettyPrint.FailPrint("Can't find download count for package");
       return Status.Error;
     }
-    else if (dataHandler.nugetDownloadCount.Data[0].TotalDownloads <= downloadsThreshold) {
-      PrettyPrint.FailPrint("Package download count: " + dataHandler.nugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + downloadsThreshold);
+    else if (dataHandler.NugetDownloadCount.Data[0].TotalDownloads <= DownloadsThreshold) {
+      PrettyPrint.FailPrint("Package download count: " + dataHandler.NugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + DownloadsThreshold);
       return Status.Error;
     }
-    
+
     // Check number of stars, forks and watchers on github
-    if (dataHandler.githubData == null) {
+    if (dataHandler.GithubData == null) {
       PrettyPrint.FailPrint("Can't find github data for package");
       return Status.Error;
     }
-    else if (dataHandler.githubData.StargazersCount <= stargazersCountThreshold) {
-      PrettyPrint.FailPrint("Package github stargazers count: " + dataHandler.githubData.StargazersCount + " is lower than threshold: " + stargazersCountThreshold);
+    else if (dataHandler.GithubData.StargazersCount <= StargazersCountThreshold) {
+      PrettyPrint.FailPrint("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is lower than threshold: " + StargazersCountThreshold);
       return Status.Error;
     }
-    else if (dataHandler.githubData.ForksCount <= forksCountThreshold) {
-      PrettyPrint.FailPrint("Package github forks count: " + dataHandler.githubData.ForksCount + " is lower than threshold: " + forksCountThreshold);
+    else if (dataHandler.GithubData.ForksCount <= ForksCountThreshold) {
+      PrettyPrint.FailPrint("Package github forks count: " + dataHandler.GithubData.ForksCount + " is lower than threshold: " + ForksCountThreshold);
       return Status.Error;
     }
-    else if (dataHandler.githubData.WatchersCount <= watchersThreshold) {
-      PrettyPrint.FailPrint("Package github watchers count: " + dataHandler.githubData.WatchersCount + " is lower than threshold: " + watchersThreshold);
+    else if (dataHandler.GithubData.WatchersCount <= WatchersThreshold) {
+      PrettyPrint.FailPrint("Package github watchers count: " + dataHandler.GithubData.WatchersCount + " is lower than threshold: " + WatchersThreshold);
       return Status.Error;
     }
 
@@ -44,9 +44,9 @@ public class Popularity : ITrustCriteria {
 
   public static long? GetPackageVersionDownloadCount(DataHandler dataHandler) {
     // Function for getting the download count for a specific package version
-    for (var i = 0; i < dataHandler.nugetDownloadCount?.Data[0].Versions.Count; i++) {
-      if (dataHandler.nugetDownloadCount.Data[0].Versions[i]?.Version == dataHandler.packageVersion) {
-        return dataHandler.nugetDownloadCount.Data[0].Versions[i].Downloads;
+    for (var i = 0; i < dataHandler.NugetDownloadCount?.Data[0].Versions.Count; i++) {
+      if (dataHandler.NugetDownloadCount.Data[0].Versions[i]?.Version == dataHandler.PackageVersion) {
+        return dataHandler.NugetDownloadCount.Data[0].Versions[i].Downloads;
       }
     }
     return null;

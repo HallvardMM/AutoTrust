@@ -1,51 +1,51 @@
 namespace AutoTrust;
 
 public class DataHandler {
-  public HttpClient httpClient { get; private set; }
-  public string packageName { get; private set; }
-  public string packageVersion { get; private set; }
-  public NugetPackage? nugetPackage { get; private set; }
-  public NugetCatalogEntry? nugetCatalogEntry { get; private set; }
-  public NugetPackageManifest? packageManifest { get; private set; }
-  public GithubPackage? githubData { get; private set; }
-  public GithubIssues? githubIssueData { get; private set; }
-  public NugetDownloadCount? nugetDownloadCount { get; private set; }
-  public OSVData? osvData { get; private set; }
+  public HttpClient HttpClient { get; private set; }
+  public string PackageName { get; private set; }
+  public string PackageVersion { get; private set; }
+  public NugetPackage? NugetPackage { get; private set; }
+  public NugetCatalogEntry? NugetCatalogEntry { get; private set; }
+  public NugetPackageManifest? PackageManifest { get; private set; }
+  public GithubPackage? GithubData { get; private set; }
+  public GithubIssues? GithubIssueData { get; private set; }
+  public NugetDownloadCount? NugetDownloadCount { get; private set; }
+  public OSVData? OsvData { get; private set; }
 
-  public DataHandler(string packageName, string packageVersion) {
-    this.packageName = packageName;
-    this.packageVersion = packageVersion;
-    this.nugetPackage = null;
-    this.nugetCatalogEntry = null;
-    this.packageManifest = null;
-    this.httpClient = new HttpClient();
+  public DataHandler(HttpClient httpClient, string packageName, string packageVersion) {
+    this.PackageName = packageName;
+    this.HttpClient = httpClient;
+    this.PackageVersion = packageVersion;
+    this.NugetPackage = null;
+    this.NugetCatalogEntry = null;
+    this.PackageManifest = null;
   }
 
-  public async Task fetchData() {
-    this.nugetPackage = await NugetPackage.GetNugetPackage(this.httpClient, this.packageName, this.packageVersion);
+  public async Task FetchData() {
+    this.NugetPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, this.PackageVersion);
 
     // Get the package catalog entry with a lot of data such as potential vulnerabilities
-    if (this.nugetPackage?.CatalogEntry != null) {
-      this.nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(this.httpClient, this.nugetPackage.CatalogEntry);
+    if (this.NugetPackage?.CatalogEntry != null) {
+      this.NugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(this.HttpClient, this.NugetPackage.CatalogEntry);
     }
 
-    this.packageManifest = await NugetPackageManifest.GetNugetPackageManifest(this.httpClient, this.packageName, this.packageVersion);
+    this.PackageManifest = await NugetPackageManifest.GetNugetPackageManifest(this.HttpClient, this.PackageName, this.PackageVersion);
 
     var repositoryUrl = "";
 
-    if (this.packageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
-      repositoryUrl = this.packageManifest.Metadata.Repository.Url;
+    if (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
+      repositoryUrl = this.PackageManifest.Metadata.Repository.Url;
     }
-    else if (this.packageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
-      repositoryUrl = this.packageManifest.Metadata.ProjectUrl;
+    else if (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
+      repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
     }
 
     if (repositoryUrl != "") {
-      this.githubData = await GithubPackage.GetGithubPackage(this.httpClient, repositoryUrl);
-      this.githubIssueData = await GithubIssues.GetGithubIssues(this.httpClient, repositoryUrl);
+      this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, repositoryUrl);
+      this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, repositoryUrl);
     }
 
-    this.nugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.httpClient, this.packageName);
-    this.osvData = await OSVData.GetOSVData(this.httpClient, this.packageName, this.packageVersion);
+    this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
+    this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion);
   }
 }

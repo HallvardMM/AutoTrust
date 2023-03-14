@@ -3,60 +3,52 @@
 #pragma warning disable CA1852
 using AutoTrust;
 
-string[] positive_response = { "y", "yes", "Yes", "YES" };
-string[] negative_response = { "n", "no", "No", "NO" };
-
 var httpClient = new HttpClient();
 
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
 
-var query = args.AsQueryable();
 
-if (query.ElementAtOrDefault(0) == "add" & query.ElementAtOrDefault(1) == "package") {
-  // Fetch metadata about the package from the NuGet API, GitHub API, and security databases
-  var packageName = query.ElementAtOrDefault(2);
-  if (packageName is null) {
-    Console.WriteLine("Error: Package name not provided!");
-    return;
-  }
-
-  // Version handling
-  string? packageVersion;
-
-  if (query.ElementAtOrDefault(3) is "-v" or "--version") {
-    packageVersion = query.ElementAtOrDefault(4);
+(var packageName, var packageVersion, var packageVersionSetByUser, var prerelease) = CliInputHandler.HandleInput(args);
+if (packageName is "" && packageVersion is "" && packageVersionSetByUser is false && prerelease is false) {
+  return;
+}
+if (packageVersion is "") {
+  var latestVersion = await NugetPackageVersion.GetLatestVersion(httpClient, packageName, prerelease);
+  if (latestVersion != null) {
+    packageVersion = latestVersion;
   }
   else {
-    var latestVersion = await NugetPackageVersion.GetLatestStableVersion(httpClient, packageName);
-    httpClient.Dispose();
-    if (latestVersion != null) {
-      packageVersion = latestVersion;
-    }
-    else {
-      Console.WriteLine("Error: Package version not found!");
-      return;
-    }
-  }
-  if (packageVersion is null) {
     Console.WriteLine("Error: Package version not found!");
     return;
   }
+};
 
-  var dataHandler = new DataHandler(packageName, packageVersion);
-  // Need to call fetchData to fetch the dataHandler object data
-  await dataHandler.fetchData();
-  Popularity.validate(dataHandler);
+var dataHandler = new DataHandler(httpClient, packageName, packageVersion);
+// Need to call fetchData to fetch the dataHandler object data
+await dataHandler.FetchData();
+Popularity.Validate(dataHandler);
 
-  Console.WriteLine("Do you still want to add this package? (y/n)");
+Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.CurrentCulture)}");
 
-  var addPackageQuery = Console.ReadLine()!.Trim();
+Console.WriteLine("Do you still want to add this package? (y/n)");
 
-  if (positive_response.Any(addPackageQuery.Contains)) {
-    RunProcess.ProcessExecution("add package " + packageName + " -v " + packageVersion);
+var addPackageQuery = Console.ReadLine()!.Trim();
+
+if (Constants.PositiveResponse.Any(addPackageQuery.Contains)) {
+  if (packageVersionSetByUser) {
+    RunProcess.DotnetProcess(args);
+  }
+  else {
+    if (prerelease) {
+      RunProcess.DotnetProcess(args);
+    }
+    else {
+      RunProcess.DotnetProcess(args.Append("-v").Append(packageVersion).ToArray());
+    }
   }
 }
 else {
-  RunProcess.ProcessExecution(string.Join(" ", query.ToArray()));
+  Console.WriteLine("Package not added!");
 }

@@ -22,28 +22,52 @@ These instructions will get you a copy of the project up and running on your loc
 
 Use the following command to install AutoTrust globally:
 
-```bash
+```PowerShell
 dotnet tool install --global AutoTrust
 ```
 
-### Install packages with AutoTrust:
+### Add/Update packages with AutoTrust:
 
-```bash
-AutoTrust install [PackageName]
+```PowerShell
+autotrust add [PackageName]
 ```
 
-### Update packages with AutoTrust:
+## Daily usage
 
-```bash
-AutoTrust update [PackageName]
+`autotrust` is used prior to installing a dotnet package. It can be embed in your daily `dotnet` usage so you do not need to remember to run `autotrust` explicitly.
+
+### For Windows PowerShell:
+
+Run as administrator:
+
+```PowerShell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
 ```
 
-### Daily usage
+Find profile file:
 
-`AutoTrust` is used prior to installing a dotnet package. It can be embed in your daily `dotnet` usage so you do not need to remember to run `AutoTrust` explicitly.
+```PowerShell
+echo $profile
+```
+
+Create or update profile file with command:
+
+```PowerShell
+New-Alias -Name dotnet -Value autotrust
+```
+
+Unblock file:
+
+```PowerShell
+Unblock-File -Path .\PathToProfileFile
+```
+
+Restart PowerShell.
+
+### For Linux/Mac
 
 ```bash
-alias dotnet='AutoTrust'
+alias dotnet='autotrust'
 ```
 
 ## Contributing

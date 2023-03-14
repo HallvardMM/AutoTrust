@@ -8,7 +8,7 @@ public class NugetPackageVersion
 
   public static string GetVersionsUrl(string packageName) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/index.json";
 
-  public static async Task<string?> GetLatestStableVersion(HttpClient httpClient, string packageName)
+  public static async Task<string?> GetLatestVersion(HttpClient httpClient, string packageName, bool prerelease = false)
   {
 	try
 	{
@@ -18,6 +18,10 @@ public class NugetPackageVersion
 		(GetVersionsUrl(packageName));
 	  if (allVersionsForPackageObject?.Versions != null)
 	  {
+		if (prerelease)
+		{
+		  return FilterLatestVersion(allVersionsForPackageObject.Versions);
+		}
 		return FilterLatestStableVersion(allVersionsForPackageObject.Versions);
 	  }
 	}
@@ -45,6 +49,8 @@ public class NugetPackageVersion
 	}
 	return null; // TODO: Should maybe return an error?
   }
+
+  public static string FilterLatestVersion(List<string> versions) => versions.Last();
 
   public override string ToString() => $"[{string.Join(", ", this.Versions)}]";
 

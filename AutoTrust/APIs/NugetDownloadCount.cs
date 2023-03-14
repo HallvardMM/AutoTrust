@@ -6,49 +6,40 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class NugetDownloadCount
-{
+public class NugetDownloadCount {
   public required int TotalHits { get; set; }
   public required List<NugetDownloadCountItem> Data { get; set; } = new List<NugetDownloadCountItem>();
 
   public static string GetNugetDownloadCountUrl(string packageName) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}";
 
-  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName)
-  {
-	try
-	{
-	  // Fetch package data
-	  var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName));
-	  return getNugetDownloadCount;
-	}
-	catch (HttpRequestException ex)
-	{
-	  // Handle any exceptions thrown by the HTTP client.
-	  Console.WriteLine($"An HTTP error occurred: {ex.Message}");
-	}
-	catch (JsonException ex)
-	{
-	  // Handle any exceptions thrown during JSON deserialization.
-	  Console.WriteLine($"A JSON error occurred: {ex.Message}");
-	}
-	return null;
+  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName) {
+    try {
+      // Fetch package data
+      var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName));
+      return getNugetDownloadCount;
+    }
+    catch (HttpRequestException ex) {
+      // Handle any exceptions thrown by the HTTP client.
+      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+    }
+    catch (JsonException ex) {
+      // Handle any exceptions thrown during JSON deserialization.
+      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+    }
+    return null;
   }
 
-  public string ToString(string packageVersion)
-  {
-	if (this.TotalHits == 1)
-	{
-	  return this.Data[0].ToString(packageVersion);
-	}
-	else
-	{
-	  return "Warning: More than one package fits the Id!";
-	}
+  public string ToString(string packageVersion) {
+    if (this.TotalHits == 1) {
+      return this.Data[0].ToString(packageVersion);
+    }
+    else {
+      return "Warning: More than one package fits the Id!";
+    }
   }
 }
 
-public class NugetDownloadCountItem
-{
+public class NugetDownloadCountItem {
   [JsonPropertyName("@id")]
   public required string Id { get; set; }
   [JsonPropertyName("@type")]
@@ -73,41 +64,34 @@ public class NugetDownloadCountItem
   public required List<NugetDownloadCountPackageType> PackageTypes { get; set; }
   public required List<NugetDownloadCountVersion> Versions { get; set; }
 
-  public string ToString(string packageVersion)
-  {
-	var returnString = "";
+  public string ToString(string packageVersion) {
+    var returnString = "";
 
-	returnString += $"Total downloads for package: {this.TotalDownloads}\n";
+    returnString += $"Total downloads for package: {this.TotalDownloads}\n";
 
-	for (var i = 0; i < this.Versions?.Count; i++)
-	{
-	  if (this.Versions[i]?.Version == packageVersion)
-	  {
-		returnString += $"Total downloads for version {this.Versions[i]?.Version}: {this.Versions[i]?.Downloads}\n";
-		if (this.Versions[i]?.Downloads != 0)
-		{
-		  returnString += $"Total downloads/Version downloads: {this.TotalDownloads / this.Versions[i]?.Downloads}";
-		  return returnString;
-		}
-		else
-		{
-		  returnString += "Warning: No downloads for this package!";
-		  return returnString;
-		}
-	  }
-	}
-	returnString += "Warning: Did not find download statistics for package!";
-	return returnString;
+    for (var i = 0; i < this.Versions?.Count; i++) {
+      if (this.Versions[i]?.Version == packageVersion) {
+        returnString += $"Total downloads for version {this.Versions[i]?.Version}: {this.Versions[i]?.Downloads}\n";
+        if (this.Versions[i]?.Downloads != 0) {
+          returnString += $"Total downloads/Version downloads: {this.TotalDownloads / this.Versions[i]?.Downloads}";
+          return returnString;
+        }
+        else {
+          returnString += "Warning: No downloads for this package!";
+          return returnString;
+        }
+      }
+    }
+    returnString += "Warning: Did not find download statistics for package!";
+    return returnString;
   }
 }
 
-public class NugetDownloadCountPackageType
-{
+public class NugetDownloadCountPackageType {
   public required string Name { get; set; }
 }
 
-public class NugetDownloadCountVersion
-{
+public class NugetDownloadCountVersion {
   public required string Version { get; set; }
   public required long Downloads { get; set; }
   [JsonPropertyName("@id")]

@@ -6,8 +6,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class GithubPackage
-{
+public class GithubPackage {
   public long Id { get; set; }
   public string NodeId { get; set; } = string.Empty;
   public string Name { get; set; } = string.Empty;
@@ -157,58 +156,51 @@ public class GithubPackage
   public Source? Source { get; set; }
 
   public override string ToString() => $"Package name: {this.Name}\n " +
-	  $"Package url:{this.HtmlUrl}\n" +
-	  $"Description: {this.Description}\n" +
-	  (this.Fork ? $"Warning: forked from: {this.Source}!\n" : "") +
-	  $"Open issues and PRs: {this.OpenIssuesCount}\n" +
-	  $"Stars: {this.StargazersCount}\n" +
-	  $"Watchers: {this.SubscribersCount}\n" +
-	  $"Forks: {this.ForksCount}\n" +
-	  $"{this.License}\n" +
-	  $"{this.Owner}\n" +
-	  $"Created at: {this.CreatedAt}\n" +
-	  $"Updated at: {this.UpdatedAt}\n" +
-	  $"Pushed at: {this.PushedAt}\n" +
-	  $"Homepage: {this.Homepage}\n" +
-	  $"Size: {this.Size}\n";
+      $"Package url:{this.HtmlUrl}\n" +
+      $"Description: {this.Description}\n" +
+      (this.Fork ? $"Warning: forked from: {this.Source}!\n" : "") +
+      $"Open issues and PRs: {this.OpenIssuesCount}\n" +
+      $"Stars: {this.StargazersCount}\n" +
+      $"Watchers: {this.SubscribersCount}\n" +
+      $"Forks: {this.ForksCount}\n" +
+      $"{this.License}\n" +
+      $"{this.Owner}\n" +
+      $"Created at: {this.CreatedAt}\n" +
+      $"Updated at: {this.UpdatedAt}\n" +
+      $"Pushed at: {this.PushedAt}\n" +
+      $"Homepage: {this.Homepage}\n" +
+      $"Size: {this.Size}\n";
 
-  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string repositoryUrl)
-  {
-	try
-	{
-	  // Fetch package data
-	  var githubApiUrl = GetGithubApiUrl(repositoryUrl);
-	  httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
-	  var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
-	  return githubData;
-	}
-	catch (HttpRequestException ex)
-	{
-	  // Handle any exceptions thrown by the HTTP client.
-	  Console.WriteLine($"An HTTP error occurred: {ex.Message}");
-	}
-	catch (JsonException ex)
-	{
-	  // Handle any exceptions thrown during JSON deserialization.
-	  Console.WriteLine($"A JSON error occurred: {ex.Message}");
-	}
-	return null;
+  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string repositoryUrl) {
+    try {
+      // Fetch package data
+      var githubApiUrl = GetGithubApiUrl(repositoryUrl);
+      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+      var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+      return githubData;
+    }
+    catch (HttpRequestException ex) {
+      // Handle any exceptions thrown by the HTTP client.
+      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+    }
+    catch (JsonException ex) {
+      // Handle any exceptions thrown during JSON deserialization.
+      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+    }
+    return null;
   }
 
-  public static string GetGithubApiUrl(string repositoryUrl)
-  {
-	var githubApiUrl = repositoryUrl.Replace("https://", "https://api.").Replace("github.com", "github.com/repos");
-	if (githubApiUrl.Split(".").Last() == "git")
-	{
-	  githubApiUrl = githubApiUrl.Remove(githubApiUrl.Length - ".git".Length, ".git".Length);
-	}
-	return githubApiUrl;
+  public static string GetGithubApiUrl(string repositoryUrl) {
+    var githubApiUrl = repositoryUrl.Replace("https://", "https://api.").Replace("github.com", "github.com/repos");
+    if (githubApiUrl.Split(".").Last() == "git") {
+      githubApiUrl = githubApiUrl.Remove(githubApiUrl.Length - ".git".Length, ".git".Length);
+    }
+    return githubApiUrl;
   }
 
 }
 
-public class GithubOwner
-{
+public class GithubOwner {
   public string Login { get; set; } = string.Empty;
   public long Id { get; set; }
   [JsonPropertyName("node_id")]
@@ -245,8 +237,7 @@ public class GithubOwner
   public override string ToString() => $"Owner name: {this.Login}\nOwner url: {this.HtmlUrl}";
 }
 
-public class GithubLicense
-{
+public class GithubLicense {
   public string Key { get; set; } = string.Empty;
   public string Name { get; set; } = string.Empty;
   [JsonPropertyName("spdx_id")]
@@ -255,18 +246,15 @@ public class GithubLicense
   [JsonPropertyName("node_id")]
   public string NodeId { get; set; } = string.Empty;
 
-  public override string ToString()
-  {
-	if (this.Name == "Other" & this.Url == null)
-	{
-	  return $"Warning: Standard license not found!";
-	}
-	return $"License name: {this.Name}\nLicense url: {this.Url}";
+  public override string ToString() {
+    if (this.Name == "Other" & this.Url == null) {
+      return $"Warning: Standard license not found!";
+    }
+    return $"License name: {this.Name}\nLicense url: {this.Url}";
   }
 }
 
-public class Source
-{
+public class Source {
   public long Id { get; set; }
   [JsonPropertyName("node_id")]
   public string NodeId { get; set; } = string.Empty;

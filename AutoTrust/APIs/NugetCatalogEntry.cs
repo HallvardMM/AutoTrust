@@ -6,8 +6,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class NugetCatalogEntry
-{
+public class NugetCatalogEntry {
   [JsonPropertyName("@id")]
   public required string Id { get; set; }
   [JsonConverter(typeof(SingleOrArrayConverter<string>))]
@@ -54,95 +53,82 @@ public class NugetCatalogEntry
   public string Summary { get; set; } = string.Empty;
 
 
-  public static async Task<NugetCatalogEntry?> GetNugetCatalogEntry(HttpClient httpClient, string catalogEntryUrl)
-  {
-	try
-	{
-	  // Fetch package data
-	  var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(catalogEntryUrl);
-	  return nugetCatalogEntry;
-	}
-	catch (HttpRequestException ex)
-	{
-	  // Handle any exceptions thrown by the HTTP client.
-	  Console.WriteLine($"An HTTP error occurred: {ex.Message}");
-	}
-	catch (JsonException ex)
-	{
-	  // Handle any exceptions thrown during JSON deserialization.
-	  Console.WriteLine($"A JSON error occurred: {ex.Message}");
-	}
-	return null;
+  public static async Task<NugetCatalogEntry?> GetNugetCatalogEntry(HttpClient httpClient, string catalogEntryUrl) {
+    try {
+      // Fetch package data
+      var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(catalogEntryUrl);
+      return nugetCatalogEntry;
+    }
+    catch (HttpRequestException ex) {
+      // Handle any exceptions thrown by the HTTP client.
+      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+    }
+    catch (JsonException ex) {
+      // Handle any exceptions thrown during JSON deserialization.
+      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+    }
+    return null;
   }
 
-  public override string ToString()
-  {
-	var returnString = "";
+  public override string ToString() {
+    var returnString = "";
 
-	returnString += $"Id: {this.Id}\n";
-	returnString += $"Type: [{string.Join(", ", this.Type)}]\n";
-	returnString += $"PackageName: {this.PackageName}\n";
-	returnString += $"Version: {this.Version}\n";
-	returnString += $"Authors: [{string.Join(", ", this.Authors)}]\n";
-	returnString += $"CommitId: {this.CommitId}\n";
-	returnString += $"CommitTimeStamp: {this.CommitTimeStamp}\n";
-	returnString += $"Copyright: {this.Copyright}\n";
-	returnString += $"Created: {this.Created}\n";
-	returnString += $"Description: {this.Description}\n";
-	returnString += $"IconFile: {this.IconFile}\n";
-	returnString += $"IconUrl: {this.IconUrl}\n";
-	returnString += $"IsPrerelease: {this.IsPrerelease}\n";
-	returnString += $"LastEdited: {this.LastEdited}\n";
-	returnString += $"LicenseExpression: {this.LicenseExpression}\n";
-	returnString += $"LicenseUrl: {this.LicenseUrl}\n";
-	returnString += $"Listed: {this.Listed}\n";
-	returnString += $"MinClientVersion: {this.MinClientVersion}\n";
-	returnString += $"PackageHash: {this.PackageHash}\n";
-	returnString += $"PackageHashAlgorithm: {this.PackageHashAlgorithm}\n";
-	returnString += $"PackageSize: {this.PackageSize}\n";
-	returnString += $"ProjectUrl: {this.ProjectUrl}\n";
-	returnString += $"Published: {this.Published}\n";
-	returnString += $"Repository: {this.Repository}\n";
-	returnString += $"RequireLicenseAcceptance: {this.RequireLicenseAcceptance}\n";
-	returnString += $"Title: {this.Title}\n";
-	returnString += $"VerbatimVersion: {this.VerbatimVersion}\n";
-	returnString += $"Tags: [{string.Join(", ", this.Tags)}]\n";
-	if (this.Deprecation != null)
-	{
-	  returnString += $"Deprecation:\n {this.Deprecation}";
-	}
-	returnString += $"Language: {this.Language}\n";
-	returnString += $"Summary: {this.Summary}\n";
-	if (this.DependencyGroups != null)
-	{
-	  returnString += $"Dependencies:\n";
-	  foreach (var dependencyGroup in this.DependencyGroups)
-	  {
-		returnString += dependencyGroup.ToString();
-	  }
-	}
-	if (this.PackageEntries != null)
-	{
-	  returnString += $"Package entries:\n";
-	  foreach (var packageEntry in this.PackageEntries)
-	  {
-		returnString += packageEntry.ToString();
-	  }
-	}
-	if (this.Vulnerabilities != null)
-	{
-	  returnString += $"Vulnerabilities:\n";
-	  foreach (var vulnerability in this.Vulnerabilities)
-	  {
-		returnString += vulnerability.ToString();
-	  }
-	}
-	return returnString;
+    returnString += $"Id: {this.Id}\n";
+    returnString += $"Type: [{string.Join(", ", this.Type)}]\n";
+    returnString += $"PackageName: {this.PackageName}\n";
+    returnString += $"Version: {this.Version}\n";
+    returnString += $"Authors: [{string.Join(", ", this.Authors)}]\n";
+    returnString += $"CommitId: {this.CommitId}\n";
+    returnString += $"CommitTimeStamp: {this.CommitTimeStamp}\n";
+    returnString += $"Copyright: {this.Copyright}\n";
+    returnString += $"Created: {this.Created}\n";
+    returnString += $"Description: {this.Description}\n";
+    returnString += $"IconFile: {this.IconFile}\n";
+    returnString += $"IconUrl: {this.IconUrl}\n";
+    returnString += $"IsPrerelease: {this.IsPrerelease}\n";
+    returnString += $"LastEdited: {this.LastEdited}\n";
+    returnString += $"LicenseExpression: {this.LicenseExpression}\n";
+    returnString += $"LicenseUrl: {this.LicenseUrl}\n";
+    returnString += $"Listed: {this.Listed}\n";
+    returnString += $"MinClientVersion: {this.MinClientVersion}\n";
+    returnString += $"PackageHash: {this.PackageHash}\n";
+    returnString += $"PackageHashAlgorithm: {this.PackageHashAlgorithm}\n";
+    returnString += $"PackageSize: {this.PackageSize}\n";
+    returnString += $"ProjectUrl: {this.ProjectUrl}\n";
+    returnString += $"Published: {this.Published}\n";
+    returnString += $"Repository: {this.Repository}\n";
+    returnString += $"RequireLicenseAcceptance: {this.RequireLicenseAcceptance}\n";
+    returnString += $"Title: {this.Title}\n";
+    returnString += $"VerbatimVersion: {this.VerbatimVersion}\n";
+    returnString += $"Tags: [{string.Join(", ", this.Tags)}]\n";
+    if (this.Deprecation != null) {
+      returnString += $"Deprecation:\n {this.Deprecation}";
+    }
+    returnString += $"Language: {this.Language}\n";
+    returnString += $"Summary: {this.Summary}\n";
+    if (this.DependencyGroups != null) {
+      returnString += $"Dependencies:\n";
+      foreach (var dependencyGroup in this.DependencyGroups) {
+        returnString += dependencyGroup.ToString();
+      }
+    }
+    if (this.PackageEntries != null) {
+      returnString += $"Package entries:\n";
+      foreach (var packageEntry in this.PackageEntries) {
+        returnString += packageEntry.ToString();
+      }
+    }
+    if (this.Vulnerabilities != null) {
+      returnString += $"Vulnerabilities:\n";
+      foreach (var vulnerability in this.Vulnerabilities) {
+        returnString += vulnerability.ToString();
+      }
+    }
+    return returnString;
   }
 }
 
-public class PackageDependencyGroup
-{
+public class PackageDependencyGroup {
   [JsonPropertyName("@id")]
   public string Id { get; set; } = string.Empty;
 
@@ -153,23 +139,19 @@ public class PackageDependencyGroup
 
   public string TargetFramework { get; set; } = string.Empty;
 
-  public override string ToString()
-  {
+  public override string ToString() {
 
-	var returnString = $"Target framework: {this.TargetFramework}\n";
-	if (this.Dependencies != null)
-	{
-	  foreach (var dependency in this.Dependencies)
-	  {
-		returnString += dependency.ToString();
-	  }
-	}
-	return returnString;
+    var returnString = $"Target framework: {this.TargetFramework}\n";
+    if (this.Dependencies != null) {
+      foreach (var dependency in this.Dependencies) {
+        returnString += dependency.ToString();
+      }
+    }
+    return returnString;
   }
 }
 
-public class PackageDependency
-{
+public class PackageDependency {
   [JsonPropertyName("@id")]
   public string Id { get; set; } = string.Empty;
 
@@ -184,8 +166,7 @@ public class PackageDependency
   public override string ToString() => $"Package name: {this.PackageName}, Range: {this.Range}\n";
 }
 
-public class PackageEntries
-{
+public class PackageEntries {
   [JsonPropertyName("@id")]
   public string Id { get; set; } = string.Empty;
 
@@ -201,18 +182,16 @@ public class PackageEntries
   public string Name { get; set; } = string.Empty;
 
   // Write toString
-  public override string ToString()
-  {
-	var returnString = $"Package name: {this.Name}\n";
-	returnString += $"Package full name: {this.FullName}\n";
-	returnString += $"Package length: {this.Length}\n";
-	returnString += $"Package compressed length: {this.CompressedLength}\n";
-	return returnString;
+  public override string ToString() {
+    var returnString = $"Package name: {this.Name}\n";
+    returnString += $"Package full name: {this.FullName}\n";
+    returnString += $"Package length: {this.Length}\n";
+    returnString += $"Package compressed length: {this.CompressedLength}\n";
+    return returnString;
   }
 }
 
-public class Vulnerabilities
-{
+public class Vulnerabilities {
   [JsonPropertyName("@id")]
   public string Id { get; set; } = string.Empty;
 
@@ -228,27 +207,23 @@ public class Vulnerabilities
 
 }
 
-public class Deprecation
-{
+public class Deprecation {
   [JsonPropertyName("@id")]
   public required string Id { get; set; }
   public string Message { get; set; } = string.Empty;
   public required List<string> Reasons { get; set; }
   public AlternatePackage? AlternatePackage { get; set; }
 
-  public override string ToString()
-  {
-	var returnString = $"Message: {this.Message}, Reasons: [{string.Join(", ", this.Reasons)}]";
-	if (this.AlternatePackage != null)
-	{
-	  returnString += $", AlternatePackage: [{this.AlternatePackage}]\n";
-	}
-	return returnString;
+  public override string ToString() {
+    var returnString = $"Message: {this.Message}, Reasons: [{string.Join(", ", this.Reasons)}]";
+    if (this.AlternatePackage != null) {
+      returnString += $", AlternatePackage: [{this.AlternatePackage}]\n";
+    }
+    return returnString;
   }
 }
 
-public class AlternatePackage
-{
+public class AlternatePackage {
   [JsonPropertyName("@id")]
   public required string Id { get; set; }
   [JsonPropertyName("id")]

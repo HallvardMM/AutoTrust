@@ -6,64 +6,53 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class OSVData
-{
+public class OSVData {
   [JsonPropertyName("vulns")]
   public List<OSVVulnerabilities>? Vulns { get; set; }
 
-  public override string ToString()
-  {
-	var returnString = "";
-	if (this.Vulns == null)
-	{
-	  return "No known vulnerabilities found in the OSV database.\n";
-	}
-	foreach (var vuln in this.Vulns)
-	{
-	  returnString += vuln.ToString();
-	}
-	return returnString;
+  public override string ToString() {
+    var returnString = "";
+    if (this.Vulns == null) {
+      return "No known vulnerabilities found in the OSV database.\n";
+    }
+    foreach (var vuln in this.Vulns) {
+      returnString += vuln.ToString();
+    }
+    return returnString;
   }
 
-  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, string packageVersion)
-  {
-	try
-	{
-	  // Fetch package data
-	  var osvJSONPost =
-		$"{{\"version\": \"{packageVersion}\", \"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
+  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, string packageVersion) {
+    try {
+      // Fetch package data
+      var osvJSONPost =
+        $"{{\"version\": \"{packageVersion}\", \"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
 
-	  var content = new StringContent(osvJSONPost, System.Text.Encoding.UTF8, "application/json");
-	  var response = await httpClient.PostAsync("https://api.osv.dev/v1/query", content);
-	  if (response.StatusCode == HttpStatusCode.OK)
-	  {
-		var responseStream = await response.Content.ReadAsStreamAsync();
-		var osvData = await JsonSerializer.DeserializeAsync<OSVData>(responseStream);
-		return osvData;
-	  }
-	  else
-	  {
-		var errorResponse = await response.Content.ReadAsStringAsync();
-		Console.WriteLine($"An error occurred. Status code: {response.StatusCode}. Error message: {errorResponse}");
-	  }
-	}
-	catch (HttpRequestException ex)
-	{
-	  // Handle any exceptions thrown by the HTTP client.
-	  Console.WriteLine($"An HTTP error occurred: {ex.Message}");
-	}
-	catch (JsonException ex)
-	{
-	  // Handle any exceptions thrown during JSON deserialization.
-	  Console.WriteLine($"A JSON error occurred: {ex.Message}");
-	}
-	return null;
+      var content = new StringContent(osvJSONPost, System.Text.Encoding.UTF8, "application/json");
+      var response = await httpClient.PostAsync("https://api.osv.dev/v1/query", content);
+      if (response.StatusCode == HttpStatusCode.OK) {
+        var responseStream = await response.Content.ReadAsStreamAsync();
+        var osvData = await JsonSerializer.DeserializeAsync<OSVData>(responseStream);
+        return osvData;
+      }
+      else {
+        var errorResponse = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"An error occurred. Status code: {response.StatusCode}. Error message: {errorResponse}");
+      }
+    }
+    catch (HttpRequestException ex) {
+      // Handle any exceptions thrown by the HTTP client.
+      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+    }
+    catch (JsonException ex) {
+      // Handle any exceptions thrown during JSON deserialization.
+      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+    }
+    return null;
   }
 
 }
 
-public class OSVVulnerabilities
-{
+public class OSVVulnerabilities {
   [JsonPropertyName("id")]
   public required string Id { get; set; }
   [JsonPropertyName("summary")]
@@ -83,30 +72,26 @@ public class OSVVulnerabilities
   [JsonPropertyName("severity")]
   public List<Severity> Severity { get; set; } = new List<Severity>();
 
-  public override string ToString()
-  {
-	var stringReferences = "";
-	foreach (var reference in this.References)
-	{
-	  stringReferences += reference.ToString();
-	}
-	var affectedReferences = "";
-	foreach (var affected in this.Affected)
-	{
-	  affectedReferences += affected.ToString();
-	}
-	return
-	  $"Id: {this.Id}\n" +
-	  $"Summary: {this.Summary}\n" +
-	  $"Details: {this.Details}\n" +
-	  $"Published: {this.Published}\n" +
-	  $"Refrences: \n{stringReferences}" +
-	  $"Affected: \n{affectedReferences}";
+  public override string ToString() {
+    var stringReferences = "";
+    foreach (var reference in this.References) {
+      stringReferences += reference.ToString();
+    }
+    var affectedReferences = "";
+    foreach (var affected in this.Affected) {
+      affectedReferences += affected.ToString();
+    }
+    return
+      $"Id: {this.Id}\n" +
+      $"Summary: {this.Summary}\n" +
+      $"Details: {this.Details}\n" +
+      $"Published: {this.Published}\n" +
+      $"Refrences: \n{stringReferences}" +
+      $"Affected: \n{affectedReferences}";
   }
 }
 
-public class Reference
-{
+public class Reference {
   [JsonPropertyName("type")]
   public string Type { get; set; } = string.Empty;
   [JsonPropertyName("url")]
@@ -115,8 +100,7 @@ public class Reference
   public override string ToString() => $"- {this.Type}: {this.Url}\n";
 }
 
-public class Severity
-{
+public class Severity {
   [JsonPropertyName("type")]
   public string Type { get; set; } = string.Empty;
   [JsonPropertyName("score")]
@@ -125,8 +109,7 @@ public class Severity
   public override string ToString() => $"Severity: Type: {this.Type} Score: {this.Score}";
 }
 
-public class Affected
-{
+public class Affected {
   [JsonPropertyName("package")]
   public required OSVPackage Package { get; set; }
   [JsonPropertyName("ranges")]
@@ -134,19 +117,16 @@ public class Affected
   [JsonPropertyName("versions")]
   public List<string> Versions { get; set; } = new List<string>();
 
-  public override string ToString()
-  {
-	var returnString = "";
-	foreach (var range in this.Ranges)
-	{
-	  returnString += range.ToString();
-	}
-	return returnString;
+  public override string ToString() {
+    var returnString = "";
+    foreach (var range in this.Ranges) {
+      returnString += range.ToString();
+    }
+    return returnString;
   }
 }
 
-public class OSVPackage
-{
+public class OSVPackage {
   [JsonPropertyName("name")]
   public string Name { get; set; } = string.Empty;
   [JsonPropertyName("ecosystem")]
@@ -158,33 +138,28 @@ public class OSVPackage
 
 }
 
-public class OSVSource
-{
+public class OSVSource {
   [JsonPropertyName("source")]
   public string Source { get; set; } = string.Empty;
   public override string ToString() => $"Source: {this.Source}\n";
 }
 
-public class Range
-{
+public class Range {
   [JsonPropertyName("type")]
   public string Type { get; set; } = string.Empty;
   [JsonPropertyName("events")]
   public List<VulnerabilityEvent> Events { get; set; } = new List<VulnerabilityEvent>();
 
-  public override string ToString()
-  {
-	var returnString = $"- Type: {this.Type}\n";
-	foreach (var e in this.Events)
-	{
-	  returnString += $"- Event: {e}\n";
-	}
-	return returnString;
+  public override string ToString() {
+    var returnString = $"- Type: {this.Type}\n";
+    foreach (var e in this.Events) {
+      returnString += $"- Event: {e}\n";
+    }
+    return returnString;
   }
 }
 
-public class VulnerabilityEvent
-{
+public class VulnerabilityEvent {
   [JsonPropertyName("introduced")]
   public string Introduced { get; set; } = string.Empty;
   [JsonPropertyName("fixed")]

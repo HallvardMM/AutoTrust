@@ -2,16 +2,16 @@ namespace AutoTrust;
 
 public class DataHandler
 {
-  public HttpClient httpClient { get; set; }
-	public string packageName;
-	public string packageVersion;
-  public NugetPackage? nugetPackage;
-  public NugetCatalogEntry? nugetCatalogEntry;
-  public NugetPackageManifest? packageManifest;
-  public GithubPackage? githubData;
-  public GithubIssues? githubIssueData;
-  public NugetDownloadCount? nugetDownloadCount;
-  public OSVData? osvData;
+  public HttpClient httpClient { get; private set; }
+	public string packageName { get; private set; }
+	public string packageVersion { get; private set; }
+  public NugetPackage? nugetPackage { get; private set; }
+  public NugetCatalogEntry? nugetCatalogEntry { get; private set; }
+  public NugetPackageManifest? packageManifest { get; private set; }
+  public GithubPackage? githubData { get; private set; }
+  public GithubIssues? githubIssueData { get; private set; }
+  public NugetDownloadCount? nugetDownloadCount { get; private set; }
+  public OSVData? osvData { get; private set; }
 
 	public DataHandler(string packageName, string packageVersion) {
     this.packageName = packageName;

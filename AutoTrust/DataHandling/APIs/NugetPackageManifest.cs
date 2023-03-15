@@ -23,9 +23,6 @@ public class NugetPackageManifest {
       using var xmlReader = XmlReader.Create(stream, settings);
       using var replacedXmlReader = new ReplaceNsXmlReader(xmlReader, "");
       var packageManifest = (NugetPackageManifest?)serializer.Deserialize(replacedXmlReader);
-      // var packageManifest = (NugetPackageManifest?)serializer.Deserialize(xmlReader);
-      Console.WriteLine($"Package manifest for {packageName} {packageVersion} found!");
-      Console.WriteLine(packageManifest);
       return packageManifest;
     }
     catch (HttpRequestException ex) {

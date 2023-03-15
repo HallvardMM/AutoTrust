@@ -47,6 +47,5 @@ public class DataHandler {
 
     this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
     this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion);
-    
   }
 }

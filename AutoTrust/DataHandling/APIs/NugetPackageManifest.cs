@@ -5,7 +5,7 @@ namespace AutoTrust;
 using System.Xml;
 using System.Xml.Serialization;
 
-[XmlRoot(ElementName = "package", Namespace = "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd")]
+[XmlRoot(ElementName = "package", Namespace = "")]
 public class NugetPackageManifest {
   [XmlElement(ElementName = "metadata")]
   public required Metadata Metadata { get; set; }
@@ -13,15 +13,19 @@ public class NugetPackageManifest {
   public static async Task<NugetPackageManifest?> GetNugetPackageManifest(HttpClient httpClient, string packageName, string packageVersion) {
     try {
       var stream = await httpClient.GetStreamAsync(GetNugetPackageManifestUrl(packageName, packageVersion));
-
       // Deserialize the XML file into a NuGetPackage object
       var serializer = new XmlSerializer(typeof(NugetPackageManifest));
       var settings = new XmlReaderSettings {
         DtdProcessing = DtdProcessing.Ignore, // Disable DTD processing
-        XmlResolver = null // Disable the XmlResolver
+        XmlResolver = null, // Disable the XmlResolver
       };
+
       using var xmlReader = XmlReader.Create(stream, settings);
-      var packageManifest = (NugetPackageManifest?)serializer.Deserialize(xmlReader);
+      using var replacedXmlReader = new ReplaceNsXmlReader(xmlReader, "");
+      var packageManifest = (NugetPackageManifest?)serializer.Deserialize(replacedXmlReader);
+      // var packageManifest = (NugetPackageManifest?)serializer.Deserialize(xmlReader);
+      Console.WriteLine($"Package manifest for {packageName} {packageVersion} found!");
+      Console.WriteLine(packageManifest);
       return packageManifest;
     }
     catch (HttpRequestException ex) {
@@ -40,7 +44,7 @@ public class NugetPackageManifest {
   public override string ToString() => this.Metadata.ToString();
 }
 
-[XmlRoot(ElementName = "metadata", Namespace = "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd")]
+[XmlRoot(ElementName = "metadata")]
 public class Metadata {
   [XmlElement(ElementName = "id")]
   public required string Id { get; set; }
@@ -148,4 +152,19 @@ public class Dependency {
   public string Version { get; set; } = string.Empty;
   [XmlAttribute(AttributeName = "exclude")]
   public string Exclude { get; set; } = string.Empty;
+}
+
+public class ReplaceNsXmlReader : XmlWrappingReader {
+  private readonly string replacementNs;
+
+  public ReplaceNsXmlReader(XmlReader reader, string replacementNs)
+      : base(reader) =>
+    //
+    // NOTE: String.Intern is here needed for the XmlSerializer
+    // that will be using this reader to deserialize correctly
+    //
+
+    this.replacementNs = String.Intern(replacementNs);
+
+  public override string NamespaceURI => this.replacementNs;
 }

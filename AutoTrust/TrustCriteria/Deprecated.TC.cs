@@ -61,9 +61,9 @@ public class Deprecated : ITrustCriteria {
       }
       Task t = Task.WhenAll(tasks);
       try {
-         t.Wait();
+        await t;
       }
-      catch {}   
+      catch { }   
     }
 
     return deprecatedPackages;

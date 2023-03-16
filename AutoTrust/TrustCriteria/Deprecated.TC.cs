@@ -35,25 +35,35 @@ public class Deprecated : ITrustCriteria {
 
   public static async Task<Dictionary<string, HashSet<string>>> GetDeprecatedPackages(DataHandler dataHandler) {
     var deprecatedPackages = new Dictionary<string, HashSet<string>>();
+    var tasks = new List<Task>();
     if (dataHandler.NugetCatalogEntry?.DependencyGroups is not null) {
       foreach (var dependencyGroup in dataHandler.NugetCatalogEntry.DependencyGroups) {
         foreach (var dependency in dependencyGroup.Dependencies) {
-          // Get the package
-          var dependencyNugetPackage = await NugetPackage.GetNugetPackage(dataHandler.HttpClient, dependency.PackageName, GetFirstPackageVersion(dependency.Range));
-          // Get the package catalog entry 
-          if (dependencyNugetPackage?.CatalogEntry != null) {
-            var dependencyNugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(dataHandler.HttpClient, dependencyNugetPackage.CatalogEntry);
-            if (dependencyNugetCatalogEntry?.Deprecation is not null) {
-              if (!deprecatedPackages.ContainsKey(dependency.PackageName)) {
-                deprecatedPackages.Add(dependency.PackageName, new HashSet<string> { dependencyGroup.TargetFramework });
+          tasks.Add(
+            Task.Run(async () => {
+              // Get the package
+              var dependencyNugetPackage = await NugetPackage.GetNugetPackage(dataHandler.HttpClient, dependency.PackageName, GetFirstPackageVersion(dependency.Range));
+              // Get the package catalog entry 
+              if (dependencyNugetPackage?.CatalogEntry != null) {
+                var dependencyNugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(dataHandler.HttpClient, dependencyNugetPackage.CatalogEntry);
+                if (dependencyNugetCatalogEntry?.Deprecation is not null) {
+                  if (!deprecatedPackages.ContainsKey(dependency.PackageName)) {
+                    deprecatedPackages.Add(dependency.PackageName, new HashSet<string> { dependencyGroup.TargetFramework });
+                  }
+                  else {
+                    deprecatedPackages[dependency.PackageName].Add(dependencyGroup.TargetFramework);
+                  }
+                }
               }
-              else {
-                deprecatedPackages[dependency.PackageName].Add(dependencyGroup.TargetFramework);
-              }
-            }
-          }
+            })
+          );      
         }
       }
+      Task t = Task.WhenAll(tasks);
+      try {
+         t.Wait();
+      }
+      catch {}   
     }
 
     return deprecatedPackages;

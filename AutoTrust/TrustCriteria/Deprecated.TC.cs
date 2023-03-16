@@ -56,14 +56,14 @@ public class Deprecated : ITrustCriteria {
                 }
               }
             })
-          );      
+          );
         }
       }
-      Task t = Task.WhenAll(tasks);
+      var t = Task.WhenAll(tasks.ToArray());
       try {
         await t;
       }
-      catch { }   
+      catch { }
     }
 
     return deprecatedPackages;

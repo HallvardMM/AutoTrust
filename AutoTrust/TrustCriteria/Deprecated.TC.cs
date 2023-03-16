@@ -18,7 +18,12 @@ public class Deprecated : ITrustCriteria {
 
     if (dataHandler.DeprecatedNugetPackages is not null && dataHandler.DeprecatedNugetPackages.Count != 0) {
       foreach (var entry in dataHandler.DeprecatedNugetPackages) {
-        Console.WriteLine($"Package '{entry.Key}' is deprecated for framework '{string.Join(", ", entry.Value)}'");
+        if (entry.Value.Contains("")) {
+          Console.WriteLine($"Depends on package '{entry.Key}' which is deprecated");
+        }
+        else {
+          Console.WriteLine($"Depends on package '{entry.Key}' which is deprecated for framework '{string.Join(", ", entry.Value)}'");
+        }
       }
       PrettyPrint.FailPrint("Package uses deprecated dependency!");
       return Status.Fail;

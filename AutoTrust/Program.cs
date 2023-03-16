@@ -28,6 +28,7 @@ if (packageVersion is "") {
 var dataHandler = new DataHandler(httpClient, packageName, packageVersion);
 // Need to call fetchData to fetch the dataHandler object data
 await dataHandler.FetchData();
+Age.Validate(dataHandler);
 Popularity.Validate(dataHandler);
 KnownVulnerabilities.Validate(dataHandler);
 

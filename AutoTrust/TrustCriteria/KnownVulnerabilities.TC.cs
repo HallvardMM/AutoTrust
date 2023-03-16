@@ -8,7 +8,7 @@ public class KnownVulnerabilities : ITrustCriteria {
 
     if (dataHandler.NugetCatalogEntry?.Vulnerabilities != null || dataHandler.OsvData?.Vulns != null) {
       PrettyPrint.FailPrint("Package has known vulnerabilities");
-      return Status.Error;
+      return Status.Fail;
     }
 
     PrettyPrint.SuccessPrint("No known vulnerabilities found");

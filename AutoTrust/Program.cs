@@ -30,6 +30,7 @@ var dataHandler = new DataHandler(httpClient, packageName, packageVersion);
 await dataHandler.FetchData();
 Popularity.Validate(dataHandler);
 KnownVulnerabilities.Validate(dataHandler);
+Deprecated.Validate(dataHandler);
 
 Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.CurrentCulture)}");
 

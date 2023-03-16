@@ -161,7 +161,7 @@ public class ReplaceNsXmlReader : XmlWrappingReader {
     // that will be using this reader to deserialize correctly
     //
 
-    this.replacementNs = String.Intern(replacementNs);
+    this.replacementNs = string.Intern(replacementNs);
 
   public override string NamespaceURI => this.replacementNs;
 }

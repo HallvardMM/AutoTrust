@@ -11,29 +11,29 @@ public class Popularity : ITrustCriteria {
     // Check download count
     if (dataHandler.NugetDownloadCount == null) {
       PrettyPrint.FailPrint("Can't find download count for package");
-      return Status.Error;
+      return Status.Fail;
     }
     else if (dataHandler.NugetDownloadCount.Data[0].TotalDownloads <= DownloadsThreshold) {
       PrettyPrint.FailPrint("Package download count: " + dataHandler.NugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + DownloadsThreshold);
-      return Status.Error;
+      return Status.Fail;
     }
 
     // Check number of stars, forks and watchers on github
     if (dataHandler.GithubData == null) {
       PrettyPrint.FailPrint("Can't find github data for package");
-      return Status.Error;
+      return Status.Fail;
     }
     else if (dataHandler.GithubData.StargazersCount <= StargazersCountThreshold) {
       PrettyPrint.FailPrint("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is lower than threshold: " + StargazersCountThreshold);
-      return Status.Error;
+      return Status.Fail;
     }
     else if (dataHandler.GithubData.ForksCount <= ForksCountThreshold) {
       PrettyPrint.FailPrint("Package github forks count: " + dataHandler.GithubData.ForksCount + " is lower than threshold: " + ForksCountThreshold);
-      return Status.Error;
+      return Status.Fail;
     }
     else if (dataHandler.GithubData.WatchersCount <= WatchersThreshold) {
       PrettyPrint.FailPrint("Package github watchers count: " + dataHandler.GithubData.WatchersCount + " is lower than threshold: " + WatchersThreshold);
-      return Status.Error;
+      return Status.Fail;
     }
 
     // Check number of projects that depend on this package

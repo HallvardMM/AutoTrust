@@ -7,6 +7,7 @@ public class DataHandler {
   public NugetPackage? NugetPackage { get; private set; }
   public NugetCatalogEntry? NugetCatalogEntry { get; private set; }
   public NugetPackageManifest? PackageManifest { get; private set; }
+  public Dictionary<string, HashSet<string>>? DeprecatedNugetPackages { get; private set; }
   public GithubPackage? GithubData { get; private set; }
   public GithubIssues? GithubIssueData { get; private set; }
   public NugetDownloadCount? NugetDownloadCount { get; private set; }
@@ -47,5 +48,6 @@ public class DataHandler {
 
     this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
     this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion);
+    this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this);
   }
 }

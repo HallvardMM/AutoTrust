@@ -25,38 +25,50 @@ public class DataHandler {
   }
 
   public async Task FetchData() {
-    this.NugetPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, this.PackageVersion);
+    var tasks = new List<Task> {
+      Task.Run(async () => {
+        this.NugetPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, this.PackageVersion);
 
-    // Get the package catalog entry with a lot of data such as potential vulnerabilities
-    if (this.NugetPackage?.CatalogEntry != null) {
-      this.NugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(this.HttpClient, this.NugetPackage.CatalogEntry);
-    }
+        // Get the package catalog entry with a lot of data such as potential vulnerabilities
+        if (this.NugetPackage?.CatalogEntry != null) {
+          this.NugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(this.HttpClient, this.NugetPackage.CatalogEntry);
+        }
+      }),
+      Task.Run(async () => {
+        this.PackageManifest = await NugetPackageManifest.GetNugetPackageManifest(this.HttpClient, this.PackageName, this.PackageVersion);
 
-    this.PackageManifest = await NugetPackageManifest.GetNugetPackageManifest(this.HttpClient, this.PackageName, this.PackageVersion);
+        var repositoryUrl = "";
 
-    var repositoryUrl = "";
+        if (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
+          repositoryUrl = this.PackageManifest.Metadata.Repository.Url;
+        }
+        else if (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
+          repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
+        }
 
-    if (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
-      repositoryUrl = this.PackageManifest.Metadata.Repository.Url;
-    }
-    else if (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
-      repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
-    }
+        if (repositoryUrl != "") {
+          this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, repositoryUrl);
+          this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, repositoryUrl);
+        }
+      }),
+      Task.Run(async () => this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName)),
+      Task.Run(async () => this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion)),
+      Task.Run(async () => this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this)),
 
-    if (repositoryUrl != "") {
-      this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, repositoryUrl);
-      this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, repositoryUrl);
-    }
+      Task.Run(async () => {
+        try {
+          this.UsedByInformation = await this.HttpClient.GetStringAsync($"https://www.nuget.org/packages/{this.PackageName}/{this.PackageVersion}#usedby-body-tab");
+        }
+        catch (HttpRequestException) {
+          this.UsedByInformation = "";
+        }
+      })
+    };
 
-    this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
-    this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion);
-    this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this);
-
+    var t = Task.WhenAll(tasks.ToArray());
     try {
-      this.UsedByInformation = await this.HttpClient.GetStringAsync($"https://www.nuget.org/packages/{this.PackageName}/{this.PackageVersion}#usedby-body-tab");
+      await t;
     }
-    catch (HttpRequestException) {
-      this.UsedByInformation = "";
-    }
+    catch { }
   }
 }

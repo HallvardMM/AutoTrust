@@ -12,6 +12,7 @@ public class DataHandler {
   public GithubIssues? GithubIssueData { get; private set; }
   public NugetDownloadCount? NugetDownloadCount { get; private set; }
   public OSVData? OsvData { get; private set; }
+  public string UsedByInformation { get; private set; }
 
   public DataHandler(HttpClient httpClient, string packageName, string packageVersion) {
     this.PackageName = packageName;
@@ -20,6 +21,7 @@ public class DataHandler {
     this.NugetPackage = null;
     this.NugetCatalogEntry = null;
     this.PackageManifest = null;
+    this.UsedByInformation = "";
   }
 
   public async Task FetchData() {
@@ -49,5 +51,12 @@ public class DataHandler {
     this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
     this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion);
     this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this);
+
+    try {
+      this.UsedByInformation = await this.HttpClient.GetStringAsync($"https://www.nuget.org/packages/{this.PackageName}/{this.PackageVersion}#usedby-body-tab");
+    }
+    catch (HttpRequestException) {
+      this.UsedByInformation = "";
+    }
   }
 }

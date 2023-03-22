@@ -11,7 +11,7 @@ public class KnownVulnerabilities : ITrustCriteria {
       return Status.Fail;
     }
 
-    PrettyPrint.SuccessPrint("No known vulnerabilities found");
+    PrettyPrint.SuccessPrint("No current vulnerabilities found");
     return Status.Pass;
   }
 }

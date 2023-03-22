@@ -4,13 +4,6 @@ using System.Globalization;
 
 public class Popularity : ITrustCriteria {
   public string Title => "Package Popularity";
-  private static readonly long DownloadsThreshold = 10000;
-  private static readonly long StargazersCountThreshold = 2;
-  private static readonly long ForksCountThreshold = 1;
-  private static readonly long WatchersThreshold = 1;
-  private static readonly long UsedByNugetPackagesThreshold = 10;
-  private static readonly long UsedByGithubRepositoriesThreshold = 10;
-
 
   public static Status Validate(DataHandler dataHandler) {
     // Check download count
@@ -18,8 +11,8 @@ public class Popularity : ITrustCriteria {
       PrettyPrint.FailPrint("Can't find download count for package");
       return Status.Fail;
     }
-    else if (dataHandler.NugetDownloadCount.Data[0].TotalDownloads <= DownloadsThreshold) {
-      PrettyPrint.FailPrint("Package download count: " + dataHandler.NugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + DownloadsThreshold);
+    else if (dataHandler.NugetDownloadCount.Data[0].TotalDownloads <= TCConfiguration.DownloadsThreshold) {
+      PrettyPrint.FailPrint("Package download count: " + dataHandler.NugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + TCConfiguration.DownloadsThreshold);
       return Status.Fail;
     }
 
@@ -28,16 +21,16 @@ public class Popularity : ITrustCriteria {
       PrettyPrint.FailPrint("Can't find github data for package");
       return Status.Fail;
     }
-    else if (dataHandler.GithubData.StargazersCount <= StargazersCountThreshold) {
-      PrettyPrint.FailPrint("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is lower than threshold: " + StargazersCountThreshold);
+    else if (dataHandler.GithubData.StargazersCount <= TCConfiguration.StargazersCountThreshold) {
+      PrettyPrint.FailPrint("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is lower than threshold: " + TCConfiguration.StargazersCountThreshold);
       return Status.Fail;
     }
-    else if (dataHandler.GithubData.ForksCount <= ForksCountThreshold) {
-      PrettyPrint.FailPrint("Package github forks count: " + dataHandler.GithubData.ForksCount + " is lower than threshold: " + ForksCountThreshold);
+    else if (dataHandler.GithubData.ForksCount <= TCConfiguration.ForksCountThreshold) {
+      PrettyPrint.FailPrint("Package github forks count: " + dataHandler.GithubData.ForksCount + " is lower than threshold: " + TCConfiguration.ForksCountThreshold);
       return Status.Fail;
     }
-    else if (dataHandler.GithubData.WatchersCount <= WatchersThreshold) {
-      PrettyPrint.FailPrint("Package github watchers count: " + dataHandler.GithubData.WatchersCount + " is lower than threshold: " + WatchersThreshold);
+    else if (dataHandler.GithubData.WatchersCount <= TCConfiguration.WatchersThreshold) {
+      PrettyPrint.FailPrint("Package github watchers count: " + dataHandler.GithubData.WatchersCount + " is lower than threshold: " + TCConfiguration.WatchersThreshold);
       return Status.Fail;
     }
 
@@ -96,15 +89,15 @@ public class Popularity : ITrustCriteria {
     var nuGetUsed = dataHandler.UsedByInformation[(indexOfNuGetPackages + nuGetPackagesString.Length)..endIndexNuGetPackages].Trim();
     var githubUsed = dataHandler.UsedByInformation[(indexOfGithubRepositories + githubRepositoriesString.Length)..endIndexGithubRepositories].Trim();
 
-    if (ConvertStringWithSIPrefixToNumber(nuGetUsed) < UsedByNugetPackagesThreshold) {
-      PrettyPrint.WarningPrint($"Package is used by less than {UsedByNugetPackagesThreshold} Nuget packages: {nuGetUsed}");
-      if (ConvertStringWithSIPrefixToNumber(githubUsed) < UsedByGithubRepositoriesThreshold) {
-        PrettyPrint.WarningPrint($"Package is used by less than {UsedByGithubRepositoriesThreshold} Github repositories: {githubUsed}");
+    if (ConvertStringWithSIPrefixToNumber(nuGetUsed) < TCConfiguration.UsedByNugetPackagesThreshold) {
+      PrettyPrint.WarningPrint($"Package is used by less than {TCConfiguration.UsedByNugetPackagesThreshold} Nuget packages: {nuGetUsed}");
+      if (ConvertStringWithSIPrefixToNumber(githubUsed) < TCConfiguration.UsedByGithubRepositoriesThreshold) {
+        PrettyPrint.WarningPrint($"Package is used by less than {TCConfiguration.UsedByGithubRepositoriesThreshold} Github repositories: {githubUsed}");
       }
       return Status.Error;
     }
-    if (ConvertStringWithSIPrefixToNumber(githubUsed) < UsedByGithubRepositoriesThreshold) {
-      PrettyPrint.WarningPrint($"Package is used by less than {UsedByGithubRepositoriesThreshold} Github repositories: {githubUsed}");
+    if (ConvertStringWithSIPrefixToNumber(githubUsed) < TCConfiguration.UsedByGithubRepositoriesThreshold) {
+      PrettyPrint.WarningPrint($"Package is used by less than {TCConfiguration.UsedByGithubRepositoriesThreshold} Github repositories: {githubUsed}");
       return Status.Error;
     }
 

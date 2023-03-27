@@ -16,7 +16,7 @@ public class Deprecated : ITrustCriteria {
       return Status.Fail;
     }
 
-    if (dataHandler.DeprecatedNugetPackages is not null && dataHandler.DeprecatedNugetPackages.Count != 0) {
+    if (dataHandler.DeprecatedNugetPackages is not null && !dataHandler.DeprecatedNugetPackages.IsEmpty) {
       foreach (var entry in dataHandler.DeprecatedNugetPackages) {
         if (entry.Value.Contains("")) {
           Console.WriteLine($"Depends on package '{entry.Key}' which is deprecated");
@@ -33,37 +33,40 @@ public class Deprecated : ITrustCriteria {
     return Status.Pass;
   }
 
-  public static async Task<Dictionary<string, HashSet<string>>> GetDeprecatedPackages(DataHandler dataHandler) {
-    var deprecatedPackages = new Dictionary<string, HashSet<string>>();
+  public static async Task<System.Collections.Concurrent.ConcurrentDictionary<string, HashSet<string>>> GetDeprecatedPackages(DataHandler dataHandler, List<PackageDependencyGroup> dependencyGroups, int depth = 2) {
+    var deprecatedPackages = new System.Collections.Concurrent.ConcurrentDictionary<string, HashSet<string>>();
     var tasks = new List<Task>();
-    if (dataHandler.NugetCatalogEntry?.DependencyGroups is not null) {
-      foreach (var dependencyGroup in dataHandler.NugetCatalogEntry.DependencyGroups) {
-        foreach (var dependency in dependencyGroup.Dependencies) {
-          tasks.Add(
-            Task.Run(async () => {
-              // Get the package
-              var dependencyNugetPackage = await NugetPackage.GetNugetPackage(dataHandler.HttpClient, dependency.PackageName, GetFirstPackageVersion(dependency.Range));
-              // Get the package catalog entry 
-              if (dependencyNugetPackage?.CatalogEntry != null) {
-                var dependencyNugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(dataHandler.HttpClient, dependencyNugetPackage.CatalogEntry);
-                if (dependencyNugetCatalogEntry?.Deprecation is not null) {
-                  if (!deprecatedPackages.ContainsKey(dependency.PackageName)) {
-                    deprecatedPackages.Add(dependency.PackageName, new HashSet<string> { dependencyGroup.TargetFramework });
-                  }
-                  else {
-                    deprecatedPackages[dependency.PackageName].Add(dependencyGroup.TargetFramework);
+    if (dataHandler.NugetCatalogEntry?.Deprecation is null) {
+      if (dependencyGroups is not null) {
+        foreach (var dependencyGroup in dataHandler.NugetCatalogEntry.DependencyGroups) {
+          foreach (var dependency in dependencyGroup.Dependencies) {
+            tasks.Add(
+              Task.Run(async () => {
+                // Get the package
+                var dependencyNugetPackage = await NugetPackage.GetNugetPackage(dataHandler.HttpClient, dependency.PackageName, GetFirstPackageVersion(dependency.Range));
+                // Get the package catalog entry 
+                if (dependencyNugetPackage?.CatalogEntry != null) {
+                  var dependencyNugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(dataHandler.HttpClient, dependencyNugetPackage.CatalogEntry);
+                  // Only check packages that are deprecated
+                  if (dependencyNugetCatalogEntry?.Deprecation is not null) {
+                    deprecatedPackages.AddOrUpdate(dependency.PackageName, new HashSet<string> { dependencyGroup.TargetFramework }, (key, oldValue) => {
+                      oldValue.Add(dependencyGroup.TargetFramework);
+                      return oldValue;
+                    });
                   }
                 }
-              }
-            })
-          );
+              })
+            );
+          }
+        }
+        var t = Task.WhenAll(tasks.ToArray());
+        try {
+          await t;
+        }
+        catch {
+          Console.WriteLine("ERROR");
         }
       }
-      var t = Task.WhenAll(tasks.ToArray());
-      try {
-        await t;
-      }
-      catch { }
     }
 
     return deprecatedPackages;

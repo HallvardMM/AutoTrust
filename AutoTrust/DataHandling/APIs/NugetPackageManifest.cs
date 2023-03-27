@@ -1,9 +1,9 @@
-//TODO: Evaluate which properties are valuable and needed
-// Documentation for required properties: https://learn.microsoft.com/en-us/nuget/reference/nuspec
-
 namespace AutoTrust;
 using System.Xml;
 using System.Xml.Serialization;
+
+// Documentation for required properties: https://learn.microsoft.com/en-us/nuget/reference/nuspec
+
 
 [XmlRoot(ElementName = "package", Namespace = "")]
 public class NugetPackageManifest {
@@ -36,7 +36,7 @@ public class NugetPackageManifest {
     return null;
   }
 
-  public static string GetNugetPackageManifestUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}.nuspec";
+  public static string GetNugetPackageManifestUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}.nuspec";
 
   public override string ToString() => this.Metadata.ToString();
 }

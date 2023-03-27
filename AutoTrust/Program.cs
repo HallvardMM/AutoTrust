@@ -32,8 +32,9 @@ Age.Validate(dataHandler);
 Popularity.Validate(dataHandler);
 KnownVulnerabilities.Validate(dataHandler);
 Deprecated.Validate(dataHandler);
+Documentation.Validate(dataHandler);
 
-Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.CurrentCulture)}");
+Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}");
 
 Console.WriteLine("Do you still want to add this package? (y/n)");
 

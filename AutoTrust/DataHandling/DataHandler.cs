@@ -63,10 +63,9 @@ public class DataHandler {
 
         if (authorAndProject != "") {
           var tasks = new List<Task> {
-          Task.Run(async () => {
-          this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject);}),
-          Task.Run(async () => {this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject);}),
-          Task.Run(async () => {this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject);}),
+          Task.Run(async () => this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject)),
+          Task.Run(async () => this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject)),
+          Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject)),
         };
           var t = Task.WhenAll(tasks.ToArray());
           try {

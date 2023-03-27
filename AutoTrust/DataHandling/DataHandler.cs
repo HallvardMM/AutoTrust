@@ -62,11 +62,18 @@ public class DataHandler {
         }
 
         if (authorAndProject != "") {
-          // TODO: this are ran in sequence, but could be ran in parallel
-          this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject);
-          this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject);
-          this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject);
-        }
+          var tasks = new List<Task> {
+          Task.Run(async () => {
+          this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject);}),
+          Task.Run(async () => {this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject);}),
+          Task.Run(async () => {this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject);}),
+        };
+          var t = Task.WhenAll(tasks.ToArray());
+          try {
+            await t;
+          }
+          catch { }
+        };
       }),
       Task.Run(async () => this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName)),
       Task.Run(async () => this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion)),

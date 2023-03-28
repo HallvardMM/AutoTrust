@@ -23,7 +23,6 @@ public class GithubIssues {
     try {
       // Fetch package data
       var githubIssuesUrl = GetGithubIssuesUrl(authorAndProject);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
       var githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
       return githubIssueData;
     }

@@ -15,7 +15,7 @@ public class NugetPackage {
   public DateTimeOffset? Published { get; set; }
   public string Registration { get; set; } = string.Empty;
 
-  public static string GetNugetPackageUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3/registration5-semver1/{packageName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.CurrentCulture)}.json";
+  public static string GetNugetPackageUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3/registration5-semver1/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}.json";
 
   public static async Task<NugetPackage?> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion) {
     try {

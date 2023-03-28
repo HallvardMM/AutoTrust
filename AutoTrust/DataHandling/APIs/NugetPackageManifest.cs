@@ -52,7 +52,7 @@ public class Metadata {
   [XmlElement(ElementName = "authors")]
   public required string Authors { get; set; }
   [XmlElement(ElementName = "license")]
-  public License? License { get; set; }
+  public XmlLicense? License { get; set; }
   [XmlElement(ElementName = "licenseUrl")]
   public string LicenseUrl { get; set; } = string.Empty;
   [XmlElement(ElementName = "icon")]
@@ -111,7 +111,7 @@ public class Metadata {
   }
 }
 
-public class License {
+public class XmlLicense {
   [XmlAttribute(AttributeName = "type")]
   public string Type { get; set; } = string.Empty;
   [XmlText]

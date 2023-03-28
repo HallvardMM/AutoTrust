@@ -116,6 +116,14 @@ public class Popularity : ITrustCriteria {
     // Example: 1.2k -> 1200
     var number = 0.0;
     var prefix = numberWithPrefix.Last();
+    if (!char.IsLetter(prefix)) {
+      if (long.TryParse(numberWithPrefix, CultureInfo.InvariantCulture, out var regularNumber)) {
+        return regularNumber;
+      }
+      else {
+        return 0; // Return 0 if last character is not a letter and the string is not a number
+      }
+    }
     var numberString = numberWithPrefix[..^1];
     if (double.TryParse(numberString, CultureInfo.InvariantCulture, out var numberDouble)) {
       number = numberDouble;
@@ -148,7 +156,6 @@ public class Popularity : ITrustCriteria {
       default:
         break;
     }
-
     return (long)number;
   }
 }

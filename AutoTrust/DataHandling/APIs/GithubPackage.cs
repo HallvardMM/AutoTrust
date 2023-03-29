@@ -175,7 +175,6 @@ public class GithubPackage {
     try {
       // Fetch package data
       var githubApiUrl = GetGithubApiUrl(authorAndProject);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
       var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
       return githubData;
     }

@@ -13,26 +13,26 @@ public class Documentation : ITrustCriteria {
     };
 
     // Check if Github has a README
-    if (dataHandler.GithubReadmeData?.HtmlUrl != "") {
+    if (!string.IsNullOrEmpty(dataHandler.GithubReadmeData?.HtmlUrl)) {
       PrettyPrint.SuccessPrint($"Github page contains README: {dataHandler.GithubReadmeData?.HtmlUrl}");
       return Status.Pass;
     }
 
     // Check if projectURL is set and not Github (might be an homepage)
-    if (!dataHandler?.NugetCatalogEntry?.ProjectUrl.Contains("github") ?? false) {
-      PrettyPrint.WarningPrint($"Package has webpage that might contain documentation: {dataHandler?.NugetCatalogEntry?.ProjectUrl}");
+    if (!string.IsNullOrEmpty(dataHandler?.NugetCatalogEntry?.ProjectUrl) && (!dataHandler?.NugetCatalogEntry?.ProjectUrl.Contains("github") ?? false)) {
+      PrettyPrint.WarningPrint($"Package has webpage that is not Github that might contain documentation: {dataHandler?.NugetCatalogEntry?.ProjectUrl}");
       return Status.Error;
     }
 
     // Check if Github contains a Github wiki or a webpage
     if (dataHandler?.GithubData != null) {
 
-      if (dataHandler.GithubData?.HasWiki != null) {
+      if (dataHandler.GithubData?.HasWiki == true) {
         PrettyPrint.WarningPrint($"Package has Github wiki that might contain documentation: {dataHandler.GithubData?.HtmlUrl}/wiki");
         return Status.Error;
       }
 
-      if (dataHandler.GithubData?.Homepage != null) {
+      if (!string.IsNullOrEmpty(dataHandler.GithubData?.Homepage)) {
         PrettyPrint.WarningPrint($"Package has webpage that might contain documentation: {dataHandler.GithubData.Homepage}");
         return Status.Error;
       }

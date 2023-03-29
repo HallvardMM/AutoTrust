@@ -18,6 +18,7 @@ public class DataHandler {
   public DataHandler(HttpClient httpClient, string packageName, string packageVersion) {
     this.PackageName = packageName;
     this.HttpClient = httpClient;
+    httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
     this.PackageVersion = packageVersion;
     this.NugetPackage = null;
     this.NugetCatalogEntry = null;
@@ -40,10 +41,10 @@ public class DataHandler {
 
         var repositoryUrl = "";
 
-        if (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false) {
+        if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.Repository?.Url) && (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.Repository.Url;
         }
-        else if (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false) {
+        else if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.ProjectUrl) && (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
         }
 

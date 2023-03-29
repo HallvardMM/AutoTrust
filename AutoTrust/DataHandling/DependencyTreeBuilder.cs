@@ -48,8 +48,15 @@ public class DependencyTreeBuilder {
             }
           }
         }
+        // // Check if package is deprecated
+        // if (nugetCatalogEntry?.Deprecation is not null) {
+        //   currentTree[name].IsDeprecated = true;
+        // }
       }
     }
+
+    
+
 
     var tasks = new List<Task>();
     // Check dependencies that have not been checked yet

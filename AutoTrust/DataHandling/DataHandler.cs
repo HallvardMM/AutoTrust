@@ -4,6 +4,7 @@ public class DataHandler {
   public HttpClient HttpClient { get; private set; }
   public string PackageName { get; private set; }
   public string PackageVersion { get; private set; }
+  public bool IsPrerelease { get; private set; }
   public NugetPackage? NugetPackage { get; private set; }
   public NugetCatalogEntry? NugetCatalogEntry { get; private set; }
   public NugetPackageManifest? PackageManifest { get; private set; }
@@ -15,11 +16,12 @@ public class DataHandler {
   public OSVData? OsvData { get; private set; }
   public string UsedByInformation { get; private set; }
 
-  public DataHandler(HttpClient httpClient, string packageName, string packageVersion) {
+  public DataHandler(HttpClient httpClient, string packageName, string packageVersion, bool prerelease) {
     this.PackageName = packageName;
     this.HttpClient = httpClient;
     httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
     this.PackageVersion = packageVersion;
+    this.IsPrerelease = prerelease;
     this.NugetPackage = null;
     this.NugetCatalogEntry = null;
     this.PackageManifest = null;
@@ -27,6 +29,16 @@ public class DataHandler {
   }
 
   public async Task FetchData() {
+    if (this.PackageVersion is "") {
+      var latestVersion = await NugetPackageVersion.GetLatestVersion(this.HttpClient, this.PackageName, this.IsPrerelease);
+      if (latestVersion != null) {
+        this.PackageVersion = latestVersion;
+      }
+      else {
+        Console.WriteLine("Error: Package version not found!");
+        return;
+      }
+    };
     var tasks = new List<Task> {
       Task.Run(async () => {
         this.NugetPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, this.PackageVersion);

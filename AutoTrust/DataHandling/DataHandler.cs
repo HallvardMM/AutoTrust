@@ -8,6 +8,7 @@ public class DataHandler {
   public NugetCatalogEntry? NugetCatalogEntry { get; private set; }
   public NugetPackageManifest? PackageManifest { get; private set; }
   public System.Collections.Concurrent.ConcurrentDictionary<string, HashSet<string>>? DeprecatedNugetPackages { get; private set; }
+  public System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>? DependencyTree { get; private set; }
   public GithubPackage? GithubData { get; private set; }
   public GithubIssues? GithubIssueData { get; private set; }
   public NugetDownloadCount? NugetDownloadCount { get; private set; }
@@ -36,6 +37,7 @@ public class DataHandler {
         
         // Get deprecated packages after we have the catalog entry
         this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this, this.NugetCatalogEntry?.DependencyGroups);
+        this.DependencyTree = await DependencyTreeBuilder.GetDependencyTree(this, new System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>(), this.PackageName, this.PackageVersion);
       }),
       Task.Run(async () => {
         this.PackageManifest = await NugetPackageManifest.GetNugetPackageManifest(this.HttpClient, this.PackageName, this.PackageVersion);

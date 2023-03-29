@@ -5,6 +5,9 @@ public class Deprecated : ITrustCriteria {
   public string Title => "Deprecated package";
 
   public static Status Validate(DataHandler dataHandler) {
+    // foreach (var entry in dataHandler.DependencyTree) {
+    //   Console.WriteLine($"\nDEPENDENCY::: Package name: {entry.Key} - Parent name: {entry.Value.parentName} - Depth: {entry.Value.depth}");
+    // }
     // Check if the package is deprecated or uses any deprecated dependencies
     if (dataHandler.NugetCatalogEntry?.Deprecation is not null) {
       if (dataHandler.NugetCatalogEntry.Deprecation.AlternatePackage?.AlternatePackageName is not null) {

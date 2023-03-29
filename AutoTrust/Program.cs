@@ -22,6 +22,7 @@ KnownVulnerabilities.Validate(dataHandler);
 Deprecated.Validate(dataHandler);
 Documentation.Validate(dataHandler);
 License.Validate(dataHandler);
+WidespreadUse.Validate(dataHandler);
 
 Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}");
 

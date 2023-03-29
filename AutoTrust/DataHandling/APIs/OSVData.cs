@@ -21,11 +21,18 @@ public class OSVData {
     return returnString;
   }
 
-  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, string packageVersion) {
+  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, string packageVersion = "") {
     try {
+      var osvJSONPost = "";
       // Fetch package data
-      var osvJSONPost =
+      if (packageVersion == "") {
+        osvJSONPost =
+        $"{{\"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
+      }
+      else {
+        osvJSONPost =
         $"{{\"version\": \"{packageVersion}\", \"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
+      }
 
       var content = new StringContent(osvJSONPost, System.Text.Encoding.UTF8, "application/json");
       var response = await httpClient.PostAsync("https://api.osv.dev/v1/query", content);

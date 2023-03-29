@@ -75,8 +75,11 @@ public class DataHandler {
           catch { }
         };
       }),
-      Task.Run(async () => this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName)),
-      Task.Run(async () => this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion)),
+      Task.Run(async () => {this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
+        if(this.NugetDownloadCount?.Data[0].PackageName != null) {
+          this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.NugetDownloadCount.Data[0].PackageName);}
+        }
+       ),
       Task.Run(async () => this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this)),
 
       Task.Run(async () => {

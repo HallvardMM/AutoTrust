@@ -36,7 +36,9 @@ public class DataHandler {
         }
         
         // Get deprecated packages after we have the catalog entry
-        this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this, this.NugetCatalogEntry?.DependencyGroups);
+        if (this.NugetCatalogEntry?.DependencyGroups != null) {
+          this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this);
+        }
         this.DependencyTree = await DependencyTreeBuilder.GetDependencyTree(this, new System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>(), this.PackageName, this.PackageVersion);
       }),
       Task.Run(async () => {

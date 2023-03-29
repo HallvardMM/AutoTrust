@@ -5,9 +5,11 @@ public class Deprecated : ITrustCriteria {
   public string Title => "Deprecated package";
 
   public static Status Validate(DataHandler dataHandler) {
-    // foreach (var entry in dataHandler.DependencyTree) {
-    //   Console.WriteLine($"\nDEPENDENCY::: Package name: {entry.Key} - Parent name: {entry.Value.parentName} - Depth: {entry.Value.depth}");
-    // }
+    if (dataHandler.DependencyTree is not null) {
+      foreach (var entry in dataHandler.DependencyTree) {
+        Console.WriteLine($"\nDEPENDENCY::: Package name: {entry.Key} - Parent name: {entry.Value.ParentName} - Depth: {entry.Value.Depth}");
+      }
+    }
     // Check if the package is deprecated or uses any deprecated dependencies
     if (dataHandler.NugetCatalogEntry?.Deprecation is not null) {
       if (dataHandler.NugetCatalogEntry.Deprecation.AlternatePackage?.AlternatePackageName is not null) {
@@ -36,11 +38,11 @@ public class Deprecated : ITrustCriteria {
     return Status.Pass;
   }
 
-  public static async Task<System.Collections.Concurrent.ConcurrentDictionary<string, HashSet<string>>> GetDeprecatedPackages(DataHandler dataHandler, List<PackageDependencyGroup> dependencyGroups, int depth = 2) {
+  public static async Task<System.Collections.Concurrent.ConcurrentDictionary<string, HashSet<string>>> GetDeprecatedPackages(DataHandler dataHandler) {
     var deprecatedPackages = new System.Collections.Concurrent.ConcurrentDictionary<string, HashSet<string>>();
     var tasks = new List<Task>();
     if (dataHandler.NugetCatalogEntry?.Deprecation is null) {
-      if (dependencyGroups is not null) {
+      if (dataHandler.NugetCatalogEntry?.DependencyGroups is not null) {
         foreach (var dependencyGroup in dataHandler.NugetCatalogEntry.DependencyGroups) {
           foreach (var dependency in dependencyGroup.Dependencies) {
             tasks.Add(

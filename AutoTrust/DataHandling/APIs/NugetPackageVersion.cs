@@ -7,7 +7,7 @@ public class NugetPackageVersion {
 
   public static string GetVersionsUrl(string packageName) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/index.json";
 
-  public static async Task<string?> GetLatestVersion(HttpClient httpClient, string packageName, bool prerelease = false) {
+  public static async Task<(string?, string?)> GetLatestVersion(HttpClient httpClient, string packageName, bool prerelease = false) {
     try {
 
       // Fetch all versions data
@@ -18,9 +18,9 @@ public class NugetPackageVersion {
       if (allVersionsForPackageObject?.Versions != null) {
 
         if (prerelease) {
-          return FilterLatestVersion(allVersionsForPackageObject.Versions);
+          return (FilterOldestVersion(allVersionsForPackageObject.Versions), FilterLatestVersion(allVersionsForPackageObject.Versions));
         }
-        return FilterLatestStableVersion(allVersionsForPackageObject.Versions);
+        return (FilterOldestVersion(allVersionsForPackageObject.Versions), FilterLatestStableVersion(allVersionsForPackageObject.Versions));
       }
     }
     catch (HttpRequestException ex) {
@@ -31,7 +31,7 @@ public class NugetPackageVersion {
       // Handle any exceptions thrown during JSON deserialization.
       Console.WriteLine($"A JSON error occurred: {ex.Message}");
     }
-    return null;
+    return (null, null);
   }
 
   public static string? FilterLatestStableVersion(List<string> versions) {
@@ -45,6 +45,7 @@ public class NugetPackageVersion {
 
   public static string FilterLatestVersion(List<string> versions) => versions.Last();
 
+  public static string FilterOldestVersion(List<string> versions) => versions.First();
 
   public override string ToString() => $"[{string.Join(", ", this.Versions)}]";
 

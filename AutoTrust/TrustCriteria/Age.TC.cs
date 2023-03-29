@@ -15,24 +15,18 @@ public class Age : ITrustCriteria {
       return Status.Fail;
     }
     var ageOfVersion = now.Subtract(dataHandler.NugetCatalogEntry.Created.UtcDateTime).Days;
-    var packageIsPreRelease = dataHandler.NugetCatalogEntry?.Version.Contains('-') ?? false;
+    var packageIsPreRelease = dataHandler.PackageVersion.Contains('-');
 
     if (ageOfVersion < VersionAgeInDaysThreshold) {
-      PrettyPrint.FailPrint($"Package version was created less than {VersionAgeInDaysThreshold} days ago: {ageOfVersion} days");
-      if (packageIsPreRelease) {
-        PrettyPrint.WarningPrint($"Package version is a pre-release version: {dataHandler.NugetCatalogEntry?.Version}");
-      }
+      PrettyPrint.FailPrint($"Package version {dataHandler.PackageVersion} was created less than {VersionAgeInDaysThreshold} days ago: {ageOfVersion} days");
       return Status.Fail;
     }
     if (ageOfVersion > VersionOldAgeInDaysThreshold) {
-      PrettyPrint.FailPrint($"Package version was created more than {VersionOldAgeInDaysThreshold} days ago: {ageOfVersion} days");
-      if (packageIsPreRelease) {
-        PrettyPrint.WarningPrint($"Package version is a pre-release version: {dataHandler.NugetCatalogEntry?.Version}");
-      }
+      PrettyPrint.FailPrint($"Package version {dataHandler.PackageVersion} was created more than {VersionOldAgeInDaysThreshold} days ago: {ageOfVersion} days");
       return Status.Fail;
     }
     if (packageIsPreRelease) {
-      PrettyPrint.WarningPrint($"Package version is a pre-release version: {dataHandler.NugetCatalogEntry?.Version}");
+      PrettyPrint.WarningPrint($"Package version is a pre-release version: {dataHandler.PackageVersion}");
       return Status.Error;
     }
 

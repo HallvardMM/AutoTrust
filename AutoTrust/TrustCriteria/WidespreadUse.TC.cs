@@ -12,7 +12,7 @@ public class WidespreadUse : ITrustCriteria {
       PrettyPrint.FailPrint("Can't find oldest version of package");
       return Status.Fail;
     }
-    if (dataHandler.OldestPublishedDate != null) {
+    else {
       var ageOfOldestVersion = now.Subtract(dataHandler.OldestPublishedDate.Value.UtcDateTime).Days;
       if (ageOfOldestVersion < VersionOldAgeInDaysThreshold) {
         PrettyPrint.FailPrint($"Oldest version of package found in Nuget was released {VersionOldAgeInDaysThreshold} days ago: {ageOfOldestVersion} days");

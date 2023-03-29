@@ -54,7 +54,7 @@ public class DataHandler {
       Task.Run(async () => {
         if(oldestVersion != null){
         // Get the package catalog entry with a lot of data such as potential vulnerabilities
-        var oldPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, this.PackageVersion);
+        var oldPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, oldestVersion);
         if (oldPackage?.Published != null) {
           this.OldestPublishedDate = oldPackage.Published;
         }

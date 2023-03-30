@@ -12,7 +12,7 @@ public class DirectTransitiveDependencies : ITrustCriteria {
       var transitiveDependencies = dataHandler.DependencyTree.Values.Where(x => x.Depth > 1).Count();
       // Check if both direct and transitive dependencies are within the threshold
       if (directDependencies > MaxDirectDependencies && transitiveDependencies > MaxTransitiveDependencies) {
-        PrettyPrint.WarningPrint($"Package has {directDependencies} direct dependencies and {transitiveDependencies} transitive dependencies down to tree depth {DependencyTreeBuilder.MAXDEPTH}!");
+        PrettyPrint.WarningPrint($"Package has {directDependencies} direct dependencies and {transitiveDependencies} transitive dependencies down to dependency depth {DependencyTreeBuilder.MAXDEPTH}!");
         return Status.Error;
       }
       // Check if direct dependencies are within the threshold
@@ -22,12 +22,12 @@ public class DirectTransitiveDependencies : ITrustCriteria {
       }
       // Check if transitive dependencies are within the threshold
       else if (transitiveDependencies > MaxTransitiveDependencies) {
-        PrettyPrint.WarningPrint($"Package has {transitiveDependencies} transitive dependencies down to tree depth {DependencyTreeBuilder.MAXDEPTH}!");
+        PrettyPrint.WarningPrint($"Package has {transitiveDependencies} transitive dependencies down to dependency depth {DependencyTreeBuilder.MAXDEPTH}!");
         return Status.Error;
       }
     }
 
-    PrettyPrint.SuccessPrint($"Not a concerning amount of direct or transitive dependencies down to tree depth {DependencyTreeBuilder.MAXDEPTH}");
+    PrettyPrint.SuccessPrint($"Not a concerning amount of direct or transitive dependencies down to dependency depth {DependencyTreeBuilder.MAXDEPTH}");
     return Status.Pass;
   }
 }

@@ -12,7 +12,7 @@ public class InitScript : ITrustCriteria {
         }
         else if (package.Value.HasInitScript && package.Value.Depth > 0) {
           PrettyPrint.WarningPrint($"Package in dependency tree contains an init script!");
-          return Status.Fail;
+          return Status.Error;
         }
       }
     }

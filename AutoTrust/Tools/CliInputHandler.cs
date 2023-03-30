@@ -1,15 +1,15 @@
 namespace AutoTrust;
 
 public class CliInputHandler {
-  private static readonly string HelperText = "AutoTrust extension: \n" +
-      "  Runs prior to 'dotnet add [<PROJECT>] package <PACKAGE_NAME> [options]' to provide information about the package to be added.\n" +
-      "  Prompts user (y/n) after displaying information if they want to continue with the 'dotnet add' command.\n\n" +
-      "Options: \n " +
-      "  -v, --verbosity            If set the output is more verbose and informs about all checks done.\n" +
-      "Dotnet add information:";
+  private static readonly string HelperText = @"
+AutoTrust extension:
+  Runs prior to 'dotnet add [<PROJECT>] package <PACKAGE_NAME> [options]' to provide information about the package to be added.
+  Prompts user (y/n) after displaying information if they want to continue with the 'dotnet add' command.
 
+Options:
+  -v, --verbosity    If the flag is set the output is more verbose and informs about all checks done.
 
-
+Dotnet add information:";
 
   public static (string, string, bool, bool, bool) HandleInput(string[] args) {
     var query = args.AsQueryable();
@@ -53,6 +53,4 @@ public class CliInputHandler {
     return (packageName, packageVersion, packageVersionSetByUser, prerelease, isVerbose);
   }
 
-
 }
-

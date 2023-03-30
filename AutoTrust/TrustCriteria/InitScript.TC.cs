@@ -17,7 +17,7 @@ public class InitScript : ITrustCriteria {
       }
     }
 
-    PrettyPrint.SuccessPrint($"No init script found in package or dependencies down to layer {DependencyTreeBuilder.MAXDEPTH}");
+    PrettyPrint.SuccessPrint($"No init script found in package or dependencies down to dependency depth {DependencyTreeBuilder.MAXDEPTH}");
     return Status.Pass;
   }
 }

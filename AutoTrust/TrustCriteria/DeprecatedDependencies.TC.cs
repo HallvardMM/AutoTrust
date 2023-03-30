@@ -35,7 +35,7 @@ public class DeprecatedDependencies : ITrustCriteria {
     }
 
     // Does not have any deprecated dependencies
-    PrettyPrint.SuccessPrint($"Package does not depend on deprecated packages down to layer {DependencyTreeBuilder.MAXDEPTH}");
+    PrettyPrint.SuccessPrint($"Package does not depend on deprecated packages down to dependency depth {DependencyTreeBuilder.MAXDEPTH}");
     return Status.Pass;
   }
 }

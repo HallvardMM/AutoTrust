@@ -7,7 +7,7 @@ public class DeprecatedDependencies : ITrustCriteria {
     var deprecatedPackagesList = new Dictionary<string, string>();
     if (dataHandler.DependencyTree is not null) {
       foreach (var package in dataHandler.DependencyTree) {
-        if (package.Value.IsDeprecated) {
+        if (package.Value.IsDeprecated && package.Value.Depth != 0) {
           var packagePath = "";
           var currentPackageName = package.Key;
           while (true) {

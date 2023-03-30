@@ -32,6 +32,9 @@ Age.Validate(dataHandler);
 Popularity.Validate(dataHandler);
 KnownVulnerabilities.Validate(dataHandler);
 Deprecated.Validate(dataHandler);
+DeprecatedDependencies.Validate(dataHandler);
+InitScript.Validate(dataHandler);
+DirectTransitiveDependencies.Validate(dataHandler);
 Documentation.Validate(dataHandler);
 License.Validate(dataHandler);
 

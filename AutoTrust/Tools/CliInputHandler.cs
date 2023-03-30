@@ -47,17 +47,13 @@ public class CliInputHandler {
 
     var packageVersion = "";
     var packageVersionSetByUser = false;
-    var isVerbose = false;
 
-    for (var i = 0; i < args.Length; i++) {
-      if (Constants.VersionFlags.Any(args[i].Contains)) {
-        packageVersion = args[i + 1];
-        packageVersionSetByUser = true;
-      }
-      if (Constants.VerbosityFlags.Any(args[i].Contains)) {
-        isVerbose = true;
-      }
+    var indexOfVersionFlag = Array.FindIndex(args, arg => Constants.VersionFlags.Contains(arg));
+    if (indexOfVersionFlag != -1) {
+      packageVersion = args[indexOfVersionFlag + 1];
+      packageVersionSetByUser = true;
     }
+    var isVerbose = args.Any(arg => Constants.VerbosityFlags.Contains(arg));
 
     var prerelease = Constants.PrereleaseFlag.Any(args.Contains) || packageVersion.Contains('-');
 

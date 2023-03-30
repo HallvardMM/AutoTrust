@@ -8,10 +8,8 @@ var httpClient = new HttpClient();
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
-(var packageName, var packageVersion, var packageVersionSetByUser,
-  var isPrerelease, var isVerbose) = CliInputHandler.HandleInput(args);
-if (packageName is "" && packageVersion is "" && packageVersionSetByUser is false
-  && isPrerelease is false && isVerbose is false) {
+var (packageName, packageVersion, packageVersionSetByUser, isPrerelease, isVerbose) = CliInputHandler.HandleInput(args);
+if (packageName is "" && packageVersion is "" && !packageVersionSetByUser && !isPrerelease && !isVerbose) {
   return;
 }
 
@@ -35,15 +33,8 @@ Console.WriteLine("Do you still want to add this package? (y/n)");
 
 var addPackageQuery = Console.ReadLine()!.Trim();
 
-Console.WriteLine(string.Join(" ", args));
-
-// Check if args contains any of the Constants.VerbosityFlags
-// if it does remove the verbosity flag from args as dotnet does not accept it
-if (Constants.VerbosityFlags.Any(args.Contains)) {
-  args = args.Where(arg => !Constants.VerbosityFlags.Any(arg.Contains)).ToArray();
-}
-
-Console.WriteLine(string.Join(" ", args));
+// Remove verbosity flag from args as dotnet does not accept it
+args = args.Except(Constants.VerbosityFlags).ToArray();
 
 if (Constants.PositiveResponse.Any(addPackageQuery.Contains)) {
   if (packageVersionSetByUser) {
@@ -54,7 +45,7 @@ if (Constants.PositiveResponse.Any(addPackageQuery.Contains)) {
       RunProcess.DotnetProcess(args);
     }
     else {
-      RunProcess.DotnetProcess(args.Append("-v").Append(packageVersion).ToArray());
+      RunProcess.DotnetProcess(args.Append("-v").Append(dataHandler.PackageVersion).ToArray());
     }
   }
 }

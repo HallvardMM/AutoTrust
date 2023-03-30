@@ -10,6 +10,7 @@ public class DataHandler {
   public System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>? DependencyTree { get; private set; }
   public GithubPackage? GithubData { get; private set; }
   public GithubIssues? GithubIssueData { get; private set; }
+  public GithubReadme? GithubReadmeData { get; private set; }
   public NugetDownloadCount? NugetDownloadCount { get; private set; }
   public OSVData? OsvData { get; private set; }
   public string UsedByInformation { get; private set; }
@@ -17,6 +18,7 @@ public class DataHandler {
   public DataHandler(HttpClient httpClient, string packageName, string packageVersion) {
     this.PackageName = packageName;
     this.HttpClient = httpClient;
+    httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
     this.PackageVersion = packageVersion;
     this.NugetPackage = null;
     this.NugetCatalogEntry = null;
@@ -42,21 +44,45 @@ public class DataHandler {
 
         var repositoryUrl = "";
 
-        if (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
+        if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.Repository?.Url) && (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.Repository.Url;
         }
-        else if (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains("github.com") ?? false) {
+        else if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.ProjectUrl) && (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
         }
 
-        if (repositoryUrl != "") {
-          this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, repositoryUrl);
-          this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, repositoryUrl);
+        //Extract the author and project from the repository url
+        // https://github.com/aws/aws-sdk-net/
+        // https://github.com/castleproject/Core
+        // https://github.com/serilog/serilog.git
+        // https://github.com/JamesNK/Newtonsoft.Json
+
+        var authorAndProject = repositoryUrl.Replace("https://github.com/", "");
+        if(authorAndProject.EndsWith(".git", true, System.Globalization.CultureInfo.InvariantCulture)) {
+          authorAndProject = authorAndProject[..^4];
         }
+        if(authorAndProject.EndsWith("/", true, System.Globalization.CultureInfo.InvariantCulture)) {
+          authorAndProject = authorAndProject[..^1];
+        }
+
+        if (authorAndProject != "") {
+          var tasks = new List<Task> {
+          Task.Run(async () => this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject)),
+          Task.Run(async () => this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject)),
+          Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject)),
+        };
+          var t = Task.WhenAll(tasks.ToArray());
+          try {
+            await t;
+          }
+          catch { }
+        };
       }),
-      Task.Run(async () => this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName)),
-      Task.Run(async () => this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.PackageName, this.PackageVersion)),
-      // Task.Run(async () => this.DeprecatedNugetPackages = await Deprecated.GetDeprecatedPackages(this)),
+      Task.Run(async () => {this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
+        if(this.NugetDownloadCount?.Data[0].PackageName != null) {
+          this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.NugetDownloadCount.Data[0].PackageName);}
+        }
+       ),
 
       Task.Run(async () => {
         try {

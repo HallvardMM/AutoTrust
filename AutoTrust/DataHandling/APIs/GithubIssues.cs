@@ -19,11 +19,10 @@ public class GithubIssues {
     return returnString;
   }
 
-  public static async Task<GithubIssues?> GetGithubIssues(HttpClient httpClient, string repositoryUrl) {
+  public static async Task<GithubIssues?> GetGithubIssues(HttpClient httpClient, string authorAndProject) {
     try {
       // Fetch package data
-      var githubIssuesUrl = GetGithubIssuesUrl(repositoryUrl);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+      var githubIssuesUrl = GetGithubIssuesUrl(authorAndProject);
       var githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
       return githubIssueData;
     }
@@ -38,8 +37,5 @@ public class GithubIssues {
     return null;
   }
 
-  public static string GetGithubIssuesUrl(string repositoryUrl) {
-    var githubApiUrl = GithubPackage.GetGithubApiUrl(repositoryUrl);
-    return githubApiUrl.Replace("repos/", "search/issues?q=repo:") + "+type:issue+state:open&per_page=1";
-  }
+  public static string GetGithubIssuesUrl(string authorAndProject) => "https://api.github.com/search/issues?q=repo:" + authorAndProject + "+type:issue+state:open&per_page=1";
 }

@@ -171,11 +171,10 @@ public class GithubPackage {
       $"Homepage: {this.Homepage}\n" +
       $"Size: {this.Size}\n";
 
-  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string repositoryUrl) {
+  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string authorAndProject) {
     try {
       // Fetch package data
-      var githubApiUrl = GetGithubApiUrl(repositoryUrl);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
+      var githubApiUrl = GetGithubApiUrl(authorAndProject);
       var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
       return githubData;
     }
@@ -190,13 +189,7 @@ public class GithubPackage {
     return null;
   }
 
-  public static string GetGithubApiUrl(string repositoryUrl) {
-    var githubApiUrl = repositoryUrl.Replace("https://", "https://api.").Replace("github.com", "github.com/repos");
-    if (githubApiUrl.Split(".").Last() == "git") {
-      githubApiUrl = githubApiUrl.Remove(githubApiUrl.Length - ".git".Length, ".git".Length);
-    }
-    return githubApiUrl;
-  }
+  public static string GetGithubApiUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject;
 
 }
 

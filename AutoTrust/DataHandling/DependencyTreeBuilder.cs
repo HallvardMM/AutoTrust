@@ -11,8 +11,8 @@ public class DependencyTreeBuilder {
         Name = name,
         ParentName = parentName,
         Frameworks = new HashSet<string>(),
-        HasInitScript = false, // TODO: UPDATE THIS
-        IsDeprecated = false // TODO: UPDATE THIS
+        HasInitScript = false,
+        IsDeprecated = false
       };
       currentTree.TryAdd(name, rootNode);
     }
@@ -23,7 +23,33 @@ public class DependencyTreeBuilder {
     var nugetPackage = await NugetPackage.GetNugetPackage(dataHandler.HttpClient, name, GetFirstPackageVersion(range));
     if (nugetPackage?.CatalogEntry != null) {
       var nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(dataHandler.HttpClient, nugetPackage.CatalogEntry);
-      if (nugetCatalogEntry?.DependencyGroups != null) {
+      // Check if package is deprecated
+      if (nugetCatalogEntry?.Deprecation is not null) {
+        currentTree[name] = new DependencyNode {
+          Depth = currentTree[name].Depth,
+          Name = currentTree[name].Name,
+          ParentName = currentTree[name].ParentName,
+          Frameworks = currentTree[name].Frameworks,
+          HasInitScript = currentTree[name].HasInitScript,
+          IsDeprecated = true
+        };
+      }
+      // Check for init script
+      if (nugetCatalogEntry?.PackageEntries is not null) {
+        if (CheckForInitScript(nugetCatalogEntry.PackageEntries)) {
+          // Package has init script
+          currentTree[name] = new DependencyNode {
+            Depth = currentTree[name].Depth,
+            Name = currentTree[name].Name,
+            ParentName = currentTree[name].ParentName,
+            Frameworks = currentTree[name].Frameworks,
+            HasInitScript = true,
+            IsDeprecated = currentTree[name].IsDeprecated
+          };
+        }
+      }
+      // Add dependencies for next iteration if not at max depth
+      if (nugetCatalogEntry?.DependencyGroups != null && depth > 0) {
         foreach (var dependencyGroup in nugetCatalogEntry.DependencyGroups) {
           foreach (var dependency in dependencyGroup.Dependencies) {
             if (!dependenciesToCheck.ContainsKey(dependency.PackageName)) {
@@ -41,29 +67,23 @@ public class DependencyTreeBuilder {
                 Name = dependency.PackageName,
                 ParentName = name,
                 Frameworks = new HashSet<string> { dependencyGroup.TargetFramework },
-                HasInitScript = false, // TODO: UPDATE THIS
-                IsDeprecated = false // TODO: UPDATE THIS
+                HasInitScript = false,
+                IsDeprecated = false
               };
               currentTree.TryAdd(dependency.PackageName, dependencyNode);
             }
           }
         }
-        // // Check if package is deprecated
-        // if (nugetCatalogEntry?.Deprecation is not null) {
-        //   currentTree[name].IsDeprecated = true;
-        // }
+
       }
     }
-
-    
-
 
     var tasks = new List<Task>();
     // Check dependencies that have not been checked yet
     foreach (var entry in dependenciesToCheck) {
       // key = package name, value = version range
       var localDependencyNode = currentTree[entry.Key];
-      if (depth - 1 > 0) {
+      if (depth > 0) {
         // Step down the dependency tree
         tasks.Add(
               Task.Run(async () => await GetDependencyTree(dataHandler, currentTree, name: entry.Key, range: entry.Value, parentName: name, depth: depth - 1)));
@@ -78,6 +98,16 @@ public class DependencyTreeBuilder {
     }
     // If we get here, we have no more dependencies to check and jump back up the tree
     return currentTree;
+  }
+
+  public static bool CheckForInitScript(List<PackageEntries> catalogEntries) {
+    var scriptFileNames = new List<string> { "init.ps1", "install.ps1", "uninstall.ps1" };
+    foreach (var entry in catalogEntries) {
+      if (scriptFileNames.Contains(entry.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static string GetFirstPackageVersion(string version) {

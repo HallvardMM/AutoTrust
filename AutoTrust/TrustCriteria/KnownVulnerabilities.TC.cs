@@ -3,7 +3,7 @@ namespace AutoTrust;
 public class KnownVulnerabilities : ITrustCriteria {
   public string Title => "Known Vulnerabilities";
 
-  public static Status Validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
     long oldVulnerabilities = 0;
     long currentVulnerabilities = 0;
 

@@ -3,12 +3,15 @@ namespace AutoTrust;
 public class CliInputHandler {
   private static readonly string HelperText = "AutoTrust extension: \n" +
       "  Runs prior to 'dotnet add [<PROJECT>] package <PACKAGE_NAME> [options]' to provide information about the package to be added.\n" +
-      "  Prompts user (y/n) after displaying information if they want to continue with the 'dotnet add' command.\n" +
-      "Dotnet add: \n";
+      "  Prompts user (y/n) after displaying information if they want to continue with the 'dotnet add' command.\n\n" +
+      "Options: \n " +
+      "  -v, --verbosity            If set the output is more verbose and informs about all checks done.\n" +
+      "Dotnet add information:";
 
 
 
-  public static (string, string, bool, bool) HandleInput(string[] args) {
+
+  public static (string, string, bool, bool, bool) HandleInput(string[] args) {
     var query = args.AsQueryable();
 
     if (query.ElementAtOrDefault(0) == "add") {
@@ -23,15 +26,15 @@ public class CliInputHandler {
       }
     }
     RunProcess.DotnetProcess(args);
-    return ("", "", false, false);
+    return ("", "", false, false, false);
   }
 
-  public static (string, string, bool, bool) RunDotnetAddPackage(string[] args, string? packageName) {
+  public static (string, string, bool, bool, bool) RunDotnetAddPackage(string[] args, string? packageName) {
     if (packageName is null) {
       Console.WriteLine("Error: Package name not provided!");
       //Package name not provided run dotnet process for basic error handling
       RunProcess.DotnetProcess(args);
-      return ("", "", false, false);
+      return ("", "", false, false, false);
     }
 
     if (Constants.HelpFlags.Any(args.Contains)) {
@@ -39,22 +42,26 @@ public class CliInputHandler {
       Console.WriteLine(HelperText);
       // Run the dotnet process to get original help information
       RunProcess.DotnetProcess(args);
-      return ("", "", false, false);
+      return ("", "", false, false, false);
     }
 
     var packageVersion = "";
     var packageVersionSetByUser = false;
+    var isVerbose = false;
 
     for (var i = 0; i < args.Length; i++) {
       if (Constants.VersionFlags.Any(args[i].Contains)) {
         packageVersion = args[i + 1];
         packageVersionSetByUser = true;
       }
+      if (Constants.VerbosityFlags.Any(args[i].Contains)) {
+        isVerbose = true;
+      }
     }
 
     var prerelease = Constants.PrereleaseFlag.Any(args.Contains) || packageVersion.Contains('-');
 
-    return (packageName, packageVersion, packageVersionSetByUser, prerelease);
+    return (packageName, packageVersion, packageVersionSetByUser, prerelease, isVerbose);
   }
 
 

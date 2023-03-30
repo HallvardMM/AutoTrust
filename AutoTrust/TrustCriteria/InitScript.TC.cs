@@ -3,7 +3,7 @@ namespace AutoTrust;
 public class InitScript : ITrustCriteria {
   public string Title => "Init Script";
 
-  public static Status Validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
     if (dataHandler.DependencyTree is not null) {
       foreach (var package in dataHandler.DependencyTree) {
         if (package.Value.HasInitScript && package.Value.Depth == 0) {

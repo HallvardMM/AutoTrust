@@ -6,7 +6,7 @@ public class DirectTransitiveDependencies : ITrustCriteria {
   private static readonly int MaxDirectDependencies = 20;
   private static readonly int MaxTransitiveDependencies = 50;
 
-  public static Status Validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
     if (dataHandler.DependencyTree is not null) {
       var directDependencies = dataHandler.DependencyTree.Values.Where(x => x.Depth == 1).Count();
       var transitiveDependencies = dataHandler.DependencyTree.Values.Where(x => x.Depth > 1).Count();

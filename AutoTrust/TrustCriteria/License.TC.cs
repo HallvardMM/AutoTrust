@@ -1,7 +1,7 @@
 namespace AutoTrust;
 public class License : ITrustCriteria {
   public string Title => "Package License";
-  public static Status Validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
 
 
     if (!string.IsNullOrEmpty(dataHandler?.NugetCatalogEntry?.LicenseExpression)) {

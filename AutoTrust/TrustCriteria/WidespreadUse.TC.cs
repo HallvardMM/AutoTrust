@@ -8,7 +8,7 @@ public class WidespreadUse : ITrustCriteria {
 
   private static readonly long DownloadsThreshold = 10000 * PreviousVersionsToCheck;
 
-  public static Status Validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
 
     var now = DateTime.Now;
     if (dataHandler.OldestPublishedDate == null) {

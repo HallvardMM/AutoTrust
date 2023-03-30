@@ -3,7 +3,7 @@ namespace AutoTrust;
 public class DeprecatedDependencies : ITrustCriteria {
   public string Title => "Deprecated Dependencies";
 
-  public static Status Validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
     var deprecatedPackagesList = new Dictionary<string, string>();
     if (dataHandler.DependencyTree is not null) {
       foreach (var package in dataHandler.DependencyTree) {

@@ -12,7 +12,7 @@ public class Popularity : ITrustCriteria {
   private static readonly long UsedByGithubRepositoriesThreshold = 10;
 
 
-  public static Status Validate(DataHandler dataHandler) {
+  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
     // Check download count
     if (dataHandler.NugetDownloadCount == null) {
       PrettyPrint.FailPrint("Can't find download count for package");

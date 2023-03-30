@@ -14,16 +14,9 @@ public class CliInputHandler {
   public static (string, string, bool, bool, bool) HandleInput(string[] args) {
     var query = args.AsQueryable();
 
-    if (query.ElementAtOrDefault(0) == "add") {
-      if (query.ElementAtOrDefault(1) == "package") {
-        // Project file not specified
-        return RunDotnetAddPackage(args, query.ElementAtOrDefault(2));
-
-      }
-      else if (query.ElementAtOrDefault(2) == "package") {
-        // Project file specified
-        return RunDotnetAddPackage(args, query.ElementAtOrDefault(3));
-      }
+    if (query.ElementAtOrDefault(0) == "add" && query.Contains("package")) {
+      var packageNameIndex = query.ToList().IndexOf("package") + 1;
+      return RunDotnetAddPackage(args, query.ElementAtOrDefault(packageNameIndex));
     }
     RunProcess.DotnetProcess(args);
     return ("", "", false, false, false);

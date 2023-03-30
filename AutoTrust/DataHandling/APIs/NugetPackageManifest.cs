@@ -36,7 +36,7 @@ public class NugetPackageManifest {
     return null;
   }
 
-  public static string GetNugetPackageManifestUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}.nuspec";
+  public static string GetNugetPackageManifestUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}/{packageName.ToLowerInvariant()}.nuspec";
 
   public override string ToString() => this.Metadata.ToString();
 }

@@ -68,10 +68,10 @@ public class DataHandler {
 
         var repositoryUrl = "";
 
-        if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.Repository?.Url) && (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
+        if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.Repository?.Url) && (this.PackageManifest?.Metadata.Repository?.Url?.ToLowerInvariant().Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.Repository.Url;
         }
-        else if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.ProjectUrl) && (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
+        else if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.ProjectUrl) && (this.PackageManifest?.Metadata.ProjectUrl?.ToLowerInvariant().Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
         }
 

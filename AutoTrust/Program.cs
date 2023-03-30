@@ -27,7 +27,8 @@ Documentation.Validate(dataHandler, isVerbose);
 License.Validate(dataHandler, isVerbose);
 WidespreadUse.Validate(dataHandler, isVerbose);
 
-Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}");
+var nugetUrl = $"https://www.nuget.org/packages/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}";
+Console.WriteLine($"NuGet website for package: {nugetUrl}");
 
 Console.WriteLine("Do you still want to add this package? (y/n)");
 

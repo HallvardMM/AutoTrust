@@ -5,7 +5,7 @@ using System.Text.Json;
 public class NugetPackageVersion {
   public List<string> Versions { get; set; } = new List<string>();
 
-  public static string GetVersionsUrl(string packageName) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/index.json";
+  public static string GetVersionsUrl(string packageName) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLowerInvariant()}/index.json";
 
   public static async Task<(string?, string?)> GetLatestVersion(HttpClient httpClient, string packageName, bool prerelease = false) {
     try {

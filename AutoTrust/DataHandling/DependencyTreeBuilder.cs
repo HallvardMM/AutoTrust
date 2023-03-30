@@ -103,7 +103,7 @@ public class DependencyTreeBuilder {
   public static bool CheckForInitScript(List<PackageEntries> catalogEntries) {
     var scriptFileNames = new List<string> { "init.ps1", "install.ps1", "uninstall.ps1" };
     foreach (var entry in catalogEntries) {
-      if (scriptFileNames.Contains(entry.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture))) {
+      if (scriptFileNames.Contains(entry.Name.ToLowerInvariant())) {
         return true;
       }
     }

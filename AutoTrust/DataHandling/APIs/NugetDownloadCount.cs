@@ -10,7 +10,7 @@ public class NugetDownloadCount {
   public required int TotalHits { get; set; }
   public required List<NugetDownloadCountItem> Data { get; set; } = new List<NugetDownloadCountItem>();
 
-  public static string GetNugetDownloadCountUrl(string packageName, bool prerelease = false) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}&prerelease={prerelease}";
+  public static string GetNugetDownloadCountUrl(string packageName, bool prerelease = false) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLowerInvariant()}&prerelease={prerelease}";
   public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName, bool prerelease = false) {
     try {
       // Fetch package data

@@ -8,7 +8,7 @@ public class KnownVulnerabilities : ITrustCriteria {
     long currentVulnerabilities = 0;
 
     if (dataHandler.NugetCatalogEntry?.Vulnerabilities != null) {
-      PrettyPrint.FailPrint($"Package has {dataHandler.NugetCatalogEntry?.Vulnerabilities.Count} known vulnerabilities registered in NuGet: https://www.nuget.org/packages/{dataHandler.PackageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{dataHandler.PackageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}");
+      PrettyPrint.FailPrint($"Package has {dataHandler.NugetCatalogEntry?.Vulnerabilities.Count} known vulnerabilities registered in NuGet: https://www.nuget.org/packages/{dataHandler.PackageName.ToLowerInvariant()}/{dataHandler.PackageVersion.ToLowerInvariant()}");
       return Status.Fail;
     }
 

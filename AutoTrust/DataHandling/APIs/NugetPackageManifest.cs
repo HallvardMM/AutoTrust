@@ -10,7 +10,10 @@ public class NugetPackageManifest {
   [XmlElement(ElementName = "metadata")]
   public required Metadata Metadata { get; set; }
 
-  public static async Task<NugetPackageManifest?> GetNugetPackageManifest(HttpClient httpClient, string packageName, string packageVersion) {
+  public static async Task<NugetPackageManifest?> GetNugetPackageManifest(HttpClient httpClient,
+   string packageName,
+    string packageVersion,
+    bool isDiagnostic) {
     try {
       var stream = await httpClient.GetStreamAsync(GetNugetPackageManifestUrl(packageName, packageVersion));
       // Deserialize the XML file into a NuGetPackage object

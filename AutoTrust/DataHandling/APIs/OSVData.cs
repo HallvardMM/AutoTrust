@@ -21,7 +21,7 @@ public class OSVData {
     return returnString;
   }
 
-  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, string packageVersion = "") {
+  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, bool isDiagnostic, string packageVersion = "") {
     try {
       var osvJSONPost = "";
       // Fetch package data

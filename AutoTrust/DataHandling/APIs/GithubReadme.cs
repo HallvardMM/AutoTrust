@@ -36,7 +36,7 @@ public class GithubReadme {
     return this.HtmlUrl;
   }
 
-  public static async Task<GithubReadme?> GetGithubReadme(HttpClient httpClient, string authorAndProject) {
+  public static async Task<GithubReadme?> GetGithubReadme(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
     try {
       // Fetch package data
       var githubReadmeUrl = GetGithubReadmeUrl(authorAndProject);

@@ -7,7 +7,7 @@ public class NugetPackageVersion {
 
   public static string GetVersionsUrl(string packageName) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLowerInvariant()}/index.json";
 
-  public static async Task<(string?, string?)> GetLatestVersion(HttpClient httpClient, string packageName, bool prerelease = false) {
+  public static async Task<(string?, string?)> GetLatestVersion(HttpClient httpClient, string packageName, bool prerelease, bool isDiagnostic) {
     try {
 
       // Fetch all versions data

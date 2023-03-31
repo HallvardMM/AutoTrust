@@ -17,7 +17,7 @@ public class NugetPackage {
 
   public static string GetNugetPackageUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3/registration5-semver1/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}.json";
 
-  public static async Task<NugetPackage?> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion) {
+  public static async Task<NugetPackage?> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion, bool isDiagnostic) {
     try {
       // Fetch package data
       var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>

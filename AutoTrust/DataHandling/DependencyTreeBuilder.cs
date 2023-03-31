@@ -3,7 +3,14 @@ namespace AutoTrust;
 public class DependencyTreeBuilder {
   public const int MAXDEPTH = 2;
 
-  public static async Task<System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>> GetDependencyTree(DataHandler dataHandler, System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode> currentTree, string name, string range, string parentName = "", int depth = MAXDEPTH) {
+  public static async Task<System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>> GetDependencyTree(
+    DataHandler dataHandler,
+    System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode> currentTree,
+    string name,
+    string range,
+    bool isDiagnostic,
+    string parentName = "",
+    int depth = MAXDEPTH) {
     if (depth == MAXDEPTH) {
       // Need to create the root node
       var rootNode = new DependencyNode {
@@ -20,9 +27,9 @@ public class DependencyTreeBuilder {
     var dependenciesToCheck = new Dictionary<string, string>();
 
     // Get the package
-    var nugetPackage = await NugetPackage.GetNugetPackage(dataHandler.HttpClient, name, GetFirstPackageVersion(range));
+    var nugetPackage = await NugetPackage.GetNugetPackage(dataHandler.HttpClient, name, GetFirstPackageVersion(range), isDiagnostic);
     if (nugetPackage?.CatalogEntry != null) {
-      var nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(dataHandler.HttpClient, nugetPackage.CatalogEntry);
+      var nugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(dataHandler.HttpClient, nugetPackage.CatalogEntry, isDiagnostic);
       // Check if package is deprecated
       if (nugetCatalogEntry?.Deprecation is not null) {
         currentTree[name] = new DependencyNode {
@@ -86,7 +93,7 @@ public class DependencyTreeBuilder {
       if (depth > 0) {
         // Step down the dependency tree
         tasks.Add(
-              Task.Run(async () => await GetDependencyTree(dataHandler, currentTree, name: entry.Key, range: entry.Value, parentName: name, depth: depth - 1)));
+          Task.Run(async () => await GetDependencyTree(dataHandler, currentTree, name: entry.Key, range: entry.Value, isDiagnostic, parentName: name, depth: depth - 1)));
       }
     }
     var t = Task.WhenAll(tasks.ToArray());

@@ -11,7 +11,7 @@ public class NugetDownloadCount {
   public required List<NugetDownloadCountItem> Data { get; set; } = new List<NugetDownloadCountItem>();
 
   public static string GetNugetDownloadCountUrl(string packageName, bool prerelease = false) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLowerInvariant()}&prerelease={prerelease}";
-  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName, bool prerelease = false) {
+  public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName, bool prerelease, bool isDiagnostic) {
     try {
       // Fetch package data
       var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName, prerelease));

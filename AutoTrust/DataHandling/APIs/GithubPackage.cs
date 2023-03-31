@@ -171,7 +171,7 @@ public class GithubPackage {
       $"Homepage: {this.Homepage}\n" +
       $"Size: {this.Size}\n";
 
-  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string authorAndProject) {
+  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
     try {
       // Fetch package data
       var githubApiUrl = GetGithubApiUrl(authorAndProject);

@@ -53,7 +53,7 @@ public class NugetCatalogEntry {
   public string Summary { get; set; } = string.Empty;
 
 
-  public static async Task<NugetCatalogEntry?> GetNugetCatalogEntry(HttpClient httpClient, string catalogEntryUrl) {
+  public static async Task<NugetCatalogEntry?> GetNugetCatalogEntry(HttpClient httpClient, string catalogEntryUrl, bool isDiagnostic) {
     try {
       // Fetch package data
       var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(catalogEntryUrl);

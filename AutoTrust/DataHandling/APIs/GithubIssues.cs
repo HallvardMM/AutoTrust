@@ -19,7 +19,7 @@ public class GithubIssues {
     return returnString;
   }
 
-  public static async Task<GithubIssues?> GetGithubIssues(HttpClient httpClient, string authorAndProject) {
+  public static async Task<GithubIssues?> GetGithubIssues(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
     try {
       // Fetch package data
       var githubIssuesUrl = GetGithubIssuesUrl(authorAndProject);

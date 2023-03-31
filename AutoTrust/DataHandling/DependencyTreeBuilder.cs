@@ -101,7 +101,7 @@ public class DependencyTreeBuilder {
       await t;
     }
     catch {
-      Console.WriteLine("ERROR, COULD NOT GET DEPENDENCY TREE");
+      Console.WriteLine("ERROR: COULD NOT GET DEPENDENCY TREE");
     }
     // If we get here, we have no more dependencies to check and jump back up the tree
     return currentTree;

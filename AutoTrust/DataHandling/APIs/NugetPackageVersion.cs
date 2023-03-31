@@ -18,18 +18,28 @@ public class NugetPackageVersion {
       if (allVersionsForPackageObject?.Versions != null) {
 
         if (prerelease) {
+          if (isDiagnostic) {
+            Console.WriteLine($"Found versions for {packageName} (including prerelease versions) from {GetVersionsUrl(packageName)}");
+          }
           return (FilterOldestStableVersion(allVersionsForPackageObject.Versions), FilterLatestVersion(allVersionsForPackageObject.Versions));
+        }
+        if (isDiagnostic) {
+          Console.WriteLine($"Found versions for {packageName} from {GetVersionsUrl(packageName)}");
         }
         return (FilterOldestStableVersion(allVersionsForPackageObject.Versions), FilterLatestStableVersion(allVersionsForPackageObject.Versions));
       }
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred from {GetVersionsUrl(packageName)}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"A JSON error occurred from {GetVersionsUrl(packageName)}: {ex.Message}");
+      }
     }
     return (null, null);
   }

@@ -37,20 +37,26 @@ public class GithubReadme {
   }
 
   public static async Task<GithubReadme?> GetGithubReadme(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+    var githubReadmeUrl = GetGithubReadmeUrl(authorAndProject);
     try {
       // Fetch package data
-      var githubReadmeUrl = GetGithubReadmeUrl(authorAndProject);
-      httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
       var githubReadmeData = await httpClient.GetFromJsonAsync<GithubReadme>(githubReadmeUrl);
+      if (isDiagnostic) {
+        Console.WriteLine($"Found readme data for {authorAndProject} from {githubReadmeUrl}");
+      }
       return githubReadmeData;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
+      }
     }
     return null;
   }

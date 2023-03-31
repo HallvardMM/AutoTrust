@@ -52,7 +52,9 @@ public class DataHandler {
         }
         
         // Build dependency tree after getting the catalog entry
-        this.DependencyTree = await DependencyTreeBuilder.GetDependencyTree(this, new System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>(), this.PackageName, this.PackageVersion, isDiagnostic);
+        this.DependencyTree = await DependencyTreeBuilder.GetDependencyTree(this,
+        new System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>(),
+        this.PackageName, this.PackageVersion, isDiagnostic);
       }),
       Task.Run(async () => {
         if(oldestVersion != null){
@@ -75,7 +77,7 @@ public class DataHandler {
           repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
         }
         else{
-          Console.WriteLine("No Github repository found!");
+          Console.WriteLine("Error: No Github repository found Github data for package, issues and readme will not be checked!");
           return;
         }
 
@@ -104,6 +106,8 @@ public class DataHandler {
             await t;
           }
           catch { }
+        }else{
+          Console.WriteLine($"Error: No author and project found in url: {repositoryUrl}");
         };
       }),
       Task.Run(async () => {
@@ -119,13 +123,13 @@ public class DataHandler {
         try {
           this.UsedByInformation = await this.HttpClient.GetStringAsync(usedByUrl);
           if(isDiagnostic){
-            Console.WriteLine($"Fetched used by information from: {usedByUrl}");
+            Console.WriteLine($"Found used by information from: {usedByUrl}");
           }
         }
         catch (HttpRequestException) {
           this.UsedByInformation = "";
           if(isDiagnostic){
-            Console.WriteLine($"Failed to fetch used by information from: {usedByUrl}");
+            Console.WriteLine($"Error: Failed to fetch used by information from {usedByUrl}");
           }
         }
       })

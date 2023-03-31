@@ -12,18 +12,26 @@ public class NugetDownloadCount {
 
   public static string GetNugetDownloadCountUrl(string packageName, bool prerelease = false) => $"https://azuresearch-usnc.nuget.org/query?q=packageid:{packageName.ToLowerInvariant()}&prerelease={prerelease}";
   public static async Task<NugetDownloadCount?> GetNugetDownloadCount(HttpClient httpClient, string packageName, bool prerelease, bool isDiagnostic) {
+    var downloadCountUrl = GetNugetDownloadCountUrl(packageName, prerelease);
     try {
       // Fetch package data
-      var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(GetNugetDownloadCountUrl(packageName, prerelease));
+      var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(downloadCountUrl);
+      if (isDiagnostic) {
+        Console.WriteLine($"Found download count data for {packageName} from {downloadCountUrl}");
+      }
       return getNugetDownloadCount;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {packageName} from {downloadCountUrl}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {packageName} from {downloadCountUrl}: {ex.Message}");
+      }
     }
     return null;
   }

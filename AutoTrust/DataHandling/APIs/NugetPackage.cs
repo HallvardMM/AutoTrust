@@ -22,15 +22,22 @@ public class NugetPackage {
       // Fetch package data
       var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
           (GetNugetPackageUrl(packageName, packageVersion));
+      if (isDiagnostic) {
+        Console.WriteLine($"Found package data for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}");
+      }
       return nugetPackage;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      }
     }
     return null;
   }

@@ -57,15 +57,22 @@ public class NugetCatalogEntry {
     try {
       // Fetch package data
       var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(catalogEntryUrl);
+      if (isDiagnostic) {
+        Console.WriteLine($"Found catalog entry from {catalogEntryUrl}");
+      }
       return nugetCatalogEntry;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred from {catalogEntryUrl}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred from {catalogEntryUrl}: {ex.Message}");
+      }
     }
     return null;
   }

@@ -62,6 +62,10 @@ var tasks = new List<Task> {
     var (message, status, additionalInfo) = WidespreadUse.Validate(dataHandler);
     trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, additionalInfo, 10));
   }),
+  Task.Run(() => {
+    var (message, status, additionalInfo) = Contributors.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Contributors.Title, (message, status, additionalInfo, 11));
+  })
 };
 var t = Task.WhenAll(tasks.ToArray());
 try {

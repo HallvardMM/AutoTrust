@@ -116,7 +116,7 @@ public class DataHandler {
           this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.NugetDownloadCount.Data[0].PackageName, isDiagnostic);
         }
       }
-       ),
+      ),
 
       Task.Run(async () => {
         var usedByUrl = $"https://www.nuget.org/packages/{this.PackageName}/{this.PackageVersion}#usedby-body-tab";

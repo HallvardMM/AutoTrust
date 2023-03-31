@@ -9,7 +9,7 @@ public enum Status {
 internal interface ITrustCriteria {
 
   public static abstract string Title { get; }
-  static abstract (string, Status) Validate(DataHandler dataHandler, bool isVerbose);
+  static abstract (string, Status, string[]) Validate(DataHandler dataHandler);
 
   public void DisplayInConsole(Status status, string text) {
     switch (status) {

@@ -3,7 +3,9 @@ namespace AutoTrust;
 public class DeprecatedDependencies : ITrustCriteria {
   public static string Title => "Deprecated Dependencies";
 
-  public static (string, Status) Validate(DataHandler dataHandler, bool isVerbose) {
+  public static (string, Status, string[]) Validate(DataHandler dataHandler) {
+    var passedCriteria = new List<string>();
+
     var deprecatedPackagesList = new Dictionary<string, string>();
     if (dataHandler.DependencyTree is not null) {
       foreach (var package in dataHandler.DependencyTree) {
@@ -31,10 +33,12 @@ public class DeprecatedDependencies : ITrustCriteria {
       foreach (var entry in deprecatedPackagesList) {
         deprecatedDependencyReturnMessage += $"{Environment.NewLine}  - The deprecated package '{entry.Key}' is found in the dependency tree with package path: '{entry.Value}'";
       }
-      return ("Package has a deprecated dependency in its dependency tree!" + deprecatedDependencyReturnMessage, Status.Fail);
+      passedCriteria.Add($"Registered deprecated dependencies found on Nuget with depth of {DependencyTreeBuilder.MAXDEPTH}");
+      return ("Package has a deprecated dependency in its dependency tree!" + deprecatedDependencyReturnMessage, Status.Fail, passedCriteria.ToArray());
     }
 
+    passedCriteria.Add($"No registered deprecated dependencies found on Nuget with depth of {DependencyTreeBuilder.MAXDEPTH}");
     // Does not have any deprecated dependencies
-    return ($"Package does not depend on deprecated packages down to dependency depth {DependencyTreeBuilder.MAXDEPTH}", Status.Pass);
+    return ($"Package does not depend on deprecated packages down to dependency depth {DependencyTreeBuilder.MAXDEPTH}", Status.Pass, passedCriteria.ToArray());
   }
 }

@@ -23,43 +23,43 @@ var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary
 
 var tasks = new List<Task> {
   Task.Run(() => {
-    var (message, status) = Age.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = Age.Validate(dataHandler);
     trustCriteriaResult.TryAdd(Age.Title, (message, status, 1));
   }),
   Task.Run(() => {
-    var (message, status) = Popularity.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = Popularity.Validate(dataHandler);
     trustCriteriaResult.TryAdd(Popularity.Title, (message, status, 2));
   }),
   Task.Run(() => {
-    var (message, status) = KnownVulnerabilities.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = KnownVulnerabilities.Validate(dataHandler);
     trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, 3));
   }),
   Task.Run(() => {
-    var (message, status) = Deprecated.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = Deprecated.Validate(dataHandler);
     trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, 4));
   }),
   Task.Run(() => {
-    var (message, status) = DeprecatedDependencies.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = DeprecatedDependencies.Validate(dataHandler);
     trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, 5));
   }),
   Task.Run(() => {
-    var (message, status) = InitScript.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = InitScript.Validate(dataHandler);
     trustCriteriaResult.TryAdd(InitScript.Title, (message, status, 6));
   }),
   Task.Run(() => {
-    var (message, status) = DirectTransitiveDependencies.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = DirectTransitiveDependencies.Validate(dataHandler);
     trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, 7));
   }),
   Task.Run(() => {
-    var (message, status) = Documentation.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = Documentation.Validate(dataHandler);
     trustCriteriaResult.TryAdd(Documentation.Title, (message, status, 8));
   }),
   Task.Run(() => {
-    var (message, status) = License.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = License.Validate(dataHandler);
     trustCriteriaResult.TryAdd(License.Title, (message, status, 9));
   }),
   Task.Run(() => {
-    var (message, status) = WidespreadUse.Validate(dataHandler, isVerbose);
+    var (message, status, additionalInfo) = WidespreadUse.Validate(dataHandler);
     trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, 10));
   }),
 };

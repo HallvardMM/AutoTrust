@@ -19,48 +19,48 @@ var dataHandler = new DataHandler(httpClient, packageName, packageVersion, isPre
 await dataHandler.FetchData(isDiagnostic);
 
 // Dict format: {TC Title: (TC result message, Status, ranking)}
-var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status, int)>();
+var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status, string[], int)>();
 
 var tasks = new List<Task> {
   Task.Run(() => {
     var (message, status, additionalInfo) = Age.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Age.Title, (message, status, 1));
+    trustCriteriaResult.TryAdd(Age.Title, (message, status, additionalInfo,1));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = Popularity.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, 2));
+    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, additionalInfo, 2));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = KnownVulnerabilities.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, 3));
+    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, additionalInfo, 3));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = Deprecated.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, 4));
+    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, additionalInfo, 4));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = DeprecatedDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, 5));
+    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, additionalInfo, 5));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = InitScript.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, 6));
+    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, additionalInfo, 6));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = DirectTransitiveDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, 7));
+    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, additionalInfo, 7));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = Documentation.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, 8));
+    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, additionalInfo, 8));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = License.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(License.Title, (message, status, 9));
+    trustCriteriaResult.TryAdd(License.Title, (message, status, additionalInfo, 9));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = WidespreadUse.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, 10));
+    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, additionalInfo, 10));
   }),
 };
 var t = Task.WhenAll(tasks.ToArray());
@@ -71,10 +71,10 @@ catch { }
 
 // Sort the trustCriteriaResult by status and ranking
 // To change the status sorting order, change the order of the values in Status enum in ITrustCriteria.cs
-var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ThenBy(y => y.Value.Item3).ToList();
+var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ThenBy(y => y.Value.Item4).ToList();
 
 foreach (var result in sortedTrustCriteriaResult) {
-  PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2);
+  PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2, result.Value.Item3, isVerbose);
 }
 
 

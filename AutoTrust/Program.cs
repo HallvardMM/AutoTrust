@@ -17,20 +17,50 @@ var dataHandler = new DataHandler(httpClient, packageName, packageVersion, isPre
 // Need to call fetchData to fetch the dataHandler object data
 await dataHandler.FetchData();
 
-// Dict format: {TC Title: (TC result message, Status)}
-var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status)>();
+// Dict format: {TC Title: (TC result message, Status, ranking)}
+var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status, int)>();
 
 var tasks = new List<Task> {
-  Task.Run(() => { trustCriteriaResult.TryAdd(Age.Title, Age.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(Popularity.Title, Popularity.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, KnownVulnerabilities.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(Deprecated.Title, Deprecated.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, DeprecatedDependencies.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(InitScript.Title, InitScript.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, DirectTransitiveDependencies.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(Documentation.Title, Documentation.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(License.Title, License.Validate(dataHandler)); }),
-  Task.Run(() => { trustCriteriaResult.TryAdd(WidespreadUse.Title, WidespreadUse.Validate(dataHandler)); }),
+  Task.Run(() => { 
+    var (message, status) = Age.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Age.Title, (message, status, 1)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = Popularity.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, 2)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = KnownVulnerabilities.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, 3)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = Deprecated.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, 4)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = DeprecatedDependencies.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, 5)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = InitScript.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, 6)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = DirectTransitiveDependencies.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, 7)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = Documentation.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, 8)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = License.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(License.Title, (message, status, 9)); 
+  }),
+  Task.Run(() => { 
+    var (message, status) = WidespreadUse.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, 10)); 
+  }),
 };
 var t = Task.WhenAll(tasks.ToArray());
 try {
@@ -38,8 +68,9 @@ try {
 }
 catch { }
 
-// To change the sorting order, change the order of the values in Status enum in ITrustCriteria.cs
-var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ToList();
+// Sort the trustCriteriaResult by status and ranking
+// To change the status sorting order, change the order of the values in Status enum in ITrustCriteria.cs
+var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ThenBy(y => y.Value.Item3).ToList();
 
 foreach (var result in sortedTrustCriteriaResult) {
   PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2);

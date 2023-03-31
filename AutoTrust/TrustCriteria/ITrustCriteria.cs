@@ -8,7 +8,7 @@ public enum Status {
 
 internal interface ITrustCriteria {
 
-  public abstract static string Title { get; }
+  public static abstract string Title { get; }
   static abstract (string, Status) Validate(DataHandler dataHandler);
 
   public void DisplayInConsole(Status status, string text) {

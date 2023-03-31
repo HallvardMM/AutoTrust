@@ -5,7 +5,7 @@ public class Age : ITrustCriteria {
 
   private static readonly int VersionAgeInDaysThreshold = 21;
   private static readonly int VersionOldAgeInDaysThreshold = 365;
-  
+
   public static (string, Status) Validate(DataHandler dataHandler) {
     // Check if the package version is older than a certain threshold
     // Check if the package version is a pre-release version

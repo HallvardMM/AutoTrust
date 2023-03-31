@@ -47,7 +47,7 @@ public class GithubContributor {
     try {
       // Fetch data from github
       // var contributors = new List<GithubContributor>();
-      var url = $"https://api.github.com/repos/{authorAndProject}/contributors";
+      var url = $"https://api.github.com/repos/{authorAndProject}/contributors?per_page={Contributors.NumberOfContributorsThreshold}";
       var contributors = await httpClient.GetFromJsonAsync<List<GithubContributor?>?>(url);
       return contributors;
     }

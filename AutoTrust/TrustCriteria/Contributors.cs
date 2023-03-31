@@ -14,7 +14,7 @@ public class Contributors : ITrustCriteria {
         return ($"Package has less than {NumberOfContributorsThreshold} contributors!", Status.Fail, passedCriteria.ToArray());
       }
     }
-    passedCriteria.Add($"Package has {dataHandler.GithubContributorsData.Count} more than {NumberOfContributorsThreshold} contributors registered on GitHub");
+    passedCriteria.Add($"Package has more than {NumberOfContributorsThreshold} contributors registered on GitHub");
 
     return ("Package has an adequate number of contributors", Status.Pass, passedCriteria.ToArray());
   }

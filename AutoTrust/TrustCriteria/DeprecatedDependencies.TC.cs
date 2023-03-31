@@ -12,6 +12,7 @@ public class DeprecatedDependencies : ITrustCriteria {
         if (package.Value.IsDeprecated && package.Value.Depth != 0) {
           var packagePath = "";
           var currentPackageName = package.Key;
+          passedCriteria.Add($"Deprecated dependency: Package '{currentPackageName}' on dependency depth {package.Value.Depth}");
           while (true) {
             if (dataHandler.DependencyTree[currentPackageName].Depth == 0) {
               packagePath = packagePath.Insert(0, currentPackageName);
@@ -25,6 +26,9 @@ public class DeprecatedDependencies : ITrustCriteria {
             currentPackageName = dataHandler.DependencyTree[currentPackageName].ParentName;
           }
           deprecatedPackagesList.Add(package.Key, packagePath);
+        }
+        else {
+          passedCriteria.Add($"Not deprecated dependency: Package '{package.Key}' on dependency depth {package.Value.Depth}");
         }
       }
     }

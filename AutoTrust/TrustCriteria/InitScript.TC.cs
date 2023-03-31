@@ -8,14 +8,14 @@ public class InitScript : ITrustCriteria {
     if (dataHandler.DependencyTree is not null) {
       foreach (var package in dataHandler.DependencyTree) {
         if (package.Value.HasInitScript && package.Value.Depth == 0) {
-          passedCriteria.Add($"Main package {package.Key} has an init script");
+          passedCriteria.Add($"Init script in main package {package.Key}");
           return ($"Package has an init script!", Status.Fail, passedCriteria.ToArray());
         }
         else if (package.Value.HasInitScript && package.Value.Depth > 0) {
-          passedCriteria.Add($"Package {package.Key} with depth of {package.Value.Depth} has an init script");
+          passedCriteria.Add($"Init script in: Package {package.Key} with depth of {package.Value.Depth}");
           return ($"Package in dependency tree contains an init script!", Status.Error, passedCriteria.ToArray());
         }
-        passedCriteria.Add($"No init script found in package {package.Key} with depth of {package.Value.Depth}");
+        passedCriteria.Add($"No init script in: Package {package.Key} with depth of {package.Value.Depth}");
       }
     }
     passedCriteria.Add($"No init script found in package or dependencies down to dependency depth {DependencyTreeBuilder.MAXDEPTH}");

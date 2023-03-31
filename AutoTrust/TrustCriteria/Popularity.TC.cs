@@ -39,7 +39,7 @@ public class Popularity : ITrustCriteria {
       return ("Cannot find information about dependents of package", Status.Fail);
     }
 
-    var (usedByCriteriaString, usedByCriteriaBool)  = ValidateUsedByCriteria(dataHandler);
+    var (usedByCriteriaString, usedByCriteriaBool) = ValidateUsedByCriteria(dataHandler);
     if (usedByCriteriaBool != Status.Pass) {
       return (usedByCriteriaString, usedByCriteriaBool);
     }

@@ -2,7 +2,7 @@ namespace AutoTrust;
 
 public class Documentation : ITrustCriteria {
   public static string Title => "Package Documentation";
-  
+
   public static (string, Status) Validate(DataHandler dataHandler) {
     // Check if package contains a README
     for (var i = 0; i < dataHandler.NugetCatalogEntry?.PackageEntries?.Count; i++) {

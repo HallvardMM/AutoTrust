@@ -21,45 +21,49 @@ await dataHandler.FetchData();
 var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status, int)>();
 
 var tasks = new List<Task> {
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = Age.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Age.Title, (message, status, 1)); 
+    trustCriteriaResult.TryAdd(Age.Title, (message, status, 1));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = Popularity.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, 2)); 
+    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, 2));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = KnownVulnerabilities.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, 3)); 
+    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, 3));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = Deprecated.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, 4)); 
+    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, 4));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = DeprecatedDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, 5)); 
+    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, 5));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = InitScript.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, 6)); 
+    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, 6));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = DirectTransitiveDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, 7)); 
+    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, 7));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = Documentation.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, 8)); 
+    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, 8));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = License.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(License.Title, (message, status, 9)); 
+    trustCriteriaResult.TryAdd(License.Title, (message, status, 9));
   }),
-  Task.Run(() => { 
+  Task.Run(() => {
     var (message, status) = WidespreadUse.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, 10)); 
+    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, 10));
+  }),
+  Task.Run(() => {
+    var (message, status) = Contributors.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Contributors.Title, (message, status, 11));
   }),
 };
 var t = Task.WhenAll(tasks.ToArray());

@@ -27,12 +27,11 @@ public class DeprecatedDependencies : ITrustCriteria {
       }
     }
     if (deprecatedPackagesList.Count > 0) {
-      // TODO: Add a way of displaying the console writeline messages
-      // foreach (var entry in deprecatedPackagesList) {
-      //   Console.WriteLine($"The deprecated package '{entry.Key}' is found in the dependency tree with package path: '{entry.Value}'");
-      // }
-
-      return ("Package has a deprecated dependency in its dependency tree!", Status.Fail);
+      var deprecatedDependencyReturnMessage = "";
+      foreach (var entry in deprecatedPackagesList) {
+        deprecatedDependencyReturnMessage += $"{Environment.NewLine}  - The deprecated package '{entry.Key}' is found in the dependency tree with package path: '{entry.Value}'";
+      }
+      return ("Package has a deprecated dependency in its dependency tree!" + deprecatedDependencyReturnMessage, Status.Fail);
     }
 
     // Does not have any deprecated dependencies

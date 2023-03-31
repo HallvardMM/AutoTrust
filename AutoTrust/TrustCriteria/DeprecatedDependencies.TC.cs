@@ -1,9 +1,9 @@
 namespace AutoTrust;
 
 public class DeprecatedDependencies : ITrustCriteria {
-  public string Title => "Deprecated Dependencies";
+  public static string Title => "Deprecated Dependencies";
 
-  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
+  public static (string, Status) Validate(DataHandler dataHandler, bool isVerbose) {
     var deprecatedPackagesList = new Dictionary<string, string>();
     if (dataHandler.DependencyTree is not null) {
       foreach (var package in dataHandler.DependencyTree) {
@@ -27,15 +27,14 @@ public class DeprecatedDependencies : ITrustCriteria {
       }
     }
     if (deprecatedPackagesList.Count > 0) {
+      var deprecatedDependencyReturnMessage = "";
       foreach (var entry in deprecatedPackagesList) {
-        Console.WriteLine($"The deprecated package '{entry.Key}' is found in the dependency tree with package path: '{entry.Value}'");
+        deprecatedDependencyReturnMessage += $"{Environment.NewLine}  - The deprecated package '{entry.Key}' is found in the dependency tree with package path: '{entry.Value}'";
       }
-      PrettyPrint.FailPrint("Package has a deprecated dependency in its dependency tree!");
-      return Status.Fail;
+      return ("Package has a deprecated dependency in its dependency tree!" + deprecatedDependencyReturnMessage, Status.Fail);
     }
 
     // Does not have any deprecated dependencies
-    PrettyPrint.SuccessPrint($"Package does not depend on deprecated packages down to dependency depth {DependencyTreeBuilder.MAXDEPTH}");
-    return Status.Pass;
+    return ($"Package does not depend on deprecated packages down to dependency depth {DependencyTreeBuilder.MAXDEPTH}", Status.Pass);
   }
 }

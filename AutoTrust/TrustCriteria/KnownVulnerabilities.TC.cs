@@ -1,15 +1,16 @@
 namespace AutoTrust;
 
 public class KnownVulnerabilities : ITrustCriteria {
-  public string Title => "Known Vulnerabilities";
+  public static string Title => "Known Vulnerabilities";
 
-  public static Status Validate(DataHandler dataHandler, bool isVerbose) {
+  public static (string, Status) Validate(DataHandler dataHandler, bool isVerbose) {
     long oldVulnerabilities = 0;
     long currentVulnerabilities = 0;
 
     if (dataHandler.NugetCatalogEntry?.Vulnerabilities != null) {
-      PrettyPrint.FailPrint($"Package has {dataHandler.NugetCatalogEntry?.Vulnerabilities.Count} known vulnerabilities registered in NuGet: https://www.nuget.org/packages/{dataHandler.PackageName.ToLowerInvariant()}/{dataHandler.PackageVersion.ToLowerInvariant()}");
-      return Status.Fail;
+      var nugetVulnerabilityUrl = $"https://www.nuget.org/packages/{dataHandler.PackageName.ToLowerInvariant()}/{dataHandler.PackageVersion.ToLowerInvariant()}";
+      var vulnerabilitiesMessage = $"Package has {dataHandler.NugetCatalogEntry?.Vulnerabilities.Count} known vulnerabilities registered in NuGet: {nugetVulnerabilityUrl}";
+      return (vulnerabilitiesMessage, Status.Fail);
     }
 
     //Check all Osv vulnerabilities
@@ -23,16 +24,13 @@ public class KnownVulnerabilities : ITrustCriteria {
     });
 
     if (currentVulnerabilities > 0) {
-      PrettyPrint.FailPrint($"Package has {currentVulnerabilities} current vulnerabilities registered in OSV: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}");
-      return Status.Fail;
+      return ($"Package has {currentVulnerabilities} current vulnerabilities registered in OSV: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}", Status.Fail);
     }
 
     if (oldVulnerabilities > 0) {
-      PrettyPrint.WarningPrint($"Package has {oldVulnerabilities} known vulnerabilities registered in OSV but not for the current version: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}");
-      return Status.Error;
+      return ($"Package has {oldVulnerabilities} known vulnerabilities registered in OSV but not for the current version: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}", Status.Error);
     }
 
-    PrettyPrint.SuccessPrint("No current or old vulnerabilities found");
-    return Status.Pass;
+    return ("No current or old vulnerabilities found", Status.Pass);
   }
 }

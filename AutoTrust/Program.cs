@@ -8,14 +8,15 @@ var httpClient = new HttpClient();
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
-var (packageName, packageVersion, packageVersionSetByUser, isPrerelease, isVerbose) = CliInputHandler.HandleInput(args);
-if (packageName is "" && packageVersion is "" && !packageVersionSetByUser && !isPrerelease && !isVerbose) {
+var input = CliInputHandler.HandleInput(args);
+if (input is null) {
   return;
 }
+var (packageName, packageVersion, packageVersionSetByUser, isPrerelease, isVerbose, isDiagnostic) = input.Value;
 
 var dataHandler = new DataHandler(httpClient, packageName, packageVersion, isPrerelease);
 // Need to call fetchData to fetch the dataHandler object data
-await dataHandler.FetchData();
+await dataHandler.FetchData(isDiagnostic);
 Age.Validate(dataHandler, isVerbose);
 Popularity.Validate(dataHandler, isVerbose);
 KnownVulnerabilities.Validate(dataHandler, isVerbose);
@@ -34,8 +35,11 @@ Console.WriteLine("Do you still want to add this package? (y/n)");
 
 var addPackageQuery = Console.ReadLine()!.Trim();
 
-// Remove verbosity flag from args as dotnet does not accept it
-args = args.Except(Constants.VerbosityFlags).ToArray();
+// Remove verbosity flag from args as dotnet add package does not accept it
+var indexOfVerbosityFlag = Array.FindLastIndex(args, arg => Constants.VerbosityFlags.Contains(arg));
+if (indexOfVerbosityFlag != -1) {
+  args = args.Take(indexOfVerbosityFlag).Concat(args.Skip(indexOfVerbosityFlag + 2)).ToArray();
+}
 
 if (Constants.PositiveResponse.Any(addPackageQuery.Contains)) {
   if (packageVersionSetByUser) {

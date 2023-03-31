@@ -7,11 +7,11 @@ AutoTrust extension:
   Prompts user (y/n) after displaying information if they want to continue with the 'dotnet add' command.
 
 Options:
-  -v, --verbosity    If the flag is set the output is more verbose and informs about all checks done.
-
+  -?, -h, --help  Show help and usage information
+  -ve, --verbosity <d|detailed|diag|diagnostic|n|normal>  Set the verbosity level. Allowed values are n[ormal], d[etailed], and diag[nostic]
 Dotnet add information:";
 
-  public static (string, string, bool, bool, bool) HandleInput(string[] args) {
+  public static (string, string, bool, bool, bool, bool)? HandleInput(string[] args) {
     var query = args.AsQueryable();
 
     if (query.ElementAtOrDefault(0) == "add" && query.Contains("package")) {
@@ -19,15 +19,15 @@ Dotnet add information:";
       return RunDotnetAddPackage(args, query.ElementAtOrDefault(packageNameIndex));
     }
     RunProcess.DotnetProcess(args);
-    return ("", "", false, false, false);
+    return null;
   }
 
-  public static (string, string, bool, bool, bool) RunDotnetAddPackage(string[] args, string? packageName) {
+  public static (string, string, bool, bool, bool, bool)? RunDotnetAddPackage(string[] args, string? packageName) {
     if (packageName is null) {
       Console.WriteLine("Error: Package name not provided!");
       //Package name not provided run dotnet process for basic error handling
       RunProcess.DotnetProcess(args);
-      return ("", "", false, false, false);
+      return null;
     }
 
     if (Constants.HelpFlags.Any(args.Contains)) {
@@ -35,7 +35,7 @@ Dotnet add information:";
       Console.WriteLine(HelperText);
       // Run the dotnet process to get original help information
       RunProcess.DotnetProcess(args);
-      return ("", "", false, false, false);
+      return null;
     }
 
     var packageVersion = "";
@@ -46,11 +46,27 @@ Dotnet add information:";
       packageVersion = args[indexOfVersionFlag + 1];
       packageVersionSetByUser = true;
     }
-    var isVerbose = args.Any(arg => Constants.VerbosityFlags.Contains(arg));
+
+    var verbosityLevel = "";
+    var verbosityDetailed = false;
+    var verbosityDiagnostic = false;
+
+    var indexOfVerbosityFlag = Array.FindIndex(args, arg => Constants.VerbosityFlags.Contains(arg));
+    if (indexOfVerbosityFlag != -1) {
+      verbosityLevel = args[indexOfVerbosityFlag + 1];
+      if (verbosityLevel is "d" or "detailed") {
+        verbosityDetailed = true;
+      }
+      else if (verbosityLevel is "diag" or "diagnostic") {
+        verbosityDiagnostic = true;
+        verbosityDetailed = true;
+      }
+    }
 
     var prerelease = Constants.PrereleaseFlag.Any(args.Contains) || packageVersion.Contains('-');
 
-    return (packageName, packageVersion, packageVersionSetByUser, prerelease, isVerbose);
+    return (packageName, packageVersion, packageVersionSetByUser,
+              prerelease, verbosityDetailed, verbosityDiagnostic);
   }
 
 }

@@ -29,7 +29,7 @@ public class DataHandler {
     this.UsedByInformation = "";
   }
 
-  public async Task FetchData() {
+  public async Task FetchData(bool isDiagnostic) {
 
     var (oldestVersion, latestVersion) = await NugetPackageVersion.GetLatestVersion(this.HttpClient, this.PackageName, this.IsPrerelease);
     if (this.PackageVersion is "") {
@@ -74,6 +74,10 @@ public class DataHandler {
         else if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.ProjectUrl) && (this.PackageManifest?.Metadata.ProjectUrl?.ToLowerInvariant().Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
         }
+        else{
+          Console.WriteLine("No Github repository found!");
+          return;
+        }
 
         //Extract the author and project from the repository url
         // https://github.com/aws/aws-sdk-net/
@@ -82,10 +86,10 @@ public class DataHandler {
         // https://github.com/JamesNK/Newtonsoft.Json
 
         var authorAndProject = repositoryUrl.Replace("https://github.com/", "");
-        if (authorAndProject.EndsWith(".git", true, System.Globalization.CultureInfo.InvariantCulture)) {
+        if (authorAndProject.EndsWith(".git", StringComparison.InvariantCultureIgnoreCase)) {
           authorAndProject = authorAndProject[..^4];
         }
-        if (authorAndProject.EndsWith("/", true, System.Globalization.CultureInfo.InvariantCulture)) {
+        if (authorAndProject.EndsWith("/", StringComparison.InvariantCultureIgnoreCase)) {
           authorAndProject = authorAndProject[..^1];
         }
 

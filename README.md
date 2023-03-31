@@ -29,21 +29,22 @@ dotnet tool install --global AutoTrust
 ### Add/Update packages with AutoTrust:
 
 ```PowerShell
-autotrust add package [PackageName]
+autotrust add [<PROJECT>] package <PACKAGE_NAME> [options]
 ```
 
-### Information about AutoTrust:
+### Specific AutoTrust options:
+
+Information about AutoTrust:
 
 ```PowerShell
-autotrust add package --help
-autotrust add package [PackageName] --help
+autotrust add package -?, -h, --help
+autotrust add package [PackageName] -?, -h, --help
 ```
 
-### More detailed output for AutoTrust:
+More detailed output for AutoTrust:
 
 ```PowerShell
-autotrust add package [PackageName] --verbosity
-autotrust add package [PackageName] -ve
+autotrust add package [PackageName] -ve, --verbosity <d|detailed|diag|diagnostic|n|normal|>
 ```
 
 ## Daily usage

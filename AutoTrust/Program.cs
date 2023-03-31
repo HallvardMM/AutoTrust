@@ -16,16 +16,35 @@ if (packageName is "" && packageVersion is "" && packageVersionSetByUser is fals
 var dataHandler = new DataHandler(httpClient, packageName, packageVersion, isPrerelease);
 // Need to call fetchData to fetch the dataHandler object data
 await dataHandler.FetchData();
-Age.Validate(dataHandler);
-Popularity.Validate(dataHandler);
-KnownVulnerabilities.Validate(dataHandler);
-Deprecated.Validate(dataHandler);
-DeprecatedDependencies.Validate(dataHandler);
-InitScript.Validate(dataHandler);
-DirectTransitiveDependencies.Validate(dataHandler);
-Documentation.Validate(dataHandler);
-License.Validate(dataHandler);
-WidespreadUse.Validate(dataHandler);
+
+// Dict format: {TC Title: (TC result message, Status)}
+var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status)>();
+
+var tasks = new List<Task> {
+  Task.Run(() => { trustCriteriaResult.TryAdd(Age.Title, Age.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(Popularity.Title, Popularity.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, KnownVulnerabilities.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(Deprecated.Title, Deprecated.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, DeprecatedDependencies.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(InitScript.Title, InitScript.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, DirectTransitiveDependencies.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(Documentation.Title, Documentation.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(License.Title, License.Validate(dataHandler)); }),
+  Task.Run(() => { trustCriteriaResult.TryAdd(WidespreadUse.Title, WidespreadUse.Validate(dataHandler)); }),
+};
+var t = Task.WhenAll(tasks.ToArray());
+try {
+  await t;
+}
+catch { }
+
+// To change the sorting order, change the order of the values in Status enum in ITrustCriteria.cs
+var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ToList();
+
+foreach (var result in sortedTrustCriteriaResult) {
+  PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2);
+}
+
 
 Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}");
 

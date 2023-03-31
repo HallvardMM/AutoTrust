@@ -2,14 +2,14 @@ namespace AutoTrust;
 
 public enum Status {
   Pass,
-  Fail,
   Error,
+  Fail,
 }
 
 internal interface ITrustCriteria {
 
-  public abstract string Title { get; }
-  static abstract Status Validate(DataHandler dataHandler);
+  public abstract static string Title { get; }
+  static abstract (string, Status) Validate(DataHandler dataHandler);
 
   public void DisplayInConsole(Status status, string text) {
     switch (status) {

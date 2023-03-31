@@ -32,12 +32,10 @@ public class DeprecatedDependencies : ITrustCriteria {
       //   Console.WriteLine($"The deprecated package '{entry.Key}' is found in the dependency tree with package path: '{entry.Value}'");
       // }
 
-      // PrettyPrint.FailPrint("Package has a deprecated dependency in its dependency tree!");
       return ("Package has a deprecated dependency in its dependency tree!", Status.Fail);
     }
 
     // Does not have any deprecated dependencies
-    // PrettyPrint.SuccessPrint($"Package does not depend on deprecated packages down to dependency depth {DependencyTreeBuilder.MAXDEPTH}");
     return ($"Package does not depend on deprecated packages down to dependency depth {DependencyTreeBuilder.MAXDEPTH}", Status.Pass);
   }
 }

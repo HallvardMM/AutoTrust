@@ -8,7 +8,6 @@ public class KnownVulnerabilities : ITrustCriteria {
     long currentVulnerabilities = 0;
 
     if (dataHandler.NugetCatalogEntry?.Vulnerabilities != null) {
-      // PrettyPrint.FailPrint($"Package has {dataHandler.NugetCatalogEntry?.Vulnerabilities.Count} known vulnerabilities registered in NuGet: https://www.nuget.org/packages/{dataHandler.PackageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{dataHandler.PackageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}");
       return ($"Package has {dataHandler.NugetCatalogEntry?.Vulnerabilities.Count} known vulnerabilities registered in NuGet: https://www.nuget.org/packages/{dataHandler.PackageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{dataHandler.PackageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}", Status.Fail);
     }
 
@@ -23,16 +22,13 @@ public class KnownVulnerabilities : ITrustCriteria {
     });
 
     if (currentVulnerabilities > 0) {
-      // PrettyPrint.FailPrint($"Package has {currentVulnerabilities} current vulnerabilities registered in OSV: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}");
       return ($"Package has {currentVulnerabilities} current vulnerabilities registered in OSV: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}", Status.Fail);
     }
 
     if (oldVulnerabilities > 0) {
-      // PrettyPrint.WarningPrint($"Package has {oldVulnerabilities} known vulnerabilities registered in OSV but not for the current version: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}");
       return ($"Package has {oldVulnerabilities} known vulnerabilities registered in OSV but not for the current version: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}", Status.Error);
     }
 
-    // PrettyPrint.SuccessPrint("No current or old vulnerabilities found");
     return ("No current or old vulnerabilities found", Status.Pass);
   }
 }

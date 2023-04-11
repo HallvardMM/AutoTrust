@@ -7,6 +7,7 @@ public class OpenIssues : ITrustCriteria {
   public static readonly string OneYearAgoString = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
   private static readonly double RatioOpenClosed = 0.2; // TODO:Is this good? Less than 20% of the total issues should be open
   private static readonly double RatioOpenNewOld = 0.5; // TODO:Is this good? More than 50% of the open issues should be addressed in the last year
+  private static readonly double ToFewIssuesThreshold = 30;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     // List of passed criteria
@@ -20,6 +21,13 @@ public class OpenIssues : ITrustCriteria {
     passedCriteria.Add("Open issues found");
 
     var totalIssues = dataHandler.GithubOpenIssueData.TotalCount + dataHandler.GithubClosedIssueData?.TotalCount;
+    if (totalIssues < ToFewIssuesThreshold) {
+      passedCriteria.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is less than {ToFewIssuesThreshold}");
+      return ($"Less than {ToFewIssuesThreshold} open and closed issues. To few to evaluate.", Status.Error, passedCriteria.ToArray());
+    }
+
+    passedCriteria.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is more than {ToFewIssuesThreshold}");
+
     if ((double)dataHandler.GithubOpenIssueData.TotalCount / totalIssues >= RatioOpenClosed) {
       passedCriteria.Add($"Ratio of open issues {dataHandler.GithubOpenIssueData.TotalCount} to closed issues {dataHandler.GithubClosedIssueData?.TotalCount} is more than " + RatioOpenClosed);
       return ($"Open Issues of package failed. Ratio of open issues to open and closed issues is more than {RatioOpenClosed * 100}%", Status.Fail, passedCriteria.ToArray());

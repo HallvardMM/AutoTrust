@@ -2,7 +2,7 @@
 namespace AutoTrust;
 
 public class PrettyPrint {
-  public static void PrintTCMessage(string message, Status status) {
+  public static void PrintTCMessage(string message, Status status, string[] additionalInfo, bool isVerbose) {
     switch (status) {
       case Status.Pass:
         SuccessPrint(message);
@@ -15,6 +15,17 @@ public class PrettyPrint {
         break;
       default:
         break;
+    }
+    PrintAdditionalInfo(additionalInfo, isVerbose);
+
+  }
+
+  public static void PrintAdditionalInfo(string[] additionalInfo, bool isVerbose) {
+    if (isVerbose) {
+      foreach (var info in additionalInfo) {
+        Console.WriteLine($"- {info}");
+      }
+      Console.WriteLine();
     }
   }
 

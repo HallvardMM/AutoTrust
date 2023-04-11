@@ -21,38 +21,38 @@ public class OSVData {
     return returnString;
   }
 
-  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, string packageVersion = "") {
+  public static async Task<OSVData?> GetOSVData(HttpClient httpClient, string packageName, bool isDiagnostic) {
+    var osvUrl = "https://api.osv.dev/v1/query";
+    var osvJSONPost = $"{{\"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
     try {
-      var osvJSONPost = "";
-      // Fetch package data
-      if (packageVersion == "") {
-        osvJSONPost =
-        $"{{\"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
-      }
-      else {
-        osvJSONPost =
-        $"{{\"version\": \"{packageVersion}\", \"package\": {{\"name\":\"{packageName}\",\"ecosystem\":\"NuGet\"}}}}";
-      }
-
       var content = new StringContent(osvJSONPost, System.Text.Encoding.UTF8, "application/json");
-      var response = await httpClient.PostAsync("https://api.osv.dev/v1/query", content);
+      var response = await httpClient.PostAsync(osvUrl, content);
       if (response.StatusCode == HttpStatusCode.OK) {
         var responseStream = await response.Content.ReadAsStreamAsync();
         var osvData = await JsonSerializer.DeserializeAsync<OSVData>(responseStream);
+        if (isDiagnostic) {
+          Console.WriteLine($"Found OSV data for {packageName} from {osvUrl} with POST {osvJSONPost}");
+        }
         return osvData;
       }
       else {
         var errorResponse = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"An error occurred. Status code: {response.StatusCode}. Error message: {errorResponse}");
+        if (isDiagnostic) {
+          Console.WriteLine($"Error: From {osvUrl} with POST {osvJSONPost} Status code: {response.StatusCode}. Error message: {errorResponse}");
+        }
       }
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {packageName} from {osvUrl} with POST {osvJSONPost}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {packageName} from {osvUrl} with POST {osvJSONPost}: {ex.Message}");
+      }
     }
     return null;
   }

@@ -30,9 +30,9 @@ public class DataHandler {
     this.UsedByInformation = "";
   }
 
-  public async Task FetchData() {
+  public async Task FetchData(bool isDiagnostic) {
 
-    var (oldestVersion, latestVersion) = await NugetPackageVersion.GetLatestVersion(this.HttpClient, this.PackageName, this.IsPrerelease);
+    var (oldestVersion, latestVersion) = await NugetPackageVersion.GetLatestVersion(this.HttpClient, this.PackageName, this.IsPrerelease, isDiagnostic);
     if (this.PackageVersion is "") {
       if (latestVersion != null) {
         this.PackageVersion = latestVersion;
@@ -45,35 +45,41 @@ public class DataHandler {
 
     var tasks = new List<Task> {
       Task.Run(async () => {
-        this.NugetPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, this.PackageVersion);
+        this.NugetPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, this.PackageVersion, isDiagnostic);
 
         // Get the package catalog entry with a lot of data such as potential vulnerabilities
         if (this.NugetPackage?.CatalogEntry != null) {
-          this.NugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(this.HttpClient, this.NugetPackage.CatalogEntry);
+          this.NugetCatalogEntry = await NugetCatalogEntry.GetNugetCatalogEntry(this.HttpClient, this.NugetPackage.CatalogEntry, isDiagnostic);
         }
         
         // Build dependency tree after getting the catalog entry
-        this.DependencyTree = await DependencyTreeBuilder.GetDependencyTree(this, new System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>(), this.PackageName, this.PackageVersion);
+        this.DependencyTree = await DependencyTreeBuilder.GetDependencyTree(this,
+        new System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>(),
+        this.PackageName, this.PackageVersion, isDiagnostic);
       }),
       Task.Run(async () => {
         if(oldestVersion != null){
         // Get the package catalog entry with a lot of data such as potential vulnerabilities
-        var oldPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, oldestVersion);
+        var oldPackage = await NugetPackage.GetNugetPackage(this.HttpClient, this.PackageName, oldestVersion, isDiagnostic);
         if (oldPackage?.Published != null) {
           this.OldestPublishedDate = oldPackage.Published;
         }
         }
       }),
       Task.Run(async () => {
-        this.PackageManifest = await NugetPackageManifest.GetNugetPackageManifest(this.HttpClient, this.PackageName, this.PackageVersion);
+        this.PackageManifest = await NugetPackageManifest.GetNugetPackageManifest(this.HttpClient, this.PackageName, this.PackageVersion, isDiagnostic);
 
         var repositoryUrl = "";
 
-        if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.Repository?.Url) && (this.PackageManifest?.Metadata.Repository?.Url?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
+        if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.Repository?.Url) && (this.PackageManifest?.Metadata.Repository?.Url?.ToLowerInvariant().Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.Repository.Url;
         }
-        else if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.ProjectUrl) && (this.PackageManifest?.Metadata.ProjectUrl?.ToLower(System.Globalization.CultureInfo.InvariantCulture).Contains("github.com") ?? false)) {
+        else if (!string.IsNullOrEmpty(this.PackageManifest?.Metadata.ProjectUrl) && (this.PackageManifest?.Metadata.ProjectUrl?.ToLowerInvariant().Contains("github.com") ?? false)) {
           repositoryUrl = this.PackageManifest.Metadata.ProjectUrl;
+        }
+        else{
+          Console.WriteLine("Error: No Github repository found Github data for package, issues and readme will not be checked!");
+          return;
         }
 
         //Extract the author and project from the repository url
@@ -83,41 +89,50 @@ public class DataHandler {
         // https://github.com/JamesNK/Newtonsoft.Json
 
         var authorAndProject = repositoryUrl.Replace("https://github.com/", "");
-        if (authorAndProject.EndsWith(".git", true, System.Globalization.CultureInfo.InvariantCulture)) {
+        if (authorAndProject.EndsWith(".git", StringComparison.InvariantCultureIgnoreCase)) {
           authorAndProject = authorAndProject[..^4];
         }
-        if (authorAndProject.EndsWith("/", true, System.Globalization.CultureInfo.InvariantCulture)) {
+        if (authorAndProject.EndsWith("/", StringComparison.InvariantCultureIgnoreCase)) {
           authorAndProject = authorAndProject[..^1];
         }
 
         if (authorAndProject != "") {
           var tasks = new List<Task> {
-          Task.Run(async () => this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject)),
-          Task.Run(async () => this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject)),
-          Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject)),
-          Task.Run(async () => this.GithubContributorsData = await GithubContributor.GetGithubContributors(this.HttpClient, authorAndProject))
+          Task.Run(async () => this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject, isDiagnostic)),
+          Task.Run(async () => this.GithubIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject, isDiagnostic)),
+          Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject, isDiagnostic)),
+          Task.Run(async () => this.GithubContributorsData = await GithubContributor.GetGithubContributors(this.HttpClient, authorAndProject, isDiagnostic))
         };
           var t = Task.WhenAll(tasks.ToArray());
           try {
             await t;
           }
           catch { }
+        }else{
+          Console.WriteLine($"Error: No author and project found in url: {repositoryUrl}");
         };
       }),
       Task.Run(async () => {
-        this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName);
+        this.NugetDownloadCount = await NugetDownloadCount.GetNugetDownloadCount(this.HttpClient, this.PackageName, this.IsPrerelease, isDiagnostic);
         if (this.NugetDownloadCount?.Data[0].PackageName != null) {
-          this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.NugetDownloadCount.Data[0].PackageName);
+          this.OsvData = await OSVData.GetOSVData(this.HttpClient, this.NugetDownloadCount.Data[0].PackageName, isDiagnostic);
         }
       }
-       ),
+      ),
 
       Task.Run(async () => {
+        var usedByUrl = $"https://www.nuget.org/packages/{this.PackageName}/{this.PackageVersion}#usedby-body-tab";
         try {
-          this.UsedByInformation = await this.HttpClient.GetStringAsync($"https://www.nuget.org/packages/{this.PackageName}/{this.PackageVersion}#usedby-body-tab");
+          this.UsedByInformation = await this.HttpClient.GetStringAsync(usedByUrl);
+          if(isDiagnostic){
+            Console.WriteLine($"Found used by information from: {usedByUrl}");
+          }
         }
         catch (HttpRequestException) {
           this.UsedByInformation = "";
+          if(isDiagnostic){
+            Console.WriteLine($"Error: Failed to fetch used by information from {usedByUrl}");
+          }
         }
       })
     };

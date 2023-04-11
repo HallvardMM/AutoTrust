@@ -10,9 +10,13 @@ public class NugetPackageManifest {
   [XmlElement(ElementName = "metadata")]
   public required Metadata Metadata { get; set; }
 
-  public static async Task<NugetPackageManifest?> GetNugetPackageManifest(HttpClient httpClient, string packageName, string packageVersion) {
+  public static async Task<NugetPackageManifest?> GetNugetPackageManifest(HttpClient httpClient,
+    string packageName,
+    string packageVersion,
+    bool isDiagnostic) {
+    var manifestUrl = GetNugetPackageManifestUrl(packageName, packageVersion);
     try {
-      var stream = await httpClient.GetStreamAsync(GetNugetPackageManifestUrl(packageName, packageVersion));
+      var stream = await httpClient.GetStreamAsync(manifestUrl);
       // Deserialize the XML file into a NuGetPackage object
       var serializer = new XmlSerializer(typeof(NugetPackageManifest));
       var settings = new XmlReaderSettings {
@@ -23,20 +27,27 @@ public class NugetPackageManifest {
       using var xmlReader = XmlReader.Create(stream, settings);
       using var replacedXmlReader = new ReplaceNsXmlReader(xmlReader, "");
       var packageManifest = (NugetPackageManifest?)serializer.Deserialize(replacedXmlReader);
+      if (isDiagnostic) {
+        Console.WriteLine($"Found package manifest for {packageName} {packageVersion} in {manifestUrl}");
+      }
       return packageManifest;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {packageName} {packageVersion} from {manifestUrl}: {ex.Message}");
+      }
     }
     catch (InvalidOperationException ex) {
       // Handle any exceptions thrown during XML deserialization.
-      Console.WriteLine($"An XML error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An XML error occurred for {packageName} {packageVersion} from {manifestUrl}: {ex.Message}");
+      }
     }
     return null;
   }
 
-  public static string GetNugetPackageManifestUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}.nuspec";
+  public static string GetNugetPackageManifestUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3-flatcontainer/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}/{packageName.ToLowerInvariant()}.nuspec";
 
   public override string ToString() => this.Metadata.ToString();
 }

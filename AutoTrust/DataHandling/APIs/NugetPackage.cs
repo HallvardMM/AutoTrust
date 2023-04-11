@@ -15,22 +15,29 @@ public class NugetPackage {
   public DateTimeOffset? Published { get; set; }
   public string Registration { get; set; } = string.Empty;
 
-  public static string GetNugetPackageUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3/registration5-semver1/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}.json";
+  public static string GetNugetPackageUrl(string packageName, string packageVersion) => $"https://api.nuget.org/v3/registration5-semver1/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}.json";
 
-  public static async Task<NugetPackage?> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion) {
+  public static async Task<NugetPackage?> GetNugetPackage(HttpClient httpClient, string packageName, string packageVersion, bool isDiagnostic) {
     try {
       // Fetch package data
       var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
           (GetNugetPackageUrl(packageName, packageVersion));
+      if (isDiagnostic) {
+        Console.WriteLine($"Found package data for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}");
+      }
       return nugetPackage;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      }
     }
     return null;
   }

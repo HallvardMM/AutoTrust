@@ -43,21 +43,28 @@ public class GithubContributor {
   [JsonPropertyName("contributions")]
   public int Contributions { get; set; }
 
-  public static async Task<List<GithubContributor?>?> GetGithubContributors(HttpClient httpClient, string authorAndProject) {
+  public static async Task<List<GithubContributor?>?> GetGithubContributors(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+    var url = $"https://api.github.com/repos/{authorAndProject}/contributors?per_page={Contributors.NumberOfContributorsThreshold}";
     try {
       // Fetch data from github
       // var contributors = new List<GithubContributor>();
-      var url = $"https://api.github.com/repos/{authorAndProject}/contributors?per_page={Contributors.NumberOfContributorsThreshold}";
       var contributors = await httpClient.GetFromJsonAsync<List<GithubContributor?>?>(url);
+      if (isDiagnostic) {
+        Console.WriteLine($"Found {contributors?.Count} contributors for {authorAndProject} in {url}");
+      }
       return contributors;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
+      }
     }
     return null;
   }

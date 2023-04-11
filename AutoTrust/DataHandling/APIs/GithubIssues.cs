@@ -19,20 +19,27 @@ public class GithubIssues {
     return returnString;
   }
 
-  public static async Task<GithubIssues?> GetGithubIssues(HttpClient httpClient, string authorAndProject) {
+  public static async Task<GithubIssues?> GetGithubIssues(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+    var githubIssuesUrl = GetGithubIssuesUrl(authorAndProject);
     try {
       // Fetch package data
-      var githubIssuesUrl = GetGithubIssuesUrl(authorAndProject);
       var githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(githubIssuesUrl);
+      if (isDiagnostic) {
+        Console.WriteLine($"Found issue data for {authorAndProject} from {githubIssuesUrl}");
+      }
       return githubIssueData;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {githubIssuesUrl}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {githubIssuesUrl}: {ex.Message}");
+      }
     }
     return null;
   }

@@ -12,39 +12,75 @@ public class Popularity : ITrustCriteria {
   private static readonly long UsedByGithubRepositoriesThreshold = 10;
 
 
-  public static (string, Status) Validate(DataHandler dataHandler) {
+  public static (string, Status, string[]) Validate(DataHandler dataHandler) {
+    var passedCriteria = new List<string>();
+
     // Check download count
     if (dataHandler.NugetDownloadCount == null) {
-      return ("Can't find download count for package", Status.Fail);
+      passedCriteria.Add("Cannot find download count on Nuget for package");
+      return ("Cannot find download count for package", Status.Fail, passedCriteria.ToArray());
     }
     else if (dataHandler.NugetDownloadCount.Data[0].TotalDownloads <= DownloadsThreshold) {
-      return ("Package download count: " + dataHandler.NugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + DownloadsThreshold, Status.Fail);
+      passedCriteria.Add("Package download count: " + dataHandler.NugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + DownloadsThreshold);
+      return ("Package download count: " + dataHandler.NugetDownloadCount.Data[0].TotalDownloads + " is lower than threshold: " + DownloadsThreshold,
+        Status.Fail, passedCriteria.ToArray());
     }
+
+    passedCriteria.Add("Package download count on Nuget is: " +
+      dataHandler.NugetDownloadCount.Data[0].TotalDownloads +
+     " which is higher than threshold: " + DownloadsThreshold);
 
     // Check number of stars, forks and watchers on github
     if (dataHandler.GithubData == null) {
-      return ("Can't find github data for package", Status.Fail);
+      passedCriteria.Add("Cannot find Github data for package");
+      return ("Cannot find github data for package", Status.Fail, passedCriteria.ToArray());
     }
-    else if (dataHandler.GithubData.StargazersCount <= StargazersCountThreshold) {
-      return ("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is lower than threshold: " + StargazersCountThreshold, Status.Fail);
+    else {
+      passedCriteria.Add("Package data on Github found");
     }
-    else if (dataHandler.GithubData.ForksCount <= ForksCountThreshold) {
-      return ("Package github forks count: " + dataHandler.GithubData.ForksCount + " is lower than threshold: " + ForksCountThreshold, Status.Fail);
+
+    if (dataHandler.GithubData.StargazersCount <= StargazersCountThreshold) {
+      passedCriteria.Add("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is lower than threshold: " + StargazersCountThreshold);
+      return ("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is lower than threshold: " + StargazersCountThreshold, Status.Fail, passedCriteria.ToArray());
     }
-    else if (dataHandler.GithubData.WatchersCount <= WatchersThreshold) {
-      return ("Package github watchers count: " + dataHandler.GithubData.WatchersCount + " is lower than threshold: " + WatchersThreshold, Status.Fail);
+    else {
+      passedCriteria.Add("Package github stargazers count: " + dataHandler.GithubData.StargazersCount + " is higher than threshold: " + StargazersCountThreshold);
+    }
+    if (dataHandler.GithubData.ForksCount <= ForksCountThreshold) {
+      passedCriteria.Add("Package github forks count: " + dataHandler.GithubData.ForksCount + " is lower than threshold: " + ForksCountThreshold);
+      return ("Package github forks count: " +
+      dataHandler.GithubData.ForksCount +
+      " is lower than threshold: " + ForksCountThreshold, Status.Fail, passedCriteria.ToArray());
+    }
+    else {
+      passedCriteria.Add("Package github forks count: " + dataHandler.GithubData.ForksCount + " is higher than threshold: " + ForksCountThreshold);
+    }
+    if (dataHandler.GithubData.WatchersCount <= WatchersThreshold) {
+      passedCriteria.Add("Package github watchers count: " + dataHandler.GithubData.WatchersCount + " is lower than threshold: " + WatchersThreshold);
+      return ("Package github watchers count: " +
+       dataHandler.GithubData.WatchersCount +
+        " is lower than threshold: " + WatchersThreshold, Status.Fail, passedCriteria.ToArray());
+    }
+    else {
+      passedCriteria.Add("Package github watchers count: " + dataHandler.GithubData.WatchersCount + " is higher than threshold: " + WatchersThreshold);
     }
 
     if (dataHandler.UsedByInformation == "") {
-      return ("Cannot find information about dependents of package", Status.Fail);
+      var usedByNugetUrl = $"https://www.nuget.org/packages/{dataHandler.PackageName}/{dataHandler.PackageVersion}#usedby-body-tab";
+      passedCriteria.Add($"Cannot find information about dependents from {usedByNugetUrl}");
+      return ("Cannot find information about dependents of package", Status.Fail, passedCriteria.ToArray());
     }
 
     var (usedByCriteriaString, usedByCriteriaBool) = ValidateUsedByCriteria(dataHandler);
     if (usedByCriteriaBool != Status.Pass) {
-      return (usedByCriteriaString, usedByCriteriaBool);
+      passedCriteria.Add($"Package was used by less than {UsedByNugetPackagesThreshold} Nuget packages or less than {UsedByGithubRepositoriesThreshold} Github repositories");
+      return (usedByCriteriaString, usedByCriteriaBool, passedCriteria.ToArray());
+    }
+    else {
+      passedCriteria.Add($"Package was used by more than {UsedByNugetPackagesThreshold} Nuget packages and more than {UsedByGithubRepositoriesThreshold} Github repositories");
     }
 
-    return ("Package popularity criteria passed", Status.Pass);
+    return ("Package popularity criteria passed", Status.Pass, passedCriteria.ToArray());
   }
 
   public static long? GetPackageVersionDownloadCount(DataHandler dataHandler) {

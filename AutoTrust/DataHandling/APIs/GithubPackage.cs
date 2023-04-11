@@ -171,20 +171,27 @@ public class GithubPackage {
       $"Homepage: {this.Homepage}\n" +
       $"Size: {this.Size}\n";
 
-  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string authorAndProject) {
+  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+    var githubApiUrl = GetGithubApiUrl(authorAndProject);
     try {
       // Fetch package data
-      var githubApiUrl = GetGithubApiUrl(authorAndProject);
       var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
+      if (isDiagnostic) {
+        Console.WriteLine($"Found Github package data from: {githubApiUrl}");
+      }
       return githubData;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"An HTTP error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"A JSON error occurred: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
+      }
     }
     return null;
   }

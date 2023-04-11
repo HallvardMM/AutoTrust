@@ -8,63 +8,64 @@ var httpClient = new HttpClient();
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
-(var packageName, var packageVersion, var packageVersionSetByUser, var isPrerelease) = CliInputHandler.HandleInput(args);
-if (packageName is "" && packageVersion is "" && packageVersionSetByUser is false && isPrerelease is false) {
+var input = CliInputHandler.HandleInput(args);
+if (input is null) {
   return;
 }
+var (packageName, packageVersion, packageVersionSetByUser, isPrerelease, isVerbose, isDiagnostic) = input.Value;
 
 var dataHandler = new DataHandler(httpClient, packageName, packageVersion, isPrerelease);
 // Need to call fetchData to fetch the dataHandler object data
-await dataHandler.FetchData();
+await dataHandler.FetchData(isDiagnostic);
 
 // Dict format: {TC Title: (TC result message, Status, ranking)}
-var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status, int)>();
+var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary<string, (string, Status, string[], int)>();
 
 var tasks = new List<Task> {
   Task.Run(() => {
-    var (message, status) = Age.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Age.Title, (message, status, 1));
+    var (message, status, additionalInfo) = Age.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Age.Title, (message, status, additionalInfo,1));
   }),
   Task.Run(() => {
-    var (message, status) = Popularity.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, 2));
+    var (message, status, additionalInfo) = Popularity.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, additionalInfo, 2));
   }),
   Task.Run(() => {
-    var (message, status) = KnownVulnerabilities.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, 3));
+    var (message, status, additionalInfo) = KnownVulnerabilities.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, additionalInfo, 3));
   }),
   Task.Run(() => {
-    var (message, status) = Deprecated.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, 4));
+    var (message, status, additionalInfo) = Deprecated.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, additionalInfo, 4));
   }),
   Task.Run(() => {
-    var (message, status) = DeprecatedDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, 5));
+    var (message, status, additionalInfo) = DeprecatedDependencies.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, additionalInfo, 5));
   }),
   Task.Run(() => {
-    var (message, status) = InitScript.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, 6));
+    var (message, status, additionalInfo) = InitScript.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, additionalInfo, 6));
   }),
   Task.Run(() => {
-    var (message, status) = DirectTransitiveDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, 7));
+    var (message, status, additionalInfo) = DirectTransitiveDependencies.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, additionalInfo, 7));
   }),
   Task.Run(() => {
-    var (message, status) = Documentation.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, 8));
+    var (message, status, additionalInfo) = Documentation.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, additionalInfo, 8));
   }),
   Task.Run(() => {
-    var (message, status) = License.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(License.Title, (message, status, 9));
+    var (message, status, additionalInfo) = License.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(License.Title, (message, status, additionalInfo, 9));
   }),
   Task.Run(() => {
-    var (message, status) = WidespreadUse.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, 10));
+    var (message, status, additionalInfo) = WidespreadUse.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, additionalInfo, 10));
   }),
   Task.Run(() => {
-    var (message, status) = Contributors.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Contributors.Title, (message, status, 11));
-  }),
+    var (message, status, additionalInfo) = Contributors.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(Contributors.Title, (message, status, additionalInfo, 11));
+  })
 };
 var t = Task.WhenAll(tasks.ToArray());
 try {
@@ -74,18 +75,25 @@ catch { }
 
 // Sort the trustCriteriaResult by status and ranking
 // To change the status sorting order, change the order of the values in Status enum in ITrustCriteria.cs
-var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ThenBy(y => y.Value.Item3).ToList();
+var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ThenBy(y => y.Value.Item4).ToList();
 
 foreach (var result in sortedTrustCriteriaResult) {
-  PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2);
+  PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2, result.Value.Item3, isVerbose);
 }
 
 
-Console.WriteLine($"Nuget website for package: https://www.nuget.org/packages/{packageName.ToLower(System.Globalization.CultureInfo.InvariantCulture)}/{packageVersion.ToLower(System.Globalization.CultureInfo.InvariantCulture)}");
+var nugetUrl = $"https://www.nuget.org/packages/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}";
+Console.WriteLine($"NuGet website for package: {nugetUrl}");
 
 Console.WriteLine("Do you still want to add this package? (y/n)");
 
 var addPackageQuery = Console.ReadLine()!.Trim();
+
+// Remove verbosity flag from args as dotnet add package does not accept it
+var indexOfVerbosityFlag = Array.FindLastIndex(args, arg => Constants.VerbosityFlags.Contains(arg));
+if (indexOfVerbosityFlag != -1) {
+  args = args.Take(indexOfVerbosityFlag).Concat(args.Skip(indexOfVerbosityFlag + 2)).ToArray();
+}
 
 if (Constants.PositiveResponse.Any(addPackageQuery.Contains)) {
   if (packageVersionSetByUser) {
@@ -96,7 +104,7 @@ if (Constants.PositiveResponse.Any(addPackageQuery.Contains)) {
       RunProcess.DotnetProcess(args);
     }
     else {
-      RunProcess.DotnetProcess(args.Append("-v").Append(packageVersion).ToArray());
+      RunProcess.DotnetProcess(args.Append("-v").Append(dataHandler.PackageVersion).ToArray());
     }
   }
 }

@@ -11,41 +11,41 @@ public class OpenIssues : ITrustCriteria {
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     // List of passed criteria
-    var passedCriteria = new List<string>();
+    var verbosityInfo = new List<string>();
 
     if (dataHandler.GithubOpenIssueData is null || dataHandler.GithubOpenIssueData.TotalCount == 0) {
-      passedCriteria.Add("No open issues found");
-      return ("Open Issues of package failed criteria", Status.Fail, passedCriteria.ToArray());
+      verbosityInfo.Add("No open issues found");
+      return ("Open Issues of package failed criteria", Status.Fail, verbosityInfo.ToArray());
     }
 
-    passedCriteria.Add("Open issues found");
+    verbosityInfo.Add("Open issues found");
 
     var totalIssues = dataHandler.GithubOpenIssueData.TotalCount + dataHandler.GithubClosedIssueData?.TotalCount;
     if (totalIssues < ToFewIssuesThreshold) {
-      passedCriteria.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is less than {ToFewIssuesThreshold}");
-      return ($"Less than {ToFewIssuesThreshold} open and closed issues. To few to evaluate.", Status.Error, passedCriteria.ToArray());
+      verbosityInfo.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is less than {ToFewIssuesThreshold}");
+      return ($"Less than {ToFewIssuesThreshold} open and closed issues. To few to evaluate.", Status.Error, verbosityInfo.ToArray());
     }
 
-    passedCriteria.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is more than {ToFewIssuesThreshold}");
+    verbosityInfo.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is more than {ToFewIssuesThreshold}");
 
     if ((double)dataHandler.GithubOpenIssueData.TotalCount / totalIssues >= RatioOpenClosed) {
-      passedCriteria.Add($"Ratio of open issues {dataHandler.GithubOpenIssueData.TotalCount} to closed issues {dataHandler.GithubClosedIssueData?.TotalCount} is more than " + RatioOpenClosed);
-      return ($"Open Issues of package failed. Ratio of open issues to open and closed issues is more than {RatioOpenClosed * 100}%", Status.Fail, passedCriteria.ToArray());
+      verbosityInfo.Add($"Ratio of open issues {dataHandler.GithubOpenIssueData.TotalCount} to closed issues {dataHandler.GithubClosedIssueData?.TotalCount} is more than " + RatioOpenClosed);
+      return ($"Open Issues of package failed. Ratio of open issues to open and closed issues is more than {RatioOpenClosed * 100}%", Status.Fail, verbosityInfo.ToArray());
     }
-    passedCriteria.Add($"Ratio of open issues {dataHandler.GithubOpenIssueData.TotalCount} to closed issues {dataHandler.GithubClosedIssueData?.TotalCount} is less than " + RatioOpenClosed);
+    verbosityInfo.Add($"Ratio of open issues {dataHandler.GithubOpenIssueData.TotalCount} to closed issues {dataHandler.GithubClosedIssueData?.TotalCount} is less than " + RatioOpenClosed);
 
     if (dataHandler.GithubUpdatedIssueData is null) {
-      passedCriteria.Add("No updated issues found");
-      return ("Open Issues of package failed. No updated open issues found!", Status.Fail, passedCriteria.ToArray());
+      verbosityInfo.Add("No updated issues found");
+      return ("Open Issues of package failed. No updated open issues found!", Status.Fail, verbosityInfo.ToArray());
     }
 
     if ((double)dataHandler.GithubUpdatedIssueData.TotalCount / dataHandler.GithubOpenIssueData.TotalCount < RatioOpenNewOld) {
-      passedCriteria.Add($"There are {dataHandler.GithubUpdatedIssueData?.TotalCount} updated open issues since {OneYearAgoString} and {dataHandler.GithubOpenIssueData.TotalCount} open issues and the ratio between them is less than {RatioOpenNewOld}");
-      return ($"Open Issues of package failed. Less than {RatioOpenNewOld * 100}% of open issues are interacted with since {OneYearAgoString}", Status.Fail, passedCriteria.ToArray());
+      verbosityInfo.Add($"There are {dataHandler.GithubUpdatedIssueData?.TotalCount} updated open issues since {OneYearAgoString} and {dataHandler.GithubOpenIssueData.TotalCount} open issues and the ratio between them is less than {RatioOpenNewOld}");
+      return ($"Open Issues of package failed. Less than {RatioOpenNewOld * 100}% of open issues are interacted with since {OneYearAgoString}", Status.Fail, verbosityInfo.ToArray());
     }
 
-    passedCriteria.Add($"There are {dataHandler.GithubUpdatedIssueData?.TotalCount} updated open issues since {OneYearAgoString} and {dataHandler.GithubOpenIssueData.TotalCount} open issues and the ratio between them is more than {RatioOpenNewOld}");
+    verbosityInfo.Add($"There are {dataHandler.GithubUpdatedIssueData?.TotalCount} updated open issues since {OneYearAgoString} and {dataHandler.GithubOpenIssueData.TotalCount} open issues and the ratio between them is more than {RatioOpenNewOld}");
 
-    return ("Open Issues of package passed criteria", Status.Pass, passedCriteria.ToArray());
+    return ("Open Issues of package passed criteria", Status.Pass, verbosityInfo.ToArray());
   }
 }

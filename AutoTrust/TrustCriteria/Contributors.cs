@@ -1,5 +1,9 @@
 namespace AutoTrust;
 
+// This file checks the following criteria:
+// TC-9: The component has an adequate number of maintainers and/or contributors
+// TC-10: The component is being developed by an active maintainer domain
+
 public class Contributors : ITrustCriteria {
   public static string Title => "Adequate number of contributors";
 
@@ -8,14 +12,16 @@ public class Contributors : ITrustCriteria {
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();
 
-    if (dataHandler.GithubContributorsData is not null) {
-      if (dataHandler.GithubContributorsData.Count < NumberOfContributorsThreshold) {
-        verbosityInfo.Add($"Package has {dataHandler.GithubContributorsData.Count} less than {NumberOfContributorsThreshold} contributors registered on GitHub");
+    if (dataHandler.GithubContributorsCount is not null) {
+      if (dataHandler.GithubContributorsCount < NumberOfContributorsThreshold) {
+        verbosityInfo.Add($"Package has {dataHandler.GithubContributorsCount} contributors, which is less than the threshold of {NumberOfContributorsThreshold} contributors registered on GitHub");
         return ($"Package has less than {NumberOfContributorsThreshold} contributors!", Status.Fail, verbosityInfo.ToArray());
       }
+    verbosityInfo.Add($"Package has {dataHandler.GithubContributorsCount} contributors registered on GitHub");
     }
-    verbosityInfo.Add($"Package has more than {NumberOfContributorsThreshold} contributors registered on GitHub");
 
-    return ("Package has an adequate number of contributors", Status.Pass, verbosityInfo.ToArray());
+    
+
+    return ($"Package has an adequate number of contributors: {dataHandler.GithubContributorsCount}", Status.Pass, verbosityInfo.ToArray());
   }
 }

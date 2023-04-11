@@ -2,6 +2,10 @@ namespace AutoTrust;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using System.Globalization;
+
+#pragma warning disable SYSLIB1045
 
 public class GithubContributor {
   [JsonPropertyName("login")]
@@ -43,16 +47,22 @@ public class GithubContributor {
   [JsonPropertyName("contributions")]
   public int Contributions { get; set; }
 
-  public static async Task<List<GithubContributor?>?> GetGithubContributors(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+  public static async Task<(List<GithubContributor?>?, int?)> GetGithubContributors(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
     var url = $"https://api.github.com/repos/{authorAndProject}/contributors?per_page={Contributors.NumberOfContributorsThreshold}";
     try {
       // Fetch data from github
-      // var contributors = new List<GithubContributor>();
       var contributors = await httpClient.GetFromJsonAsync<List<GithubContributor?>?>(url);
+      var res = await httpClient.GetAsync($"https://api.github.com/repos/{authorAndProject}/contributors?per_page=1");
+
+      int contributorsCount = GetLastPageNumber(res.Headers.GetValues("Link").FirstOrDefault());
+      if (contributorsCount == -1) {
+        throw new JsonException("Could not get contributors count");
+      }
+
       if (isDiagnostic) {
         Console.WriteLine($"Found {contributors?.Count} contributors for {authorAndProject} in {url}");
       }
-      return contributors;
+      return (contributors, contributorsCount);
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
@@ -66,6 +76,19 @@ public class GithubContributor {
         Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
       }
     }
-    return null;
+    return (null, null);
+  }
+
+  public static int GetLastPageNumber(string? linkHeader) {
+    if (linkHeader is null) {
+      return -1;
+    }
+    Match match = Regex.Match(linkHeader, @"&page=(\d+)[^>]*>; rel=""last""");
+    if (int.TryParse(match.Groups[1].Value, CultureInfo.InvariantCulture, out var regularNumber)) {
+        return regularNumber;
+      }
+      else {
+        return -1;
+      }
   }
 }

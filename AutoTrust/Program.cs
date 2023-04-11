@@ -65,6 +65,10 @@ var tasks = new List<Task> {
   Task.Run(() => {
     var (message, status, additionalInfo) = Contributors.Validate(dataHandler);
     trustCriteriaResult.TryAdd(Contributors.Title, (message, status, additionalInfo, 11));
+  }),
+  Task.Run(() => {
+    var (message, status, additionalInfo) = VerifiedPrefix.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(VerifiedPrefix.Title, (message, status, additionalInfo, 12));
   })
 };
 var t = Task.WhenAll(tasks.ToArray());

@@ -28,7 +28,8 @@ public class GithubCommit {
 
   public static async Task<List<GithubCommit?>?> GetGithubCommits(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
     var fetchCommitNumber = 100;
-    var commitsUrl = $"https://api.github.com/repos/{authorAndProject}/commits?since={OpenIssues.OneYearAgoString}&per_page={fetchCommitNumber}";
+    var oneYearAgoString = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+    var commitsUrl = $"https://api.github.com/repos/{authorAndProject}/commits?since={oneYearAgoString}&per_page={fetchCommitNumber}";
 
     try {
       // Fetch data from github

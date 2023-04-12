@@ -1,9 +1,9 @@
 namespace AutoTrust;
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Globalization;
 
 #pragma warning disable SYSLIB1045
 
@@ -54,7 +54,7 @@ public class GithubContributor {
       var contributors = await httpClient.GetFromJsonAsync<List<GithubContributor?>?>(url);
       var res = await httpClient.GetAsync($"https://api.github.com/repos/{authorAndProject}/contributors?per_page=1");
 
-      int contributorsCount = GetLastPageNumber(res.Headers.GetValues("Link").FirstOrDefault());
+      var contributorsCount = GetLastPageNumber(res.Headers.GetValues("Link").FirstOrDefault());
       if (contributorsCount == -1) {
         throw new JsonException("Could not get contributors count");
       }
@@ -83,12 +83,12 @@ public class GithubContributor {
     if (linkHeader is null) {
       return -1;
     }
-    Match match = Regex.Match(linkHeader, @"&page=(\d+)[^>]*>; rel=""last""");
+    var match = Regex.Match(linkHeader, @"&page=(\d+)[^>]*>; rel=""last""");
     if (int.TryParse(match.Groups[1].Value, CultureInfo.InvariantCulture, out var regularNumber)) {
-        return regularNumber;
-      }
-      else {
-        return -1;
-      }
+      return regularNumber;
+    }
+    else {
+      return -1;
+    }
   }
 }

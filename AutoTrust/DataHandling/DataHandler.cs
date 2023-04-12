@@ -18,6 +18,8 @@ public class DataHandler {
   public GithubPullRequests? GithubUpdatedPullRequestData { get; private set; }
   public GithubReadme? GithubReadmeData { get; private set; }
   public List<GithubContributor?>? GithubContributorsData { get; private set; }
+  public List<GithubCommit?>? GithubCommitsData { get; private set; }
+  public int? GithubContributorsCount { get; private set; }
   public NugetDownloadCount? NugetDownloadCount { get; private set; }
   public OSVData? OsvData { get; private set; }
   public string UsedByInformation { get; private set; }
@@ -105,7 +107,8 @@ public class DataHandler {
           var tasks = new List<Task> {
           Task.Run(async () => this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject, isDiagnostic)),
           Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject, isDiagnostic)),
-          Task.Run(async () => this.GithubContributorsData = await GithubContributor.GetGithubContributors(this.HttpClient, authorAndProject, isDiagnostic)),
+          Task.Run(async () => (this.GithubContributorsData, this.GithubContributorsCount) = await GithubContributor.GetGithubContributors(this.HttpClient, authorAndProject, isDiagnostic)),
+          Task.Run(async () => this.GithubCommitsData = await GithubCommit.GetGithubCommits(this.HttpClient, authorAndProject, isDiagnostic)),
           Task.Run(async () => this.GithubOpenIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject,GithubIssues.GetOpenGithubIssuesUrl(authorAndProject), isDiagnostic)),
           Task.Run(async () => this.GithubClosedIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssues.GetClosedGithubIssuesUrl(authorAndProject), isDiagnostic)),
           Task.Run(async () => this.GithubUpdatedIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssues.GetUpdatedGithubIssuesUrl(authorAndProject,OpenIssues.OneYearAgoString), isDiagnostic)),

@@ -74,6 +74,10 @@ var tasks = new List<Task> {
     var (message, status, additionalInfo) = OpenIssues.Validate(dataHandler);
     trustCriteriaResult.TryAdd(OpenIssues.Title, (message, status, additionalInfo, 13));
   }),
+  Task.Run(() => {
+    var (message, status, additionalInfo) = OpenPullRequests.Validate(dataHandler);
+    trustCriteriaResult.TryAdd(OpenPullRequests.Title, (message, status, additionalInfo, 14));
+  }),
 };
 var t = Task.WhenAll(tasks.ToArray());
 try {

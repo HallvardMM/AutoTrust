@@ -2,13 +2,119 @@ namespace AutoTrust;
 public class License : ITrustCriteria {
   public static string Title => "Package License";
 
+  // List of Spdx licenses: https://spdx.org/licenses/
+  // List based on: https://www.synopsys.com/blogs/software-security/top-open-source-licenses/
+  public static string[] HighRiskLicenses = new string[] {
+    "AGPL-1.0-only",
+    "AGPL-1.0-or-later",
+    "AGPL-3.0-only",
+    "AGPL-3.0-or-later",
+    "GPL-1.0-only",
+    "GPL-1.0-or-later",
+    "GPL-2.0-only",
+    "GPL-2.0-or-later",
+    "GPL-3.0-only",
+    "GPL-3.0-or-later",
+    "LGPL-2.0-only",
+    "LGPL-2.0-or-later",
+    "LGPL-2.1-only",
+    "LGPL-2.1-or-later",
+    "LGPL-3.0-only",
+    "LGPL-3.0-or-later",
+    //These ones are deprecated but still used in some packages
+    "AGPL-1.0",
+    "AGPL-3.0",
+    "GPL-1.0",
+    "GPL-1.0+",
+    "GPL-2.0",
+    "GPL-2.0+",
+    "GPL-2.0-with-autoconf-exception",
+    "GPL-2.0-with-bison-exception",
+    "GPL-2.0-with-classpath-exception",
+    "GPL-2.0-with-font-exception",
+    "GPL-2.0-with-GCC-exception",
+    "GPL-3.0",
+    "GPL-3.0+",
+    "GPL-3.0-with-autoconf-exception",
+    "GPL-3.0-with-GCC-exception",
+    "LGPL-2.0",
+    "LGPL-2.0+",
+    "LGPL-2.1",
+    "LGPL-2.1+",
+    "LGPL-3.0",
+    "LGPL-3.0+",
+  };
+
+  public static string[] MediumRiskLicenses = new string[] {
+    "CDDL-1.0",
+    "CDDL-1.1",
+    "EPL-1.0",
+    "EPL-2.0",
+    "MPL-1.0",
+    "MPL-1.1",
+    "MPL-2.0",
+    "MPL-2.0-no-copyleft-exception",
+    "MS-LPL",
+    "MS-PL",
+    "MS-RL",
+  };
+
+  public static string[] LowRiskLicenses = new string[]{
+    "Apache-1.0",
+    "Apache-1.1",
+    "Apache-2.0",
+    "MIT",
+    "ISC",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "Unlicense",
+    "OFL-1.1",
+    "Zlib",
+    "WTFPL",
+  };
+
+  public static (bool, string) IsSpdxLicense(string? license) {
+    if (string.IsNullOrEmpty(license)) {
+      return (false, "Unknown");
+    }
+    if (HighRiskLicenses.Contains(license)) {
+      return (true, "High");
+    }
+    else if (MediumRiskLicenses.Contains(license)) {
+      return (true, "Medium");
+    }
+    else if (LowRiskLicenses.Contains(license)) {
+      return (true, "Low");
+    }
+    else {
+      return (false, "Unknown");
+    }
+  }
+
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
 
     var verbosityInfo = new List<string>();
 
     if (!string.IsNullOrEmpty(dataHandler?.NugetCatalogEntry?.LicenseExpression)) {
       verbosityInfo.Add($"Package has registered a standard license on Nuget");
-      return ($"Package uses a standard license ({dataHandler?.NugetCatalogEntry?.LicenseExpression}): {dataHandler?.NugetCatalogEntry?.LicenseUrl}", Status.Pass, verbosityInfo.ToArray());
+      (bool isSpdxLicense, string riskType) = IsSpdxLicense(dataHandler?.NugetCatalogEntry?.LicenseExpression);
+      if (isSpdxLicense) {
+        if (riskType == "High") {
+          verbosityInfo.Add($"Package uses a high risk license based on https://www.synopsys.com/blogs/software-security/top-open-source-licenses/");
+          return ($"Package uses a high risk license ({dataHandler?.NugetCatalogEntry?.LicenseExpression}): {dataHandler?.NugetCatalogEntry?.LicenseUrl}", Status.Fail, verbosityInfo.ToArray());
+        }
+        else if (riskType == "Medium") {
+          verbosityInfo.Add($"Package uses a medium risk license based on https://www.synopsys.com/blogs/software-security/top-open-source-licenses/");
+          return ($"Package uses a medium risk license ({dataHandler?.NugetCatalogEntry?.LicenseExpression}): {dataHandler?.NugetCatalogEntry?.LicenseUrl}", Status.Error, verbosityInfo.ToArray());
+        }
+        else if (riskType == "Low") {
+          verbosityInfo.Add($"Package uses a low risk license based on https://www.synopsys.com/blogs/software-security/top-open-source-licenses/");
+          return ($"Package uses a low risk license ({dataHandler?.NugetCatalogEntry?.LicenseExpression}): {dataHandler?.NugetCatalogEntry?.LicenseUrl}", Status.Pass, verbosityInfo.ToArray());
+        }
+      }
+      else {
+        return ($"Package uses a standard license, but it is not automatically evaluated ({dataHandler?.NugetCatalogEntry?.LicenseExpression}): {dataHandler?.NugetCatalogEntry?.LicenseUrl}", Status.Error, verbosityInfo.ToArray());
+      }
     }
     else {
       verbosityInfo.Add($"Package has not registered a standard license on Nuget");
@@ -36,8 +142,22 @@ public class License : ITrustCriteria {
 
     if (!string.IsNullOrEmpty(dataHandler?.GithubData?.License?.SpdxId)) {
       verbosityInfo.Add($"Package has registered a standard license using a spdx on Github");
-      return ($"Package standard license ({dataHandler?.GithubData?.License?.SpdxId}) only found on Github: {dataHandler?.GithubData?.License?.Url}",
-      Status.Error, verbosityInfo.ToArray());
+      (bool isSpdxLicense, string riskType) = IsSpdxLicense(dataHandler?.GithubData?.License?.SpdxId);
+      if (isSpdxLicense) {
+        verbosityInfo.Add($"The license found on Github of type {dataHandler?.GithubData?.License?.SpdxId} is seen as {riskType} risk");
+        if (riskType == "High") {
+          return ($"Package standard license ({dataHandler?.GithubData?.License?.SpdxId}) only found on Github: {dataHandler?.GithubData?.License?.Url} with {riskType} risk",
+          Status.Fail, verbosityInfo.ToArray());
+        }
+        return ($"Package standard license ({dataHandler?.GithubData?.License?.SpdxId}) only found on Github: {dataHandler?.GithubData?.License?.Url} with {riskType} risk",
+        Status.Error, verbosityInfo.ToArray());
+      }
+      else {
+        verbosityInfo.Add($"The license found on Github of type {dataHandler?.GithubData?.License?.SpdxId} is not evaluated regarding risk");
+        return ($"Package standard license ({dataHandler?.GithubData?.License?.SpdxId}) only found on Github: {dataHandler?.GithubData?.License?.Url}",
+        Status.Error, verbosityInfo.ToArray());
+      }
+
     }
     else {
       verbosityInfo.Add($"Package has not registered a standard license using a spdx on Github");

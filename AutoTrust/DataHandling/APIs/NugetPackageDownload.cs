@@ -2,7 +2,8 @@ namespace AutoTrust;
 
 public class NugetPackageDownload {
 
-  //TODO: Downloaded packages should go in seperate folder and be deleted after tests
+  //This class is not used in the current version of AutoTrust, 
+  //but can be used to download Nuget packages for further analysis in the future
   public static async Task DownloadNugetPackage(HttpClient httpClient, NugetPackage nugetPackage, string packageName, string packageVersion) {
     var responseStream = await httpClient.GetStreamAsync(nugetPackage?.PackageContent);
     using var fileSystem = new FileStream($"./{packageName}.{packageVersion}.nupkg", FileMode.OpenOrCreate);

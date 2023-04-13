@@ -7,8 +7,8 @@ namespace AutoTrust;
 public class Contributors : ITrustCriteria {
   public static string Title => "Adequate number of contributors";
 
-  public static readonly int NumberOfContributorsThreshold = 5;
-  public static readonly int ActiveMaintainerCommitsThreshold = 5;
+  public static readonly int NumberOfContributorsThreshold = 2;
+  public static readonly int ActiveMaintainerCommitsThreshold = 3;
   public static readonly int NumberOfActiveMaintainerThreshold = 2;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {

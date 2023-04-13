@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class GithubIssues {
+public class GithubIssuesSearch {
   [JsonPropertyName("total_count")]
   public long TotalCount { get; set; }
   //IncompleteResults is probably not that valuable:
@@ -19,10 +19,10 @@ public class GithubIssues {
     return returnString;
   }
 
-  public static async Task<GithubIssues?> GetGithubIssues(HttpClient httpClient, string authorAndProject, string url, bool isDiagnostic) {
+  public static async Task<GithubIssuesSearch?> GetGithubIssues(HttpClient httpClient, string authorAndProject, string url, bool isDiagnostic) {
     try {
       // Fetch package data
-      var githubIssueData = await httpClient.GetFromJsonAsync<GithubIssues>(url);
+      var githubIssueData = await httpClient.GetFromJsonAsync<GithubIssuesSearch>(url);
       if (isDiagnostic) {
         Console.WriteLine($"Found issue data for {authorAndProject} from {url}");
       }
@@ -38,10 +38,6 @@ public class GithubIssues {
     }
     return null;
   }
-
-  public static string GetOpenGithubIssuesUrl(string authorAndProject) => "https://api.github.com/search/issues?q=repo:" + authorAndProject + "+type:issue+state:open&per_page=1";
-
-  public static string GetClosedGithubIssuesUrl(string authorAndProject) => "https://api.github.com/search/issues?q=repo:" + authorAndProject + "+type:issue+state:closed&per_page=1";
 
   public static string GetUpdatedGithubIssuesUrl(string authorAndProject, string lastUpdateTime) => $"https://api.github.com/search/issues?q=repo:{authorAndProject}+type:issue+state:open+updated:>{lastUpdateTime}&per_page=1";
 

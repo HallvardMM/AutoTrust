@@ -3,8 +3,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-#pragma warning disable SYSLIB1045
-
 public class GithubContributor {
   [JsonPropertyName("login")]
   public string Login { get; set; } = string.Empty;

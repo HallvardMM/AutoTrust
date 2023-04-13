@@ -4,7 +4,7 @@ public class License : ITrustCriteria {
 
   // List of Spdx licenses: https://spdx.org/licenses/
   // List based on: https://www.synopsys.com/blogs/software-security/top-open-source-licenses/
-  public static string[] HighRiskLicenses = new string[] {
+  public static readonly string[] HighRiskLicenses = new string[] {
     "AGPL-1.0-only",
     "AGPL-1.0-or-later",
     "AGPL-3.0-only",
@@ -45,7 +45,7 @@ public class License : ITrustCriteria {
     "LGPL-3.0+",
   };
 
-  public static string[] MediumRiskLicenses = new string[] {
+  public static readonly string[] MediumRiskLicenses = new string[] {
     "CDDL-1.0",
     "CDDL-1.1",
     "EPL-1.0",
@@ -59,7 +59,7 @@ public class License : ITrustCriteria {
     "MS-RL",
   };
 
-  public static string[] LowRiskLicenses = new string[]{
+  public static readonly string[] LowRiskLicenses = new string[]{
     "Apache-1.0",
     "Apache-1.1",
     "Apache-2.0",
@@ -73,7 +73,7 @@ public class License : ITrustCriteria {
     "WTFPL",
   };
 
-  public static (bool, string) IsSpdxLicense(string? license) {
+  public static (bool isSpdxLicense, string riskType) IsSpdxLicense(string? license) {
     if (string.IsNullOrEmpty(license)) {
       return (false, "Unknown");
     }
@@ -97,7 +97,7 @@ public class License : ITrustCriteria {
 
     if (!string.IsNullOrEmpty(dataHandler?.NugetCatalogEntry?.LicenseExpression)) {
       verbosityInfo.Add($"Package has registered a standard license on Nuget");
-      (bool isSpdxLicense, string riskType) = IsSpdxLicense(dataHandler?.NugetCatalogEntry?.LicenseExpression);
+      (var isSpdxLicense, var riskType) = IsSpdxLicense(dataHandler?.NugetCatalogEntry?.LicenseExpression);
       if (isSpdxLicense) {
         if (riskType == "High") {
           verbosityInfo.Add($"Package uses a high risk license based on https://www.synopsys.com/blogs/software-security/top-open-source-licenses/");
@@ -142,7 +142,7 @@ public class License : ITrustCriteria {
 
     if (!string.IsNullOrEmpty(dataHandler?.GithubData?.License?.SpdxId)) {
       verbosityInfo.Add($"Package has registered a standard license using a spdx on Github");
-      (bool isSpdxLicense, string riskType) = IsSpdxLicense(dataHandler?.GithubData?.License?.SpdxId);
+      (var isSpdxLicense, var riskType) = IsSpdxLicense(dataHandler?.GithubData?.License?.SpdxId);
       if (isSpdxLicense) {
         verbosityInfo.Add($"The license found on Github of type {dataHandler?.GithubData?.License?.SpdxId} is seen as {riskType} risk");
         if (riskType == "High") {

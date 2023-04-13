@@ -2,7 +2,7 @@ namespace AutoTrust;
 
 public class Documentation : ITrustCriteria {
   public static string Title => "Package Documentation";
-  public static readonly int NugetFileSizeMinThreshold = 300; // (bytes) Minimum size of README file on Github
+  public static readonly int NugetFileByteSizeMinThreshold = 300; 
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();

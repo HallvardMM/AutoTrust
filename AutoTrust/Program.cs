@@ -25,7 +25,7 @@ var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary
 
 var tasks = new List<Task> {
   Task.Run(() => {
-    var (message, status, additionalInfo) = Age.Validate(dataHandler); 
+    var (message, status, additionalInfo) = Age.Validate(dataHandler);
     HelperFunctions.AddSecurityScoreOfTC(Age.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
     trustCriteriaResult.TryAdd(Age.Title, (message, status, additionalInfo,1));
   }),

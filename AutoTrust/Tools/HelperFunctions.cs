@@ -22,19 +22,13 @@ public class HelperFunctions {
 
   public static int CalculateNumberOfStars(double score, int possibleScore) {
     var total_score_percentage = score / possibleScore;
-    switch (total_score_percentage) {
-      case var n when (n >= 0.9):
-        return 5;
-      case var n when (n >= 0.8):
-        return 4;
-      case var n when (n >= 0.6):
-        return 3;
-      case var n when (n >= 0.4):
-        return 2;
-      case var n when (n >= 0.0):
-        return 1;
-      default:
-        return 0;
-    }
+    return total_score_percentage switch {
+      var n when n >= 0.9 => 5,
+      var n when n >= 0.8 => 4,
+      var n when n >= 0.6 => 3,
+      var n when n >= 0.4 => 2,
+      var n when n >= 0.0 => 1,
+      _ => 0,
+    };
   }
 }

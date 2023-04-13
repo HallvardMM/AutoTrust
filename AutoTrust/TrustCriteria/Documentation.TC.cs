@@ -2,7 +2,7 @@ namespace AutoTrust;
 
 public class Documentation : ITrustCriteria {
   public static string Title => "Package Documentation";
-  public static readonly int NugetFileByteSizeMinThreshold = 300; 
+  public static readonly int NugetFileByteSizeMinThreshold = 300;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();
@@ -10,7 +10,7 @@ public class Documentation : ITrustCriteria {
     // Check if package contains a README
     for (var i = 0; i < dataHandler.NugetCatalogEntry?.PackageEntries?.Count; i++) {
       if (dataHandler.NugetCatalogEntry?.PackageEntries?[i].Name is "README" or "README.md") {
-        if (dataHandler.NugetCatalogEntry?.PackageEntries?[i].Length > NugetFileSizeMinThreshold) {
+        if (dataHandler.NugetCatalogEntry?.PackageEntries?[i].Length > NugetFileByteSizeMinThreshold) {
           verbosityInfo.Add($"Package has README.file or README.md file in package that is larger than {NugetFileByteSizeMinThreshold} bytes");
           return ("Package contains documentation: README found in package", Status.Pass, verbosityInfo.ToArray());
         }
@@ -26,7 +26,7 @@ public class Documentation : ITrustCriteria {
 
     // Check if Github has a README
     if (!string.IsNullOrEmpty(dataHandler.GithubReadmeData?.HtmlUrl)) {
-      if (dataHandler.GithubReadmeData?.Size > NugetFileSizeMinThreshold) {
+      if (dataHandler.GithubReadmeData?.Size > NugetFileByteSizeMinThreshold) {
         verbosityInfo.Add($"Package has a README.file or README.md file on Github that is larger than {NugetFileByteSizeMinThreshold} bytes");
         return ($"Package contains documentation: README found on Github: {dataHandler.GithubReadmeData?.HtmlUrl}", Status.Pass, verbosityInfo.ToArray());
       }

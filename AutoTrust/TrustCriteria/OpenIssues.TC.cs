@@ -22,11 +22,11 @@ public class OpenIssues : ITrustCriteria {
 
     var totalIssues = dataHandler.GithubOpenIssueData.TotalCount + dataHandler.GithubClosedIssueData?.TotalCount;
     if (totalIssues < TooFewIssuesThreshold) {
-      verbosityInfo.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is less than {ToFewIssuesThreshold}");
+      verbosityInfo.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is less than {TooFewIssuesThreshold}");
       return ($"Less than {TooFewIssuesThreshold} open and closed issues. To few to evaluate.", Status.Error, verbosityInfo.ToArray());
     }
 
-    verbosityInfo.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is more than {ToFewIssuesThreshold}");
+    verbosityInfo.Add($"Open issues {dataHandler.GithubOpenIssueData.TotalCount} and closed issues {dataHandler.GithubClosedIssueData?.TotalCount} combined is {totalIssues} which is more than {TooFewIssuesThreshold}");
 
     if ((double)dataHandler.GithubOpenIssueData.TotalCount / totalIssues >= RatioOpenClosed) {
       verbosityInfo.Add($"Ratio of open issues {dataHandler.GithubOpenIssueData.TotalCount} to closed issues {dataHandler.GithubClosedIssueData?.TotalCount} is more than " + RatioOpenClosed);

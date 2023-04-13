@@ -30,15 +30,11 @@ public class GithubIssues {
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
     }
     return null;
   }

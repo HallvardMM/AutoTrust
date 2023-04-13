@@ -48,15 +48,11 @@ public class GithubReadme {
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
     }
     return null;
   }

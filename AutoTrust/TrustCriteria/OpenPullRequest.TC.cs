@@ -13,7 +13,7 @@ public class OpenPullRequests : ITrustCriteria {
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();
 
-    if (dataHandler.GithubOpenPullRequestCount is null || dataHandler.GithubOpenPullRequestCount == 0) {
+    if (dataHandler.GithubOpenPullRequestCount is null or 0) {
       verbosityInfo.Add("No open pull requests found");
       return ("Open pull requests of package failed criteria", Status.Fail, verbosityInfo.ToArray());
     }

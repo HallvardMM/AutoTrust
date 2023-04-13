@@ -1,5 +1,4 @@
 namespace AutoTrust;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -29,7 +28,7 @@ public class GithubPullRequestsRepos {
     return null;
   }
 
-  public static string GetOpenGithubPullRequestsUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject + "/pulls?per_page=1&state=open";  
+  public static string GetOpenGithubPullRequestsUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject + "/pulls?per_page=1&state=open";
   public static string GetClosedGithubPullRequestsUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject + "/pulls?per_page=1&state=closed";
 
 

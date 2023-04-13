@@ -13,7 +13,7 @@ public class OpenIssues : ITrustCriteria {
     // List of passed criteria
     var verbosityInfo = new List<string>();
 
-    if (dataHandler.GithubOpenIssueCount is null || dataHandler.GithubOpenIssueCount == 0) {
+    if (dataHandler.GithubOpenIssueCount is null or 0) {
       verbosityInfo.Add("No open issues found");
       return ("Open Issues of package failed criteria", Status.Fail, verbosityInfo.ToArray());
     }

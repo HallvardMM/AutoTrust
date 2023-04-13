@@ -1,6 +1,23 @@
 namespace AutoTrust;
+using System.Globalization;
+using System.Text.RegularExpressions;
+
+#pragma warning disable SYSLIB1045
 
 public class HelperFunctions {
+  public static int GetLastPageNumber(string? linkHeader) {
+    if (linkHeader is null) {
+      return -1;
+    }
+    var match = Regex.Match(linkHeader, @"&page=(\d+)[^>]*>; rel=""last""");
+    if (int.TryParse(match.Groups[1].Value, CultureInfo.InvariantCulture, out var regularNumber)) {
+      return regularNumber;
+    }
+    else {
+      return -1;
+    }
+  }
+
   public static void AddSecurityScoreOfTC(int totalScoreImportance, Status status, ref double totalTCSecurityScore, ref int totalPossibleTCSecurityScore) {
     double scorePercentage = 0;
     switch (status) {

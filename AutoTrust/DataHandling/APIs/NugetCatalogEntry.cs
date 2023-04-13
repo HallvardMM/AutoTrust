@@ -233,7 +233,7 @@ public class AlternatePackage {
   public required string AlternatePackageName { get; set; }
   [JsonPropertyName("range")]
   [JsonConverter(typeof(StringOrObjectConverter<string>))]
-  public string Range { get; set; } = string.Empty; //TODO: Can be an object or "*" this needs more testing
+  public string Range { get; set; } = string.Empty;
   public override string ToString() => $"Name: {this.AlternatePackageName}, Range: {this.Range}";
 }
 

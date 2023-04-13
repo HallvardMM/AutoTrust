@@ -137,16 +137,19 @@ public class Repository {
 }
 
 public class Dependencies {
-  //TODO: Dependencies don't have to be in a group, so we need to add support for that as well
   [XmlElement(ElementName = "group")]
-  public List<Group> Group { get; set; } = new List<Group>();
+  public List<Group>? Group { get; set; } = new List<Group>();
+
+  [XmlElement(ElementName = "dependency")]
+  public List<Dependency>? DependenciesFlatList { get; set; } = new List<Dependency>();
+
 }
 
 public class Group {
   [XmlAttribute(AttributeName = "targetFramework")]
   public string TargetFramework { get; set; } = string.Empty;
   [XmlElement(ElementName = "dependency")]
-  public List<Dependency> Dependency { get; set; } = new List<Dependency>();
+  public List<Dependency>? Dependency { get; set; } = new List<Dependency>();
 }
 
 public class Dependency {

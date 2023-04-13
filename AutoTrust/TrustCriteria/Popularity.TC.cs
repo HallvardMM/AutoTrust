@@ -34,7 +34,7 @@ public class Popularity : ITrustCriteria {
     // Check number of stars, forks and watchers on github
     if (dataHandler.GithubData == null) {
       verbosityInfo.Add("Cannot find Github data for package");
-      return ("Cannot find github data for package", Status.Fail, verbosityInfo.ToArray());
+      return ("Popularity check failed! Cannot find github data for package", Status.Fail, verbosityInfo.ToArray());
     }
     else {
       verbosityInfo.Add("Package data on Github found");

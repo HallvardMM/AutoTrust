@@ -34,19 +34,18 @@ public class GithubCommit {
     try {
       // Fetch data from github
       var commits = await httpClient.GetFromJsonAsync<List<GithubCommit?>?>(commitsUrl);
+      if (isDiagnostic) {
+        Console.WriteLine($"Fetched {commits?.Count} commits from {authorAndProject} from {commitsUrl}");
+      }
       return commits;
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {commitsUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {commitsUrl}: {ex.Message}");
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {commitsUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {commitsUrl}: {ex.Message}");
     }
     return null;
   }

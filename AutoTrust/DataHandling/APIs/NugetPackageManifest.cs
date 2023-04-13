@@ -34,15 +34,11 @@ public class NugetPackageManifest {
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: An HTTP error occurred for {packageName} {packageVersion} from {manifestUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: An HTTP error occurred for {packageName} {packageVersion} from {manifestUrl}: {ex.Message}");
     }
     catch (InvalidOperationException ex) {
       // Handle any exceptions thrown during XML deserialization.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: An XML error occurred for {packageName} {packageVersion} from {manifestUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: An XML error occurred for {packageName} {packageVersion} from {manifestUrl}: {ex.Message}");
     }
     return null;
   }

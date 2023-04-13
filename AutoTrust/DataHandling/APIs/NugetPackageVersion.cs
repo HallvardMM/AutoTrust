@@ -31,15 +31,11 @@ public class NugetPackageVersion {
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: An HTTP error occurred from {GetVersionsUrl(packageName)}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: An HTTP error occurred from {GetVersionsUrl(packageName)}: {ex.Message}");
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      if (isDiagnostic) {
-        Console.WriteLine($"A JSON error occurred from {GetVersionsUrl(packageName)}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: A JSON error occurred from {GetVersionsUrl(packageName)}: {ex.Message}");
     }
     return (null, null);
   }

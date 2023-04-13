@@ -4,6 +4,8 @@
 using AutoTrust;
 
 var httpClient = new HttpClient();
+var totalTCSecurityScore = 0.0;
+var totalPossibleTCSecurityScore = 0;
 
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
@@ -24,59 +26,73 @@ var trustCriteriaResult = new System.Collections.Concurrent.ConcurrentDictionary
 var tasks = new List<Task> {
   Task.Run(() => {
     var (message, status, additionalInfo) = Age.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Age.Title, (message, status, additionalInfo,1));
+    HelperFunctions.AddSecurityScoreOfTC(Age.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(Age.Title, (message, status, additionalInfo, Age.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = Popularity.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, additionalInfo, 2));
+    HelperFunctions.AddSecurityScoreOfTC(Popularity.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(Popularity.Title, (message, status, additionalInfo, Popularity.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = KnownVulnerabilities.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, additionalInfo, 3));
+    HelperFunctions.AddSecurityScoreOfTC(KnownVulnerabilities.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(KnownVulnerabilities.Title, (message, status, additionalInfo, KnownVulnerabilities.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = Deprecated.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, additionalInfo, 4));
+    HelperFunctions.AddSecurityScoreOfTC(Deprecated.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(Deprecated.Title, (message, status, additionalInfo, Deprecated.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = DeprecatedDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, additionalInfo, 5));
+    HelperFunctions.AddSecurityScoreOfTC(DeprecatedDependencies.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(DeprecatedDependencies.Title, (message, status, additionalInfo, DeprecatedDependencies.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = InitScript.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, additionalInfo, 6));
+    HelperFunctions.AddSecurityScoreOfTC(InitScript.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(InitScript.Title, (message, status, additionalInfo, InitScript.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = DirectTransitiveDependencies.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, additionalInfo, 7));
+    HelperFunctions.AddSecurityScoreOfTC(DirectTransitiveDependencies.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, additionalInfo, DirectTransitiveDependencies.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = Documentation.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, additionalInfo, 8));
+    HelperFunctions.AddSecurityScoreOfTC(Documentation.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(Documentation.Title, (message, status, additionalInfo, Documentation.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = License.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(License.Title, (message, status, additionalInfo, 9));
+    HelperFunctions.AddSecurityScoreOfTC(License.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(License.Title, (message, status, additionalInfo, License.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = WidespreadUse.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, additionalInfo, 10));
+    HelperFunctions.AddSecurityScoreOfTC(WidespreadUse.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(WidespreadUse.Title, (message, status, additionalInfo, WidespreadUse.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = Contributors.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(Contributors.Title, (message, status, additionalInfo, 11));
+    HelperFunctions.AddSecurityScoreOfTC(Contributors.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(Contributors.Title, (message, status, additionalInfo, Contributors.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = VerifiedPrefix.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(VerifiedPrefix.Title, (message, status, additionalInfo, 12));
+    HelperFunctions.AddSecurityScoreOfTC(VerifiedPrefix.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(VerifiedPrefix.Title, (message, status, additionalInfo, VerifiedPrefix.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = OpenIssues.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(OpenIssues.Title, (message, status, additionalInfo, 13));
+    HelperFunctions.AddSecurityScoreOfTC(OpenIssues.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(OpenIssues.Title, (message, status, additionalInfo, OpenIssues.TotalScoreImportance));
   }),
   Task.Run(() => {
     var (message, status, additionalInfo) = OpenPullRequests.Validate(dataHandler);
-    trustCriteriaResult.TryAdd(OpenPullRequests.Title, (message, status, additionalInfo, 14));
+    HelperFunctions.AddSecurityScoreOfTC(OpenPullRequests.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(OpenPullRequests.Title, (message, status, additionalInfo, OpenPullRequests.TotalScoreImportance));
   }),
 };
 var t = Task.WhenAll(tasks.ToArray());
@@ -93,6 +109,7 @@ foreach (var result in sortedTrustCriteriaResult) {
   PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2, result.Value.Item3, isVerbose);
 }
 
+PrettyPrint.SecurityScorePrint(HelperFunctions.CalculateNumberOfStars(totalTCSecurityScore, totalPossibleTCSecurityScore));
 
 var nugetUrl = $"https://www.nuget.org/packages/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}";
 Console.WriteLine($"NuGet website for package: {nugetUrl}");

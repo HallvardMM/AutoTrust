@@ -3,6 +3,7 @@ namespace AutoTrust;
 // Example deprecated package: EntityFramework.MappingAPI
 public class Deprecated : ITrustCriteria {
   public static string Title => "Deprecated package";
+  public static int TotalScoreImportance => 10;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     // Check if the package is deprecated or uses any deprecated dependencies

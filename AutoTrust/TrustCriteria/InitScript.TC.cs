@@ -2,6 +2,7 @@ namespace AutoTrust;
 
 public class InitScript : ITrustCriteria {
   public static string Title => "Init Script";
+  public static int TotalScoreImportance => 8;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();

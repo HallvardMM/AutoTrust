@@ -2,6 +2,7 @@ namespace AutoTrust;
 
 public class KnownVulnerabilities : ITrustCriteria {
   public static string Title => "Known Vulnerabilities";
+  public static int TotalScoreImportance => 10;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();
@@ -39,7 +40,7 @@ public class KnownVulnerabilities : ITrustCriteria {
     if (oldVulnerabilities > 0) {
       verbosityInfo.Add($"OSV has registered {oldVulnerabilities} vulnerabilities for older versions of the package");
       return ($"Package has {oldVulnerabilities} known vulnerabilities registered in OSV but not for the current version: https://osv.dev/list?ecosystem=NuGet&q={dataHandler.PackageName}",
-      Status.Error, verbosityInfo.ToArray());
+      Status.Pass, verbosityInfo.ToArray());
     }
     else {
       verbosityInfo.Add($"OSV has not registered any vulnerabilities for older versions of the package");

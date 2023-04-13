@@ -2,25 +2,43 @@ namespace AutoTrust;
 
 public class Documentation : ITrustCriteria {
   public static string Title => "Package Documentation";
+  public static readonly int NugetFileByteSizeMinThreshold = 300; 
+
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();
+
     // Check if package contains a README
     for (var i = 0; i < dataHandler.NugetCatalogEntry?.PackageEntries?.Count; i++) {
       if (dataHandler.NugetCatalogEntry?.PackageEntries?[i].Name is "README" or "README.md") {
-        verbosityInfo.Add("Package has README.file or README.md file in package");
-        return ("Package contains documentation: README found in package", Status.Pass, verbosityInfo.ToArray());
+        if (dataHandler.NugetCatalogEntry?.PackageEntries?[i].Length > NugetFileSizeMinThreshold) {
+          verbosityInfo.Add($"Package has README.file or README.md file in package that is larger than {NugetFileByteSizeMinThreshold} bytes");
+          return ("Package contains documentation: README found in package", Status.Pass, verbosityInfo.ToArray());
+        }
+        else {
+          verbosityInfo.Add($"Package has README.file or README.md file in package that is smaller than {NugetFileByteSizeMinThreshold} bytes");
+          break;
+        }
+      }
+      if (i == dataHandler.NugetCatalogEntry?.PackageEntries?.Count - 1) {
+        verbosityInfo.Add("Package does not have a README.file or README.md file in package");
       }
     };
-    verbosityInfo.Add("Package does not have a README.file or README.md file in package");
 
     // Check if Github has a README
     if (!string.IsNullOrEmpty(dataHandler.GithubReadmeData?.HtmlUrl)) {
-      verbosityInfo.Add("Package has a README.file or README.md file on Github");
-      return ($"Github page contains README: {dataHandler.GithubReadmeData?.HtmlUrl}", Status.Pass, verbosityInfo.ToArray());
+      if (dataHandler.GithubReadmeData?.Size > NugetFileSizeMinThreshold) {
+        verbosityInfo.Add($"Package has a README.file or README.md file on Github that is larger than {NugetFileByteSizeMinThreshold} bytes");
+        return ($"Package contains documentation: README found on Github: {dataHandler.GithubReadmeData?.HtmlUrl}", Status.Pass, verbosityInfo.ToArray());
+      }
+      else {
+        verbosityInfo.Add($"Package has a README.file or README.md file on Github that is smaller than {NugetFileByteSizeMinThreshold} bytes");
+      }
     }
-    verbosityInfo.Add("Package does not have a README.file or README.md file on Github");
+    else {
+      verbosityInfo.Add("Package does not have a README.file or README.md file on Github");
+    }
 
-    // Check if projectURL is set and not Github (might be an homepage)
+    // Check if projectURL is set and not Github (might be a homepage)
     if (!string.IsNullOrEmpty(dataHandler?.NugetCatalogEntry?.ProjectUrl) && (!dataHandler?.NugetCatalogEntry?.ProjectUrl.Contains("github") ?? false)) {
       verbosityInfo.Add("In Nuget Catalog Entry there is registered a webpage that is not Github and might contain documentation");
       return ($"Package has webpage that is not Github that might contain documentation: {dataHandler?.NugetCatalogEntry?.ProjectUrl}",

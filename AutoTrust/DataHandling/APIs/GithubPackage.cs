@@ -183,15 +183,11 @@ public class GithubPackage {
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: An HTTP error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: An HTTP error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      if (isDiagnostic) {
-        Console.WriteLine($"Error: A JSON error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
-      }
+      Console.WriteLine($"Error: A JSON error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
     }
     return null;
   }

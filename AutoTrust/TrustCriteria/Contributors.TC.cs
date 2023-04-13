@@ -6,6 +6,7 @@ namespace AutoTrust;
 
 public class Contributors : ITrustCriteria {
   public static string Title => "Adequate number of contributors";
+  public static int TotalScoreImportance => 3;
 
   public static readonly int NumberOfContributorsThreshold = 2;
   public static readonly int ActiveMaintainerCommitsThreshold = 3;

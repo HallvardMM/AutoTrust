@@ -2,6 +2,7 @@ namespace AutoTrust;
 
 public class VerifiedPrefix : ITrustCriteria {
   public static string Title => "Package has verified prefix";
+  public static int TotalScoreImportance => 7;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     // Check if the package has a verified prefix found in the same api as download count

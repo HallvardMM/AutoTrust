@@ -2,6 +2,7 @@ namespace AutoTrust;
 
 public class DirectTransitiveDependencies : ITrustCriteria {
   public static string Title => "Direct and Transitive Dependencies";
+  public static int TotalScoreImportance => 5;
 
   private static readonly int MaxDirectDependencies = 20;
   private static readonly int MaxTransitiveDependencies = 50;

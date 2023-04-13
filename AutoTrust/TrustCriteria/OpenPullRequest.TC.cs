@@ -3,7 +3,7 @@ namespace AutoTrust;
 
 public class OpenPullRequests : ITrustCriteria {
   public static string Title => "Open Pull Requests";
-
+  public static int TotalScoreImportance => 3;
 
   public static readonly string OneYearAgoString = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
   private static readonly double RatioOpenClosed = 0.6; // TODO:Is this good? Less than 60% of the total PRs should be open

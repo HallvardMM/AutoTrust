@@ -2,6 +2,7 @@ namespace AutoTrust;
 
 public class DeprecatedDependencies : ITrustCriteria {
   public static string Title => "Deprecated Dependencies";
+  public static int TotalScoreImportance => 10;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {
     var verbosityInfo = new List<string>();

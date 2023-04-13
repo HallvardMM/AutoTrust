@@ -11,11 +11,11 @@ public class Documentation : ITrustCriteria {
     for (var i = 0; i < dataHandler.NugetCatalogEntry?.PackageEntries?.Count; i++) {
       if (dataHandler.NugetCatalogEntry?.PackageEntries?[i].Name is "README" or "README.md") {
         if (dataHandler.NugetCatalogEntry?.PackageEntries?[i].Length > NugetFileSizeMinThreshold) {
-          verbosityInfo.Add("Package has README.file or README.md file in package that is larger than 300 bytes");
+          verbosityInfo.Add($"Package has README.file or README.md file in package that is larger than {NugetFileByteSizeMinThreshold} bytes");
           return ("Package contains documentation: README found in package", Status.Pass, verbosityInfo.ToArray());
         }
         else {
-          verbosityInfo.Add("Package has README.file or README.md file in package that is smaller than 300 bytes");
+          verbosityInfo.Add($"Package has README.file or README.md file in package that is smaller than {NugetFileByteSizeMinThreshold} bytes");
           break;
         }
       }
@@ -27,11 +27,11 @@ public class Documentation : ITrustCriteria {
     // Check if Github has a README
     if (!string.IsNullOrEmpty(dataHandler.GithubReadmeData?.HtmlUrl)) {
       if (dataHandler.GithubReadmeData?.Size > NugetFileSizeMinThreshold) {
-        verbosityInfo.Add("Package has a README.file or README.md file on Github that is larger than 300 bytes");
+        verbosityInfo.Add($"Package has a README.file or README.md file on Github that is larger than {NugetFileByteSizeMinThreshold} bytes");
         return ($"Package contains documentation: README found on Github: {dataHandler.GithubReadmeData?.HtmlUrl}", Status.Pass, verbosityInfo.ToArray());
       }
       else {
-        verbosityInfo.Add("Package has a README.file or README.md file on Github that is smaller than 300 bytes");
+        verbosityInfo.Add($"Package has a README.file or README.md file on Github that is smaller than {NugetFileByteSizeMinThreshold} bytes");
       }
     }
     else {

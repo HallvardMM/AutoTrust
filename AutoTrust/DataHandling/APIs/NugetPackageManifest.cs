@@ -107,12 +107,22 @@ public class Metadata {
       }
     }
     if (this.Dependencies != null) {
-      foreach (var group in this.Dependencies.Group) {
-        returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";
-        foreach (var dependency in group.Dependency) {
+      if (this.Dependencies.Group != null) {
+        foreach (var group in this.Dependencies.Group) {
+          returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";
+          if (group.Dependency != null) {
+            foreach (var dependency in group.Dependency) {
+              returnString += $"Dependency: {dependency.Id}, Version: {dependency.Version}, Exclude: {dependency.Exclude}\n";
+            }
+          }
+        }
+      }
+      else if (this.Dependencies.DependenciesFlatList != null) {
+        foreach (var dependency in this.Dependencies.DependenciesFlatList) {
           returnString += $"Dependency: {dependency.Id}, Version: {dependency.Version}, Exclude: {dependency.Exclude}\n";
         }
       }
+
     }
     return returnString;
   }

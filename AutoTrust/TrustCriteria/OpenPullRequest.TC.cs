@@ -22,11 +22,11 @@ public class OpenPullRequests : ITrustCriteria {
 
     var totalPullRequests = dataHandler.GithubOpenPullRequestData.TotalCount + dataHandler.GithubClosedPullRequestData?.TotalCount;
     if (totalPullRequests < TooFewPullRequestsThreshold) {
-      verbosityInfo.Add($"Open pull requests {dataHandler.GithubOpenPullRequestData.TotalCount} and closed pull requests {dataHandler.GithubClosedPullRequestData?.TotalCount} combined is {totalPullRequests} which is less than {ToFewPullRequestsThreshold}");
+      verbosityInfo.Add($"Open pull requests {dataHandler.GithubOpenPullRequestData.TotalCount} and closed pull requests {dataHandler.GithubClosedPullRequestData?.TotalCount} combined is {totalPullRequests} which is less than {TooFewPullRequestsThreshold}");
       return ($"Less than {TooFewPullRequestsThreshold} open and closed pull requests. To few to evaluate.", Status.Error, verbosityInfo.ToArray());
     }
 
-    verbosityInfo.Add($"Open pull requests {dataHandler.GithubOpenPullRequestData.TotalCount} and closed pull requests {dataHandler.GithubClosedPullRequestData?.TotalCount} combined is {totalPullRequests} which is more than {ToFewPullRequestsThreshold}");
+    verbosityInfo.Add($"Open pull requests {dataHandler.GithubOpenPullRequestData.TotalCount} and closed pull requests {dataHandler.GithubClosedPullRequestData?.TotalCount} combined is {totalPullRequests} which is more than {TooFewPullRequestsThreshold}");
 
     if ((double)dataHandler.GithubOpenPullRequestData.TotalCount / totalPullRequests >= RatioOpenClosed) {
       verbosityInfo.Add($"Ratio of open pull requests {dataHandler.GithubOpenPullRequestData.TotalCount} to closed pull requests {dataHandler.GithubClosedPullRequestData?.TotalCount} is more than " + RatioOpenClosed);

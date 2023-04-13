@@ -45,8 +45,8 @@ public class PrettyPrint {
     Console.Write($"{string.Concat(Enumerable.Repeat("* ", numberOfStars))}");
     Console.ForegroundColor = ConsoleColor.Gray;
     Console.Write($"{string.Concat(Enumerable.Repeat("* ", greyStars))}");
-    Console.WriteLine($"({numberOfStars}/{maxStars})");
     Console.ForegroundColor = ConsoleColor.White;
+    Console.WriteLine($"({numberOfStars}/{maxStars})");
   }
 
   public static void SecurityScorePrint(int numberOfStars) {

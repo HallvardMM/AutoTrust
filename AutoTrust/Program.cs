@@ -109,6 +109,7 @@ foreach (var result in sortedTrustCriteriaResult) {
   PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2, result.Value.Item3, isVerbose);
 }
 
+PrettyPrint.SecurityScorePrint(HelperFunctions.CalculateNumberOfStars(totalTCSecurityScore, totalPossibleTCSecurityScore));
 
 var nugetUrl = $"https://www.nuget.org/packages/{packageName.ToLowerInvariant()}/{packageVersion.ToLowerInvariant()}";
 Console.WriteLine($"NuGet website for package: {nugetUrl}");

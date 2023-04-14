@@ -10,12 +10,12 @@ public class DataHandler {
   public NugetPackageManifest? PackageManifest { get; private set; }
   public System.Collections.Concurrent.ConcurrentDictionary<string, DependencyNode>? DependencyTree { get; private set; }
   public GithubPackage? GithubData { get; private set; }
-  public GithubIssues? GithubOpenIssueData { get; private set; }
-  public GithubIssues? GithubClosedIssueData { get; private set; }
-  public GithubIssues? GithubUpdatedIssueData { get; private set; }
-  public GithubPullRequests? GithubOpenPullRequestData { get; private set; }
-  public GithubPullRequests? GithubClosedPullRequestData { get; private set; }
-  public GithubPullRequests? GithubUpdatedPullRequestData { get; private set; }
+  public int? GithubOpenIssueCount { get; private set; }
+  public int? GithubClosedIssueCount { get; private set; }
+  public GithubIssuesSearch? GithubUpdatedIssueData { get; private set; }
+  public int? GithubOpenPullRequestCount { get; private set; }
+  public int? GithubClosedPullRequestCount { get; private set; }
+  public GithubPullRequestsSearch? GithubUpdatedPullRequestData { get; private set; }
   public GithubReadme? GithubReadmeData { get; private set; }
   public List<GithubContributor?>? GithubContributorsData { get; private set; }
   public List<GithubCommit?>? GithubCommitsData { get; private set; }
@@ -109,12 +109,12 @@ public class DataHandler {
           Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject, isDiagnostic)),
           Task.Run(async () => (this.GithubContributorsData, this.GithubContributorsCount) = await GithubContributor.GetGithubContributors(this.HttpClient, authorAndProject, isDiagnostic)),
           Task.Run(async () => this.GithubCommitsData = await GithubCommit.GetGithubCommits(this.HttpClient, authorAndProject, isDiagnostic)),
-          Task.Run(async () => this.GithubOpenIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject,GithubIssues.GetOpenGithubIssuesUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubClosedIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssues.GetClosedGithubIssuesUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubUpdatedIssueData = await GithubIssues.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssues.GetUpdatedGithubIssuesUrl(authorAndProject,OpenIssues.OneYearAgoString), isDiagnostic)),
-          Task.Run(async () => this.GithubOpenPullRequestData = await GithubPullRequests.GetGithubPullRequests(this.HttpClient, authorAndProject, GithubPullRequests.GetOpenGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubClosedPullRequestData = await GithubPullRequests.GetGithubPullRequests(this.HttpClient, authorAndProject, GithubPullRequests.GetClosedGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubUpdatedPullRequestData = await GithubPullRequests.GetGithubPullRequests(this.HttpClient, authorAndProject, GithubPullRequests.GetUpdatedGithubPullRequestsUrl(authorAndProject, OpenPullRequests.OneYearAgoString), isDiagnostic)),
+          Task.Run(async () => this.GithubOpenIssueCount = await GithubIssuesRepos.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssuesRepos.GetOpenGithubIssuesUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubClosedIssueCount = await GithubIssuesRepos.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssuesRepos.GetClosedGithubIssuesUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubUpdatedIssueData = await GithubIssuesSearch.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssuesSearch.GetUpdatedGithubIssuesUrl(authorAndProject,OpenIssues.OneYearAgoString), isDiagnostic)),
+          Task.Run(async () => this.GithubOpenPullRequestCount = await GithubPullRequestsRepos.GetGithubPullRequestsRepos(this.HttpClient, authorAndProject, GithubPullRequestsRepos.GetOpenGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubClosedPullRequestCount = await GithubPullRequestsRepos.GetGithubPullRequestsRepos(this.HttpClient, authorAndProject, GithubPullRequestsRepos.GetClosedGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubUpdatedPullRequestData = await GithubPullRequestsSearch.GetGithubPullRequestsSearch(this.HttpClient, authorAndProject, GithubPullRequestsSearch.GetUpdatedGithubPullRequestsUrl(authorAndProject, OpenPullRequests.OneYearAgoString), isDiagnostic)),
         };
           var t = Task.WhenAll(tasks.ToArray());
           try {

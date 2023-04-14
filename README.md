@@ -22,13 +22,32 @@ These instructions will get you a copy of the project up and running on your loc
 git clone https://github.com/HallvardMM/AutoTrust.git
 cd autotrust/autotrust
 dotnet pack
+```
+
+### Windows
+
+```PowerShell
 dotnet tool install --global --add-source ./nupkg AutoTrust
+```
+
+### Mac or Linux
+
+```Bash
+dotnet tool install --tool-path ~/bin --add-source ./nupkg AutoTrust
 ```
 
 ## Uninstalling
 
+### Windows
+
 ```PowerShell
 dotnet tool uninstall --global AutoTrust
+```
+
+### Mac or Linux
+
+```Bash
+dotnet tool uninstall --tool-path ~/bin AutoTrust
 ```
 
 ## Adding Github API
@@ -53,7 +72,7 @@ For MacOS or Linux and it will try to fetch from environment variables defined i
 Example on how to add:
 
 ```bash
-export GITHUB_API_TOKEN github_pat_tokenString
+export GITHUB_API_TOKEN=github_pat_tokenString
 ```
 
 ## Usage

@@ -19,7 +19,8 @@ public class DependencyTreeBuilder {
         ParentName = parentName,
         Frameworks = new HashSet<string>(),
         HasInitScript = false,
-        IsDeprecated = false
+        HasAnalyzers = false,
+        IsDeprecated = false,
       };
       currentTree.TryAdd(name, rootNode);
     }
@@ -41,8 +42,8 @@ public class DependencyTreeBuilder {
           IsDeprecated = true
         };
       }
-      // Check for init script
       if (nugetCatalogEntry?.PackageEntries is not null) {
+        // Check for init script
         if (CheckForInitScript(nugetCatalogEntry.PackageEntries)) {
           // Package has init script
           currentTree[name] = new DependencyNode {
@@ -51,10 +52,25 @@ public class DependencyTreeBuilder {
             ParentName = currentTree[name].ParentName,
             Frameworks = currentTree[name].Frameworks,
             HasInitScript = true,
+            HasAnalyzers = currentTree[name].HasAnalyzers,
+            IsDeprecated = currentTree[name].IsDeprecated
+          };
+        }
+        // Check for analyzers
+        if (CheckForAnalyzers(nugetCatalogEntry.PackageEntries)) {
+          // Package has analyzers
+          currentTree[name] = new DependencyNode {
+            Depth = currentTree[name].Depth,
+            Name = currentTree[name].Name,
+            ParentName = currentTree[name].ParentName,
+            Frameworks = currentTree[name].Frameworks,
+            HasInitScript = currentTree[name].HasInitScript,
+            HasAnalyzers = true,
             IsDeprecated = currentTree[name].IsDeprecated
           };
         }
       }
+
       // Add dependencies for next iteration if not at max depth
       if (nugetCatalogEntry?.DependencyGroups != null && depth > 0) {
         foreach (var dependencyGroup in nugetCatalogEntry.DependencyGroups) {
@@ -75,6 +91,7 @@ public class DependencyTreeBuilder {
                 ParentName = name,
                 Frameworks = new HashSet<string> { dependencyGroup.TargetFramework },
                 HasInitScript = false,
+                HasAnalyzers = false,
                 IsDeprecated = false
               };
               currentTree.TryAdd(dependency.PackageName, dependencyNode);
@@ -111,6 +128,16 @@ public class DependencyTreeBuilder {
     var scriptFileNames = new List<string> { "init.ps1", "install.ps1", "uninstall.ps1" };
     foreach (var entry in catalogEntries) {
       if (scriptFileNames.Contains(entry.Name.ToLowerInvariant())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static bool CheckForAnalyzers(List<PackageEntries> catalogEntries) {
+    var analyzersString = "analyzers/";
+    foreach (var entry in catalogEntries) {
+      if (entry.FullName.ToLowerInvariant().Contains(analyzersString)) {
         return true;
       }
     }

@@ -55,6 +55,11 @@ var tasks = new List<Task> {
     trustCriteriaResult.TryAdd(InitScript.Title, (message, status, additionalInfo, InitScript.TotalScoreImportance));
   }),
   Task.Run(() => {
+    var (message, status, additionalInfo) = Analyzers.Validate(dataHandler);
+    HelperFunctions.AddSecurityScoreOfTC(Analyzers.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
+    trustCriteriaResult.TryAdd(Analyzers.Title, (message, status, additionalInfo, Analyzers.TotalScoreImportance));
+  }),
+  Task.Run(() => {
     var (message, status, additionalInfo) = DirectTransitiveDependencies.Validate(dataHandler);
     HelperFunctions.AddSecurityScoreOfTC(DirectTransitiveDependencies.TotalScoreImportance, status, ref totalTCSecurityScore, ref totalPossibleTCSecurityScore);
     trustCriteriaResult.TryAdd(DirectTransitiveDependencies.Title, (message, status, additionalInfo, DirectTransitiveDependencies.TotalScoreImportance));

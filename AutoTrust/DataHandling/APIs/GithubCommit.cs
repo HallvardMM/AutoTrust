@@ -26,28 +26,12 @@ public class GithubCommit {
   [JsonPropertyName("parents")]
   public GithubCommitParent[]? Parents { get; set; }
 
-  public static async Task<List<GithubCommit?>?> GetGithubCommits(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+  public static async Task<List<GithubCommit?>?> GetGithubCommits(HttpClient httpClient, string? githubToken, string authorAndProject, bool isDiagnostic) {
     var fetchCommitNumber = 100;
     var oneYearAgoString = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
     var commitsUrl = $"https://api.github.com/repos/{authorAndProject}/commits?since={oneYearAgoString}&per_page={fetchCommitNumber}";
-
-    try {
-      // Fetch data from github
-      var commits = await httpClient.GetFromJsonAsync<List<GithubCommit?>?>(commitsUrl);
-      if (isDiagnostic) {
-        Console.WriteLine($"Fetched {commits?.Count} commits from {authorAndProject} from {commitsUrl}");
-      }
-      return commits;
-    }
-    catch (HttpRequestException ex) {
-      // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {commitsUrl}: {ex.Message}");
-    }
-    catch (JsonException ex) {
-      // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {commitsUrl}: {ex.Message}");
-    }
-    return null;
+    return await DataHandler.FetchGithubData<List<GithubCommit?>>(httpClient, githubToken, commitsUrl, authorAndProject, isDiagnostic,
+     $"Fetched commits from {authorAndProject} from {commitsUrl}");
   }
 }
 

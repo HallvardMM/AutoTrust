@@ -14,16 +14,23 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- .NET 7.0 or higher
+- .Net
 
 ## Usage
 
 ### Installing
 
-Use the following command to install AutoTrust globally:
+```PowerShell
+git clone https://github.com/HallvardMM/AutoTrust.git
+cd autotrust/autotrust
+dotnet pack
+dotnet tool install --global --add-source ./nupkg AutoTrust
+```
+
+### Uninstalling
 
 ```PowerShell
-dotnet tool install --global AutoTrust
+dotnet tool uninstall --global AutoTrust
 ```
 
 ### Add/Update packages with AutoTrust:

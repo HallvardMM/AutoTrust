@@ -36,25 +36,10 @@ public class GithubReadme {
     return this.HtmlUrl;
   }
 
-  public static async Task<GithubReadme?> GetGithubReadme(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+  public static async Task<GithubReadme?> GetGithubReadme(HttpClient httpClient, string? githubToken, string authorAndProject, bool isDiagnostic) {
     var githubReadmeUrl = GetGithubReadmeUrl(authorAndProject);
-    try {
-      // Fetch package data
-      var githubReadmeData = await httpClient.GetFromJsonAsync<GithubReadme>(githubReadmeUrl);
-      if (isDiagnostic) {
-        Console.WriteLine($"Found readme data for {authorAndProject} from {githubReadmeUrl}");
-      }
-      return githubReadmeData;
-    }
-    catch (HttpRequestException ex) {
-      // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
-    }
-    catch (JsonException ex) {
-      // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {githubReadmeUrl}: {ex.Message}");
-    }
-    return null;
+    return await DataHandler.FetchGithubData<GithubReadme>(httpClient, githubToken, githubReadmeUrl, authorAndProject, isDiagnostic,
+     $"Found readme data for {authorAndProject} from {githubReadmeUrl}");
   }
 
   public static string GetGithubReadmeUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject + "/readme";

@@ -2,8 +2,6 @@
 // https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28
 
 namespace AutoTrust;
-using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public class GithubCommit {

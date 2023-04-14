@@ -42,7 +42,21 @@ public class DataHandler {
   }
 
   public static string? GetGithubToken() {
-    return Environment.GetEnvironmentVariable("GITHUB_API_TOKEN", EnvironmentVariableTarget.User);
+    string? token = null;
+    try {
+      if (OperatingSystem.IsWindows()) {
+        token =
+        Environment.GetEnvironmentVariable("GITHUB_API_TOKEN") ??
+        Environment.GetEnvironmentVariable("GITHUB_API_TOKEN", EnvironmentVariableTarget.User) ??
+        Environment.GetEnvironmentVariable("GITHUB_API_TOKEN", EnvironmentVariableTarget.Machine);
+      }
+      else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS()) {
+        token = Environment.GetEnvironmentVariable("GITHUB_API_TOKEN");
+      }
+    }
+    catch (Exception) {
+    }
+    return token;
   }
 
   public static async Task<T?> FetchGithubData<T>(HttpClient httpClient,
@@ -107,7 +121,6 @@ public class DataHandler {
     }
     return null;
   }
-
 
   public async Task FetchData(bool isDiagnostic) {
 

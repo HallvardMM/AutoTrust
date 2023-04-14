@@ -2,8 +2,6 @@
 // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-a-repository
 
 namespace AutoTrust;
-using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public class GithubPackage {

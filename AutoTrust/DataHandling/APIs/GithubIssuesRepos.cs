@@ -1,5 +1,4 @@
 namespace AutoTrust;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public class GithubIssuesRepos {
@@ -18,10 +17,8 @@ public class GithubIssuesRepos {
     return returnString;
   }
 
-  public static async Task<int?> GetGithubIssues(HttpClient httpClient, string? githubToken, string authorAndProject, string url, bool isDiagnostic) {
-    return await DataHandler.FetchGithubHeaderCount(httpClient, githubToken, url, authorAndProject, isDiagnostic,
+  public static async Task<int?> GetGithubIssues(HttpClient httpClient, string? githubToken, string authorAndProject, string url, bool isDiagnostic) => await DataHandler.FetchGithubHeaderCount(httpClient, githubToken, url, authorAndProject, isDiagnostic,
     $"Found issue data for {authorAndProject} from {url}");
-  }
 
   public static string GetOpenGithubIssuesUrl(string authorAndProject) => "https://api.github.com/search/issues?q=repo:" + authorAndProject + "+type:issue+state:open&per_page=1";
 

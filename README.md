@@ -60,7 +60,7 @@ Recommend using [fine grained personal access token](https://docs.github.com/en/
 
 The application looks for GITHUB_API_TOKEN in the process, user and machine environment variables.
 It can be added to either.
-Example on how to add:
+Example on how to add (Insert your token instead of "github_pat_tokenString"):
 
 ```PowerShell
 setx GITHUB_API_TOKEN github_pat_tokenString
@@ -69,7 +69,7 @@ setx GITHUB_API_TOKEN github_pat_tokenString
 ### Mac or Linux
 
 For MacOS or Linux and it will try to fetch from environment variables defined in the shell.
-Example on how to add:
+Example on how to add (Insert your token instead of "github_pat_tokenString"):
 
 ```bash
 export GITHUB_API_TOKEN=github_pat_tokenString

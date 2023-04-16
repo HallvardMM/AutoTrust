@@ -20,7 +20,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ```PowerShell
 git clone https://github.com/HallvardMM/AutoTrust.git
-cd autotrust/autotrust
+cd AutoTrust/AutoTrust
 dotnet pack
 ```
 
@@ -74,6 +74,16 @@ Example on how to add (Insert your token instead of "github_pat_tokenString"):
 ```bash
 export GITHUB_API_TOKEN=github_pat_tokenString
 ```
+NOTE: When running the "export token"-command the token will only work for the current session and not after you have closed the terminal. If you want it to work  permanently you open the terminal you will have to store the token. See below for instructions:
+
+#### Zsh and Bash token storage 
+How to permanantly store the ```GITHUB_API_TOKEN``` will depend on which shell you use. If you use zsh (mac standard) store it in ```.zshenv``` and for bash (standard for most linux distributions) store it in ```.bashrc```. To open the file ```.zshenv``` in the terminal run ```$ vim ~/.zshenv``` or to open in text editor run ```$ touch ~/.zshenv; open ~/.zshenv```.
+
+For both ```.zshenv``` and ```.bashrc``` add the following to the file:
+```bash
+export GITHUB_API_TOKEN=github_pat_tokenString
+```
+Note that you have to restart the terminal after adding the token for it to be available.
 
 ## Usage
 

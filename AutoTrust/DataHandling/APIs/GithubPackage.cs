@@ -2,8 +2,6 @@
 // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#get-a-repository
 
 namespace AutoTrust;
-using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public class GithubPackage {
@@ -171,25 +169,10 @@ public class GithubPackage {
       $"Homepage: {this.Homepage}\n" +
       $"Size: {this.Size}\n";
 
-  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+  public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string? githubToken, string authorAndProject, bool isDiagnostic) {
     var githubApiUrl = GetGithubApiUrl(authorAndProject);
-    try {
-      // Fetch package data
-      var githubData = await httpClient.GetFromJsonAsync<GithubPackage>(githubApiUrl);
-      if (isDiagnostic) {
-        Console.WriteLine($"Found Github package data from: {githubApiUrl}");
-      }
-      return githubData;
-    }
-    catch (HttpRequestException ex) {
-      // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
-    }
-    catch (JsonException ex) {
-      // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred when fetching github package data from {githubApiUrl}: {ex.Message}");
-    }
-    return null;
+    return await DataHandler.FetchGithubData<GithubPackage>(httpClient, githubToken, githubApiUrl, authorAndProject, isDiagnostic,
+    $"Found Github package data from: {githubApiUrl}");
   }
 
   public static string GetGithubApiUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject;

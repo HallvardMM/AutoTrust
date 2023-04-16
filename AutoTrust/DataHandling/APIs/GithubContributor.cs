@@ -1,6 +1,4 @@
 namespace AutoTrust;
-using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public class GithubContributor {
@@ -43,31 +41,19 @@ public class GithubContributor {
   [JsonPropertyName("contributions")]
   public int Contributions { get; set; }
 
-  public static async Task<(List<GithubContributor?>?, int?)> GetGithubContributors(HttpClient httpClient, string authorAndProject, bool isDiagnostic) {
+  public static async Task<(List<GithubContributor?>?, int?)> GetGithubContributors(HttpClient httpClient, string? githubToken, string authorAndProject, bool isDiagnostic) {
     var url = $"https://api.github.com/repos/{authorAndProject}/contributors?per_page={Contributors.NumberOfContributorsThreshold}";
-    try {
-      // Fetch data from github
-      var contributors = await httpClient.GetFromJsonAsync<List<GithubContributor?>?>(url);
-      var res = await httpClient.GetAsync($"https://api.github.com/repos/{authorAndProject}/contributors?per_page=1");
-
-      var contributorsCount = HelperFunctions.GetLastPageNumber(res.Headers.GetValues("Link").FirstOrDefault());
-      if (contributorsCount == -1) {
-        throw new JsonException("Could not get contributors count");
-      }
-
-      if (isDiagnostic) {
-        Console.WriteLine($"Found {contributors?.Count} contributors for {authorAndProject} in {url}");
-      }
-      return (contributors, contributorsCount);
+    var contributors = await DataHandler.FetchGithubData<List<GithubContributor?>?>(httpClient, githubToken, url, authorAndProject, isDiagnostic,
+     $"Found contributors for {authorAndProject} from {url}");
+    var contributorsCount = await DataHandler.FetchGithubHeaderCount(httpClient, githubToken, url, authorAndProject, isDiagnostic,
+    $"Found contributor count for {authorAndProject} in {url}");
+    if (contributorsCount == -1) {
+      Console.WriteLine("Could not get contributors count");
+      return (null, null);
     }
-    catch (HttpRequestException ex) {
-      // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
+    if (isDiagnostic) {
+      Console.WriteLine($"Found {contributors?.Count} contributors for {authorAndProject} in {url}");
     }
-    catch (JsonException ex) {
-      // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
-    }
-    return (null, null);
+    return (contributors, contributorsCount);
   }
 }

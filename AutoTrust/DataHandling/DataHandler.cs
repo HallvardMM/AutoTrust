@@ -1,5 +1,8 @@
 namespace AutoTrust;
 
+using System.Net.Http.Json;
+using System.Text.Json;
+
 public class DataHandler {
   public HttpClient HttpClient { get; private set; }
   public string PackageName { get; private set; }
@@ -24,17 +27,99 @@ public class DataHandler {
   public OSVData? OsvData { get; private set; }
   public string UsedByInformation { get; private set; }
   public DateTimeOffset? OldestPublishedDate { get; private set; }
+  public string? GithubToken { get; private set; }
 
   public DataHandler(HttpClient httpClient, string packageName, string packageVersion, bool prerelease) {
     this.PackageName = packageName;
     this.HttpClient = httpClient;
-    httpClient.DefaultRequestHeaders.Add("User-Agent", "request");
     this.PackageVersion = packageVersion;
     this.IsPrerelease = prerelease;
     this.NugetPackage = null;
     this.NugetCatalogEntry = null;
     this.PackageManifest = null;
     this.UsedByInformation = "";
+    this.GithubToken = GetGithubToken();
+  }
+
+  public static string? GetGithubToken() {
+    string? token = null;
+    try {
+      if (OperatingSystem.IsWindows()) {
+        token =
+        Environment.GetEnvironmentVariable("GITHUB_API_TOKEN") ??
+        Environment.GetEnvironmentVariable("GITHUB_API_TOKEN", EnvironmentVariableTarget.User) ??
+        Environment.GetEnvironmentVariable("GITHUB_API_TOKEN", EnvironmentVariableTarget.Machine);
+      }
+      else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS()) {
+        token = Environment.GetEnvironmentVariable("GITHUB_API_TOKEN");
+      }
+    }
+    catch (Exception) {
+    }
+    return token;
+  }
+
+  public static async Task<T?> FetchGithubData<T>(HttpClient httpClient,
+  string? githubToken, string url, string authorAndProject, bool isDiagnostic, string diagnosticText) {
+    // https://www.stevejgordon.co.uk/sending-and-receiving-json-using-httpclient-with-system-net-http-json
+    try {
+      using (var request = new HttpRequestMessage(HttpMethod.Get, url)) {
+        if (githubToken != null) {
+          request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", githubToken);
+        }
+        request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        request.Headers.UserAgent.TryParseAdd("request");
+        using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)) {
+          if (isDiagnostic) {
+            Console.WriteLine(diagnosticText);
+          }
+          if (response.IsSuccessStatusCode) {
+
+            return await response.Content.ReadFromJsonAsync<T>();
+          }
+        }
+      }
+    }
+    catch (HttpRequestException ex) {
+      // Handle any exceptions thrown by the HTTP client.
+      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
+    }
+    catch (JsonException ex) {
+      // Handle any exceptions thrown during JSON deserialization.
+      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
+    }
+    return default;
+  }
+
+  public static async Task<int?> FetchGithubHeaderCount(HttpClient httpClient,
+  string? githubToken, string url, string authorAndProject, bool isDiagnostic, string diagnosticText) {
+    // https://www.stevejgordon.co.uk/sending-and-receiving-json-using-httpclient-with-system-net-http-json
+    try {
+      using (var request = new HttpRequestMessage(HttpMethod.Get, url)) {
+        if (githubToken != null) {
+          request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", githubToken);
+        }
+        request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        request.Headers.UserAgent.TryParseAdd("request");
+        using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)) {
+          if (isDiagnostic) {
+            Console.WriteLine(diagnosticText);
+          }
+          if (response.IsSuccessStatusCode) {
+            return HelperFunctions.GetLastPageNumber(response.Headers.GetValues("Link").FirstOrDefault());
+          }
+        }
+      }
+    }
+    catch (HttpRequestException ex) {
+      // Handle any exceptions thrown by the HTTP client.
+      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
+    }
+    catch (JsonException ex) {
+      // Handle any exceptions thrown during JSON deserialization.
+      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
+    }
+    return null;
   }
 
   public async Task FetchData(bool isDiagnostic) {
@@ -105,16 +190,16 @@ public class DataHandler {
 
         if (authorAndProject != "") {
           var tasks = new List<Task> {
-          Task.Run(async () => this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, authorAndProject, isDiagnostic)),
-          Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, authorAndProject, isDiagnostic)),
-          Task.Run(async () => (this.GithubContributorsData, this.GithubContributorsCount) = await GithubContributor.GetGithubContributors(this.HttpClient, authorAndProject, isDiagnostic)),
-          Task.Run(async () => this.GithubCommitsData = await GithubCommit.GetGithubCommits(this.HttpClient, authorAndProject, isDiagnostic)),
-          Task.Run(async () => this.GithubOpenIssueCount = await GithubIssuesRepos.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssuesRepos.GetOpenGithubIssuesUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubClosedIssueCount = await GithubIssuesRepos.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssuesRepos.GetClosedGithubIssuesUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubUpdatedIssueData = await GithubIssuesSearch.GetGithubIssues(this.HttpClient, authorAndProject, GithubIssuesSearch.GetUpdatedGithubIssuesUrl(authorAndProject,OpenIssues.OneYearAgoString), isDiagnostic)),
-          Task.Run(async () => this.GithubOpenPullRequestCount = await GithubPullRequestsRepos.GetGithubPullRequestsRepos(this.HttpClient, authorAndProject, GithubPullRequestsRepos.GetOpenGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubClosedPullRequestCount = await GithubPullRequestsRepos.GetGithubPullRequestsRepos(this.HttpClient, authorAndProject, GithubPullRequestsRepos.GetClosedGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
-          Task.Run(async () => this.GithubUpdatedPullRequestData = await GithubPullRequestsSearch.GetGithubPullRequestsSearch(this.HttpClient, authorAndProject, GithubPullRequestsSearch.GetUpdatedGithubPullRequestsUrl(authorAndProject, OpenPullRequests.OneYearAgoString), isDiagnostic)),
+          Task.Run(async () => this.GithubData = await GithubPackage.GetGithubPackage(this.HttpClient, this.GithubToken, authorAndProject, isDiagnostic)),
+          Task.Run(async () => this.GithubReadmeData = await GithubReadme.GetGithubReadme(this.HttpClient, this.GithubToken, authorAndProject, isDiagnostic)),
+          Task.Run(async () => (this.GithubContributorsData, this.GithubContributorsCount) = await GithubContributor.GetGithubContributors(this.HttpClient, this.GithubToken, authorAndProject, isDiagnostic)),
+          Task.Run(async () => this.GithubCommitsData = await GithubCommit.GetGithubCommits(this.HttpClient, this.GithubToken, authorAndProject, isDiagnostic)),
+          Task.Run(async () => this.GithubOpenIssueCount = await GithubIssuesRepos.GetGithubIssues(this.HttpClient, this.GithubToken, authorAndProject, GithubIssuesRepos.GetOpenGithubIssuesUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubClosedIssueCount = await GithubIssuesRepos.GetGithubIssues(this.HttpClient,this.GithubToken, authorAndProject, GithubIssuesRepos.GetClosedGithubIssuesUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubUpdatedIssueData = await GithubIssuesSearch.GetGithubIssues(this.HttpClient, this.GithubToken, authorAndProject, GithubIssuesSearch.GetUpdatedGithubIssuesUrl(authorAndProject,OpenIssues.OneYearAgoString), isDiagnostic)),
+          Task.Run(async () => this.GithubOpenPullRequestCount = await GithubPullRequestsRepos.GetGithubPullRequestsRepos(this.HttpClient,this.GithubToken, authorAndProject, GithubPullRequestsRepos.GetOpenGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubClosedPullRequestCount = await GithubPullRequestsRepos.GetGithubPullRequestsRepos(this.HttpClient,this.GithubToken, authorAndProject, GithubPullRequestsRepos.GetClosedGithubPullRequestsUrl(authorAndProject), isDiagnostic)),
+          Task.Run(async () => this.GithubUpdatedPullRequestData = await GithubPullRequestsSearch.GetGithubPullRequestsSearch(this.HttpClient,this.GithubToken, authorAndProject, GithubPullRequestsSearch.GetUpdatedGithubPullRequestsUrl(authorAndProject, OpenPullRequests.OneYearAgoString), isDiagnostic)),
         };
           var t = Task.WhenAll(tasks.ToArray());
           try {

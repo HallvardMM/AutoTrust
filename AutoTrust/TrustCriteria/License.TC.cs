@@ -44,6 +44,15 @@ public class License : ITrustCriteria {
     "LGPL-2.1+",
     "LGPL-3.0",
     "LGPL-3.0+",
+    "RPSL-1.0",
+    "CECILL-1.0",
+    "CECILL-1.1",
+    "CECILL-2.0",
+    "CECILL-B",
+    "CECILL-C",
+    "EUPL-1.0",
+    "EUPL-1.1",
+    "EUPL-1.2"
   };
 
   public static readonly string[] MediumRiskLicenses = new string[] {
@@ -58,6 +67,8 @@ public class License : ITrustCriteria {
     "MS-LPL",
     "MS-PL",
     "MS-RL",
+    "CPAL-1.0",
+    "eCos-2.0"
   };
 
   public static readonly string[] LowRiskLicenses = new string[]{
@@ -72,6 +83,16 @@ public class License : ITrustCriteria {
     "OFL-1.1",
     "Zlib",
     "WTFPL",
+    "AFL-1.1",
+    "AFL-1.2",
+    "AFL-2.0",
+    "AFL-2.1",
+    "AFL-3.0",
+    "Condor-1.1",
+    "ECL-1.0",
+    "ECL-2.0",
+    "EUDatagrid",
+    "FTL"
   };
 
   public static (bool isSpdxLicense, string riskType) IsSpdxLicense(string? license) {

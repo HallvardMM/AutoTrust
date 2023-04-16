@@ -1,6 +1,4 @@
 namespace AutoTrust;
-using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public class GithubIssuesSearch {
@@ -19,25 +17,8 @@ public class GithubIssuesSearch {
     return returnString;
   }
 
-  public static async Task<GithubIssuesSearch?> GetGithubIssues(HttpClient httpClient, string authorAndProject, string url, bool isDiagnostic) {
-    try {
-      // Fetch package data
-      var githubIssueData = await httpClient.GetFromJsonAsync<GithubIssuesSearch>(url);
-      if (isDiagnostic) {
-        Console.WriteLine($"Found issue data for {authorAndProject} from {url}");
-      }
-      return githubIssueData;
-    }
-    catch (HttpRequestException ex) {
-      // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
-    }
-    catch (JsonException ex) {
-      // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
-    }
-    return null;
-  }
+  public static async Task<GithubIssuesSearch?> GetGithubIssues(HttpClient httpClient, string? githubToken, string authorAndProject, string url, bool isDiagnostic) => await DataHandler.FetchGithubData<GithubIssuesSearch>(httpClient, githubToken, url, authorAndProject, isDiagnostic,
+     $"Found issue data for {authorAndProject} from {url}");
 
   public static string GetUpdatedGithubIssuesUrl(string authorAndProject, string lastUpdateTime) => $"https://api.github.com/search/issues?q=repo:{authorAndProject}+type:issue+state:open+updated:>{lastUpdateTime}&per_page=1";
 

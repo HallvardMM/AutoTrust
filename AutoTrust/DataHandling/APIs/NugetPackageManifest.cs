@@ -107,12 +107,22 @@ public class Metadata {
       }
     }
     if (this.Dependencies != null) {
-      foreach (var group in this.Dependencies.Group) {
-        returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";
-        foreach (var dependency in group.Dependency) {
+      if (this.Dependencies.Group != null) {
+        foreach (var group in this.Dependencies.Group) {
+          returnString += $"Package Dependency Target Framework: {group.TargetFramework}\n";
+          if (group.Dependency != null) {
+            foreach (var dependency in group.Dependency) {
+              returnString += $"Dependency: {dependency.Id}, Version: {dependency.Version}, Exclude: {dependency.Exclude}\n";
+            }
+          }
+        }
+      }
+      else if (this.Dependencies.DependenciesFlatList != null) {
+        foreach (var dependency in this.Dependencies.DependenciesFlatList) {
           returnString += $"Dependency: {dependency.Id}, Version: {dependency.Version}, Exclude: {dependency.Exclude}\n";
         }
       }
+
     }
     return returnString;
   }
@@ -137,16 +147,19 @@ public class Repository {
 }
 
 public class Dependencies {
-  //TODO: Dependencies don't have to be in a group, so we need to add support for that as well
   [XmlElement(ElementName = "group")]
-  public List<Group> Group { get; set; } = new List<Group>();
+  public List<Group>? Group { get; set; } = new List<Group>();
+
+  [XmlElement(ElementName = "dependency")]
+  public List<Dependency>? DependenciesFlatList { get; set; } = new List<Dependency>();
+
 }
 
 public class Group {
   [XmlAttribute(AttributeName = "targetFramework")]
   public string TargetFramework { get; set; } = string.Empty;
   [XmlElement(ElementName = "dependency")]
-  public List<Dependency> Dependency { get; set; } = new List<Dependency>();
+  public List<Dependency>? Dependency { get; set; } = new List<Dependency>();
 }
 
 public class Dependency {

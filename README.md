@@ -12,19 +12,70 @@ AutoTrust is a Command Line Interface (CLI) tool for C# that fetches metadata ab
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites
+## Prerequisites
 
 - .NET 7.0 or higher
 
-## Usage
-
-### Installing
-
-Use the following command to install AutoTrust globally:
+## Installing
 
 ```PowerShell
-dotnet tool install --global AutoTrust
+git clone https://github.com/HallvardMM/AutoTrust.git
+cd autotrust/autotrust
+dotnet pack
 ```
+
+### Windows
+
+```PowerShell
+dotnet tool install --global --add-source ./nupkg AutoTrust
+```
+
+### Mac or Linux
+
+```Bash
+dotnet tool install --tool-path ~/bin --add-source ./nupkg AutoTrust
+```
+
+## Uninstalling
+
+### Windows
+
+```PowerShell
+dotnet tool uninstall --global AutoTrust
+```
+
+### Mac or Linux
+
+```Bash
+dotnet tool uninstall --tool-path ~/bin AutoTrust
+```
+
+## Adding Github API
+
+The Github api has a rate limit that can lead to unsuccessful api calls.
+You can increase the limit by creating and adding a Github token.
+Recommend using [fine grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-fine-grained-personal-access-token) with permission for "Public Repositories (read-only)".
+
+### Windows
+
+The application looks for GITHUB_API_TOKEN in the process, user and machine environment variables.
+It can be added to either.
+Example on how to add (Insert your token instead of "github_pat_tokenString"):
+
+```PowerShell
+setx GITHUB_API_TOKEN github_pat_tokenString
+```
+
+### Mac or Linux
+
+For MacOS or Linux and it will try to fetch from environment variables defined in the shell.
+Example on how to add (Insert your token instead of "github_pat_tokenString"):
+
+```bash
+export GITHUB_API_TOKEN=github_pat_tokenString
+```
+
+## Usage
 
 ### Add/Update packages with AutoTrust:
 
@@ -124,8 +175,8 @@ dotnet tool uninstall --global AutoTrust
 
 This project is licensed under the Apache License - see the [LICENSE](LICENSE) file for details.
 
-## API Flow
+<!-- ## API Flow
 
 The flow of where the data is fetch is shown below.
 
-![api flow](./Images/Api_flow.drawio.svg)
+![api flow](./Images/Api_flow.drawio.svg) -->

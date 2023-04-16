@@ -6,8 +6,8 @@ public class OpenPullRequests : ITrustCriteria {
   public static int TotalScoreImportance => 3;
 
   public static readonly string OneYearAgoString = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-  private static readonly double RatioOpenClosed = 0.6; // TODO:Is this good? Less than 60% of the total PRs should be open
-  private static readonly double RatioOpenNewOld = 0.3; // TODO:Is this good? More than 30% of the open PRs should be addressed in the last year
+  private static readonly double RatioOpenClosed = 0.6;
+  private static readonly double RatioOpenNewOld = 0.3;
   private static readonly double TooFewPullRequestsThreshold = 10;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {

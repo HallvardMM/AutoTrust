@@ -74,6 +74,16 @@ Example on how to add (Insert your token instead of "github_pat_tokenString"):
 ```bash
 export GITHUB_API_TOKEN=github_pat_tokenString
 ```
+NOTE: When running the "export token"-command the token will only work for the current session of the terminal and not after you have closed the terminal. If you want to have it working every time you open the terminal you will have to store the token. See below for instructions:
+
+#### Zsh and Bash token storage 
+Where you store the ```GITHUB_API_TOKEN``` you will depend on your terminal. If you use zsh (mac standard) you will store it in ```zshenv``` and for bash (standard for most linux distributions) you will store it in ```bashrc```. To open the file zshenv in the terminal just run ```$ vim ~/.zshenv``` or to open in text editor run ```$ touch ~/.zshenv; open ~/.zshenv```.
+
+For both ```zshenv``` and ```bashrc``` you write the following to the file:
+```bash
+export GITHUB_API_TOKEN=github_pat_tokenString
+```
+Note that you have to restart the terminal after adding the token for it to be available.
 
 ## Usage
 

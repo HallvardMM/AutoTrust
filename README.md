@@ -20,7 +20,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ```PowerShell
 git clone https://github.com/HallvardMM/AutoTrust.git
-cd autotrust/autotrust
+cd AutoTrust/AutoTrust
 dotnet pack
 ```
 

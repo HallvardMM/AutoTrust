@@ -74,8 +74,10 @@ public class DataHandler {
             Console.WriteLine(diagnosticText);
           }
           if (response.IsSuccessStatusCode) {
-
             return await response.Content.ReadFromJsonAsync<T>();
+          }
+          else {
+            Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {response.StatusCode}");
           }
         }
       }

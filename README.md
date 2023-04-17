@@ -8,6 +8,10 @@
 
 AutoTrust is a Command Line Interface (CLI) tool for C# that fetches metadata about a NuGet package to help developers assess the package before installing it.
 
+<p align="center">
+  <img src="./Images/AutoTrustOutput.png" alt="Auto Trust" width="100%"/>
+</p>
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -60,7 +64,7 @@ Recommend using [fine grained personal access token](https://docs.github.com/en/
 
 The application looks for GITHUB_API_TOKEN in the process, user and machine environment variables.
 It can be added to either.
-Example on how to add (Insert your token instead of "github_pat_tokenString"):
+Example on how to add (insert your token instead of "github_pat_tokenString"):
 
 ```PowerShell
 setx GITHUB_API_TOKEN github_pat_tokenString
@@ -69,20 +73,24 @@ setx GITHUB_API_TOKEN github_pat_tokenString
 ### Mac or Linux
 
 For MacOS or Linux and it will try to fetch from environment variables defined in the shell.
-Example on how to add (Insert your token instead of "github_pat_tokenString"):
+Example on how to add (insert your token instead of "github_pat_tokenString"):
 
 ```bash
 export GITHUB_API_TOKEN=github_pat_tokenString
 ```
-NOTE: When running the "export token"-command the token will only work for the current session and not after you have closed the terminal. If you want it to work  permanently you open the terminal you will have to store the token. See below for instructions:
 
-#### Zsh and Bash token storage 
-How to permanantly store the ```GITHUB_API_TOKEN``` will depend on which shell you use. If you use zsh (mac standard) store it in ```.zshenv``` and for bash (standard for most linux distributions) store it in ```.bashrc```. To open the file ```.zshenv``` in the terminal run ```$ vim ~/.zshenv``` or to open in text editor run ```$ touch ~/.zshenv; open ~/.zshenv```.
+NOTE: When running the "export token"-command the token will only work for the current session and not after you have closed the terminal. If you want it to work permanently you open the terminal you will have to store the token. See below for instructions:
 
-For both ```.zshenv``` and ```.bashrc``` add the following to the file:
+#### Zsh and Bash token storage
+
+How to permanantly store the `GITHUB_API_TOKEN` will depend on which shell you use. If you use zsh (mac standard) store it in `.zshenv` and for bash (standard for most linux distributions) store it in `.bashrc`. To open the file `.zshenv` in the terminal run `$ vim ~/.zshenv` or to open in text editor run `$ touch ~/.zshenv; open ~/.zshenv`.
+
+For both `.zshenv` and `.bashrc` add the following to the file:
+
 ```bash
 export GITHUB_API_TOKEN=github_pat_tokenString
 ```
+
 Note that you have to restart the terminal after adding the token for it to be available.
 
 ## Usage
@@ -108,7 +116,7 @@ More detailed output for AutoTrust:
 autotrust add package [PackageName] -ve, --verbosity <d|detailed|diag|diagnostic|n|normal|>
 ```
 
-## Daily usage
+## Wrapping dotnet
 
 `autotrust` is used prior to installing a dotnet package. It can be embed in your daily `dotnet` usage so you do not need to remember to run `autotrust` explicitly.
 
@@ -146,40 +154,35 @@ Restart PowerShell.
 alias dotnet='autotrust'
 ```
 
+## Trust Criteria
+
+AutoTrust checks dependencies, two steps down (direct and first-level transitive) for the relevant trust criteria, described as dependencies in the table.
+
+| Trust Criteria Name                | Description of Threshold                                                                                                                                                                                                                                     | Notes                                                                                                                                                                                                   | Importance (1-10) |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| Age                                | Fails if the package version is less than 3 weeks old or over 1 year old old                                                                                                                                                                                 |                                                                                                                                                                                                         | 6                 |
+| Analyzers                          | Fails if the package or its dependencies contain analyzers analyzers                                                                                                                                                                                         |                                                                                                                                                                                                         | 3                 |
+| Contributors                       | Fails if the number of total contributors is less than 2 or there are 0 active maintainers. Warns if there is 1 active maintainer                                                                                                                            | An active maintainer is defined as a maintainer that has 3 or more commits either during the last year or of the 100 last commits                                                                       | 3                 |
+| Deprecated Package                 | Fails if the package is marked as deprecated by NuGet                                                                                                                                                                                                        |                                                                                                                                                                                                         | 10                |
+| Deprecated Dependencies            | Fails if any of the dependencies are marked as deprecated by NuGet                                                                                                                                                                                           |                                                                                                                                                                                                         | 10                |
+| Direct and Transitive Dependencies | Warns if there are more than 20 direct dependencies or more than 50 transitive dependencies                                                                                                                                                                  | Direct dependencies are the dependencies that are directly used by the package while transitive are the dependencies of the direct dependencies, and all dependencies further below                     | 5                 |
+| Documentation                      | Checks for a README in NuGet and GitHub. If none of those are present it checks for a project URL on NuGet, or a wiki or homepage on GitHub. It fails if none of the above is found                                                                          | It also checks if the size of the README is larger than 300 bytes (more than just a title).                                                                                                             | 5                 |
+| Initialization Script              | Fails if the package or its dependencies contain initialization scripts                                                                                                                                                                                      |                                                                                                                                                                                                         | 8                 |
+| Known Vulnerabilities              | Fails if any reported vulnerabilities are found on NuGet or in the OSV database.                                                                                                                                                                             | If a vulnerability is found, but not for the version being used in the project, the criteria will pass but inform about the vulnerability                                                               | 10                |
+| License                            | Fails if no license is found or the license is considered high risk. Warns if the license is considered medium risk, or AutoTrust cannot evaluate if it is a standard license                                                                                | The licenses are automatically checked if an [SPDX](https://spdx.org/licenses/) is used. The ranking is based on [Synopsys](https://www.synopsys.com/blogs/software-security/top-open-source-licenses/) | 7                 |
+| Open Issues                        | Fails if there are no open issues, or the number of open issues is more than 60% of the total number, or if less than 30% of the open issues have been updated over the last year. Warns if the total amount of issues is less than 30.                      |                                                                                                                                                                                                         | 3                 |
+| Open Pull Requests                 | Fails if there are no open pull requests, or the number of open pull requests is more than 60% of the total number, or if less than 30% of the open pull requests have been updated over the last year. Warns if the total amount of issues is less than 10. |                                                                                                                                                                                                         | 3                 |
+| Popularity                         | Fails if the number of downloads is less than 10000, or GitHub stars are less than 2, or forks or watchers are less than 1. Warns if less than 10 NuGet packages or GitHub repositories are using the package.                                               |                                                                                                                                                                                                         | 7                 |
+| Verified Prefix                    | Checks if the Prefix is [reserved](https://learn.microsoft.com/en-us/nuget/nuget-org/id-prefix-reservation) on NuGet                                                                                                                                         |                                                                                                                                                                                                         | 7                 |
+| Widespread Use                     | Fails if the oldest version of the package is less than 1 year old. Fails if 10 previous versions, or less if less than 10 exist, have a combined download of less than 100000. Warns if there are less than 10 prior versions.                              |                                                                                                                                                                                                         | 6                 |
+
+### Total score
+
+The total security score (stars) is calculated based on the importance of the trust criteria and their status (Pass/Warning/Fail). The score for each of the trust criteria is the importance multiplied by either 0, 0.5, or 1 (Pass=1, Warning=0.5, Fail=0). To get the total score we add all the individual scores and divide that by the total possible score.
+
 ## Contributing
 
-We welcome contributions to AutoTrust. If you'd like to contribute, please follow these steps:
-
-1. Fork the repository
-2. Create a new branch for your changes
-3. Make the changes and commit them to your branch
-4. Submit a pull request for review
-
-### Working on the package
-
-Creating a package:
-
-```bash
-dotnet pack
-```
-
-Run Project:
-
-```bash
-dotnet run add package PACKAGE VERSION
-```
-
-Testing the package locally:
-
-```bash
-dotnet tool install --global --add-source ./AutoTrust/nupkg AutoTrust
-```
-
-Uninstalling the package locally:
-
-```bash
-dotnet tool uninstall --global AutoTrust
-```
+Please see the [CONTRIBUTING](CONTRIBUTING) for guidelines on contributing to this project.
 
 ## License
 

@@ -64,11 +64,15 @@ public class NugetCatalogEntry {
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred from {catalogEntryUrl}: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred from {catalogEntryUrl}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred from {catalogEntryUrl}: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred from {catalogEntryUrl}: {ex.Message}");
+      }
     }
     return null;
   }

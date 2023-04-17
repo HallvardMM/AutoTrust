@@ -6,7 +6,6 @@ using AutoTrust;
 var httpClient = new HttpClient();
 var totalTCSecurityScore = 0.0;
 var totalPossibleTCSecurityScore = 0;
-
 // Heads up: add and update are used similarly in dotnet
 // dotnet add package <PACKAGE_NAME> 
 // dotnet add package <PACKAGE_NAME> -v <VERSION> 
@@ -14,6 +13,7 @@ var input = CliInputHandler.HandleInput(args);
 if (input is null) {
   return;
 }
+TerminalSpinner.Start();
 var (packageName, packageVersion, packageVersionSetByUser, isPrerelease, isVerbose, isDiagnostic) = input.Value;
 
 var dataHandler = new DataHandler(httpClient, packageName, packageVersion, isPrerelease);
@@ -100,11 +100,13 @@ var tasks = new List<Task> {
     trustCriteriaResult.TryAdd(OpenPullRequests.Title, (message, status, additionalInfo, OpenPullRequests.TotalScoreImportance));
   }),
 };
+TerminalSpinner.Stop();
 var t = Task.WhenAll(tasks.ToArray());
 try {
   await t;
 }
 catch { }
+
 
 // Sort the trustCriteriaResult by status and ranking
 // To change the status sorting order, change the order of the values in Status enum in ITrustCriteria.cs

@@ -14,7 +14,7 @@ public class InitScript : ITrustCriteria {
         }
         else if (package.Value.HasInitScript && package.Value.Depth > 0) {
           verbosityInfo.Add($"Init script in: Package {package.Key} with depth of {package.Value.Depth}");
-          return ($"Package in dependency tree contains an init script!", Status.Error, verbosityInfo.ToArray());
+          return ($"Package in dependency tree contains an init script!", Status.Fail, verbosityInfo.ToArray());
         }
         verbosityInfo.Add($"No init script in: Package {package.Key} with depth of {package.Value.Depth}");
       }

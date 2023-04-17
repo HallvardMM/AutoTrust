@@ -14,7 +14,7 @@ public class Analyzers : ITrustCriteria {
         }
         else if (package.Value.HasAnalyzers && package.Value.Depth > 0) {
           verbosityInfo.Add($"Analyzer found in: Package {package.Key} with depth of {package.Value.Depth}");
-          return ($"Package in dependency tree contains an analyzer!", Status.Error, verbosityInfo.ToArray());
+          return ($"Package in dependency tree contains an analyzer!", Status.Fail, verbosityInfo.ToArray());
         }
         verbosityInfo.Add($"No analyzer in: Package {package.Key} with depth of {package.Value.Depth}");
       }

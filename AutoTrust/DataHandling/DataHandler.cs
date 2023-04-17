@@ -62,33 +62,33 @@ public class DataHandler {
   public static async Task<T?> FetchGithubData<T>(HttpClient httpClient,
   string? githubToken, string url, string authorAndProject, bool isDiagnostic, string diagnosticText) {
     // https://www.stevejgordon.co.uk/sending-and-receiving-json-using-httpclient-with-system-net-http-json
-    try {
-      using (var request = new HttpRequestMessage(HttpMethod.Get, url)) {
-        if (githubToken != null) {
-          request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", githubToken);
+    using (var request = new HttpRequestMessage(HttpMethod.Get, url)) {
+      if (githubToken != null) {
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", githubToken);
+      }
+      request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+      request.Headers.UserAgent.TryParseAdd("request");
+      using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)) {
+        if (isDiagnostic) {
+          Console.WriteLine(diagnosticText);
         }
-        request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-        request.Headers.UserAgent.TryParseAdd("request");
-        using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)) {
-          if (isDiagnostic) {
-            Console.WriteLine(diagnosticText);
-          }
-          if (response.IsSuccessStatusCode) {
+        if (response.IsSuccessStatusCode) {
+          try {
             return await response.Content.ReadFromJsonAsync<T>();
           }
-          else {
+          catch (JsonException ex) {
+            // Handle any exceptions thrown during JSON deserialization.
+            if (isDiagnostic) {
+              Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
+            }
+          }
+        }
+        else {
+          if (isDiagnostic) {
             Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {response.StatusCode}");
           }
         }
       }
-    }
-    catch (HttpRequestException ex) {
-      // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
-    }
-    catch (JsonException ex) {
-      // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
     }
     return default;
   }
@@ -96,30 +96,25 @@ public class DataHandler {
   public static async Task<int?> FetchGithubHeaderCount(HttpClient httpClient,
   string? githubToken, string url, string authorAndProject, bool isDiagnostic, string diagnosticText) {
     // https://www.stevejgordon.co.uk/sending-and-receiving-json-using-httpclient-with-system-net-http-json
-    try {
-      using (var request = new HttpRequestMessage(HttpMethod.Get, url)) {
-        if (githubToken != null) {
-          request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", githubToken);
+    using (var request = new HttpRequestMessage(HttpMethod.Get, url)) {
+      if (githubToken != null) {
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", githubToken);
+      }
+      request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+      request.Headers.UserAgent.TryParseAdd("request");
+      using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)) {
+        if (isDiagnostic) {
+          Console.WriteLine(diagnosticText);
         }
-        request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-        request.Headers.UserAgent.TryParseAdd("request");
-        using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)) {
+        if (response.IsSuccessStatusCode) {
+          return HelperFunctions.GetLastPageNumber(response.Headers.GetValues("Link").FirstOrDefault());
+        }
+        else {
           if (isDiagnostic) {
-            Console.WriteLine(diagnosticText);
-          }
-          if (response.IsSuccessStatusCode) {
-            return HelperFunctions.GetLastPageNumber(response.Headers.GetValues("Link").FirstOrDefault());
+            Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {response.StatusCode}");
           }
         }
       }
-    }
-    catch (HttpRequestException ex) {
-      // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred for {authorAndProject} from {url}: {ex.Message}");
-    }
-    catch (JsonException ex) {
-      // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred for {authorAndProject} from {url}: {ex.Message}");
     }
     return null;
   }

@@ -29,11 +29,15 @@ public class NugetPackage {
     }
     catch (HttpRequestException ex) {
       // Handle any exceptions thrown by the HTTP client.
-      Console.WriteLine($"Error: An HTTP error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: An HTTP error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      }
     }
     catch (JsonException ex) {
       // Handle any exceptions thrown during JSON deserialization.
-      Console.WriteLine($"Error: A JSON error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      if (isDiagnostic) {
+        Console.WriteLine($"Error: A JSON error occurred for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}: {ex.Message}");
+      }
     }
     return null;
   }

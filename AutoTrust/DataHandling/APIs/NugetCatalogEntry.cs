@@ -58,7 +58,7 @@ public class NugetCatalogEntry {
       // Fetch package data
       var nugetCatalogEntry = await httpClient.GetFromJsonAsync<NugetCatalogEntry>(catalogEntryUrl);
       if (isDiagnostic) {
-        Console.WriteLine($"Found catalog entry from {catalogEntryUrl}");
+        Console.WriteLine($"\rFound catalog entry from {catalogEntryUrl}");
       }
       return nugetCatalogEntry;
     }

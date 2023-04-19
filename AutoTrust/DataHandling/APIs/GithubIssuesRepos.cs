@@ -18,7 +18,7 @@ public class GithubIssuesRepos {
   }
 
   public static async Task<int?> GetGithubIssues(HttpClient httpClient, string? githubToken, string authorAndProject, string url, bool isDiagnostic) => await DataHandler.FetchGithubHeaderCount(httpClient, githubToken, url, authorAndProject, isDiagnostic,
-    $"Found issue data for {authorAndProject} from {url}");
+    $"\rFound issue data for {authorAndProject} from {url}");
 
   public static string GetOpenGithubIssuesUrl(string authorAndProject) => "https://api.github.com/search/issues?q=repo:" + authorAndProject + "+type:issue+state:open&per_page=1";
 

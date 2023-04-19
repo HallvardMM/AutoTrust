@@ -28,7 +28,7 @@ public class NugetPackageManifest {
       using var replacedXmlReader = new ReplaceNsXmlReader(xmlReader, "");
       var packageManifest = (NugetPackageManifest?)serializer.Deserialize(replacedXmlReader);
       if (isDiagnostic) {
-        Console.WriteLine($"Found package manifest for {packageName} {packageVersion} in {manifestUrl}");
+        Console.WriteLine($"\rFound package manifest for {packageName} {packageVersion} in {manifestUrl}");
       }
       return packageManifest;
     }

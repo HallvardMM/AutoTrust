@@ -37,7 +37,7 @@ public class GithubReadme {
   public static async Task<GithubReadme?> GetGithubReadme(HttpClient httpClient, string? githubToken, string authorAndProject, bool isDiagnostic) {
     var githubReadmeUrl = GetGithubReadmeUrl(authorAndProject);
     return await DataHandler.FetchGithubData<GithubReadme>(httpClient, githubToken, githubReadmeUrl, authorAndProject, isDiagnostic,
-     $"Found readme data for {authorAndProject} from {githubReadmeUrl}");
+     $"\rFound readme data for {authorAndProject} from {githubReadmeUrl}");
   }
 
   public static string GetGithubReadmeUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject + "/readme";

@@ -172,7 +172,7 @@ public class GithubPackage {
   public static async Task<GithubPackage?> GetGithubPackage(HttpClient httpClient, string? githubToken, string authorAndProject, bool isDiagnostic) {
     var githubApiUrl = GetGithubApiUrl(authorAndProject);
     return await DataHandler.FetchGithubData<GithubPackage>(httpClient, githubToken, githubApiUrl, authorAndProject, isDiagnostic,
-    $"Found Github package data from: {githubApiUrl}");
+    $"\rFound Github package data from: {githubApiUrl}");
   }
 
   public static string GetGithubApiUrl(string authorAndProject) => "https://api.github.com/repos/" + authorAndProject;

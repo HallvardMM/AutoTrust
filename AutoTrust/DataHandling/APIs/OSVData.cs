@@ -31,7 +31,7 @@ public class OSVData {
         var responseStream = await response.Content.ReadAsStreamAsync();
         var osvData = await JsonSerializer.DeserializeAsync<OSVData>(responseStream);
         if (isDiagnostic) {
-          Console.WriteLine($"Found OSV data for {packageName} from {osvUrl} with POST {osvJSONPost}");
+          Console.WriteLine($"\rFound OSV data for {packageName} from {osvUrl} with POST {osvJSONPost}");
         }
         return osvData;
       }

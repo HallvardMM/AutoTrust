@@ -44,15 +44,15 @@ public class GithubContributor {
   public static async Task<(List<GithubContributor?>?, int?)> GetGithubContributors(HttpClient httpClient, string? githubToken, string authorAndProject, bool isDiagnostic) {
     var url = $"https://api.github.com/repos/{authorAndProject}/contributors?per_page={Contributors.NumberOfContributorsThreshold}";
     var contributors = await DataHandler.FetchGithubData<List<GithubContributor?>?>(httpClient, githubToken, url, authorAndProject, isDiagnostic,
-     $"Found contributors for {authorAndProject} from {url}");
+     $"\rFound contributors for {authorAndProject} from {url}");
     var contributorsCount = await DataHandler.FetchGithubHeaderCount(httpClient, githubToken, url, authorAndProject, isDiagnostic,
-    $"Found contributor count for {authorAndProject} in {url}");
+    $"\rFound contributor count for {authorAndProject} in {url}");
     if (contributorsCount == -1) {
       Console.WriteLine("Could not get contributors count");
       return (null, null);
     }
     if (isDiagnostic) {
-      Console.WriteLine($"Found {contributors?.Count} contributors for {authorAndProject} in {url}");
+      Console.WriteLine($"\rFound {contributors?.Count} contributors for {authorAndProject} in {url}");
     }
     return (contributors, contributorsCount);
   }

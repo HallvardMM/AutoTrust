@@ -19,12 +19,12 @@ public class NugetPackageVersion {
 
         if (prerelease) {
           if (isDiagnostic) {
-            Console.WriteLine($"Found versions for {packageName} (including prerelease versions) from {GetVersionsUrl(packageName)}");
+            Console.WriteLine($"\rFound versions for {packageName} (including prerelease versions) from {GetVersionsUrl(packageName)}");
           }
           return (FilterOldestStableVersion(allVersionsForPackageObject.Versions), FilterLatestVersion(allVersionsForPackageObject.Versions));
         }
         if (isDiagnostic) {
-          Console.WriteLine($"Found versions for {packageName} from {GetVersionsUrl(packageName)}");
+          Console.WriteLine($"\rFound versions for {packageName} from {GetVersionsUrl(packageName)}");
         }
         return (FilterOldestStableVersion(allVersionsForPackageObject.Versions), FilterLatestStableVersion(allVersionsForPackageObject.Versions));
       }

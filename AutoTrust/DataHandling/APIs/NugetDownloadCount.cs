@@ -17,7 +17,7 @@ public class NugetDownloadCount {
       // Fetch package data
       var getNugetDownloadCount = await httpClient.GetFromJsonAsync<NugetDownloadCount>(downloadCountUrl);
       if (isDiagnostic) {
-        Console.WriteLine($"Found download count data for {packageName} from {downloadCountUrl}");
+        Console.WriteLine($"\rFound download count data for {packageName} from {downloadCountUrl}");
       }
       return getNugetDownloadCount;
     }

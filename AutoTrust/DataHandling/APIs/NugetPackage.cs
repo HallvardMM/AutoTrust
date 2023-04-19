@@ -23,7 +23,7 @@ public class NugetPackage {
       var nugetPackage = await httpClient.GetFromJsonAsync<NugetPackage>
           (GetNugetPackageUrl(packageName, packageVersion));
       if (isDiagnostic) {
-        Console.WriteLine($"Found package data for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}");
+        Console.WriteLine($"\rFound package data for {packageName} {packageVersion} from {GetNugetPackageUrl(packageName, packageVersion)}");
       }
       return nugetPackage;
     }

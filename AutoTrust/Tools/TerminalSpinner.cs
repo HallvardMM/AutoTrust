@@ -1,8 +1,8 @@
 namespace AutoTrust;
 
 public class TerminalSpinner {
-  // private static readonly string[] _spinner = new string[] { "|", "/", "-", "\\" };
-  private static readonly string[] _spinner = new string[] { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" };
+  private static readonly string[] _spinner = new string[] { "|", "/", "-", "\\" };
+  // private static readonly string[] _spinner = new string[] { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" };
 
   private static int spinnerIndex;
   private static int spinnerDelay = 100;

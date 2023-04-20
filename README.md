@@ -14,7 +14,7 @@ AutoTrust is a Command Line Interface (CLI) tool for C# that fetches metadata ab
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will get you a copy of the project up and running on your local machine.
 
 ## Prerequisites
 
@@ -56,16 +56,21 @@ dotnet tool uninstall --tool-path ~/bin AutoTrust
 
 ## Adding Github API
 
-The Github api has a rate limit that can lead to unsuccessful api calls.
+The Github API has a rate limit that can lead to unsuccessful API calls.
 You can increase the limit by creating and adding a Github token.
-Recommend using [fine grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-fine-grained-personal-access-token) with permission for "Public Repositories (read-only)".
+We recommend using [fine grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-fine-grained-personal-access-token) with permission for "Public Repositories (read-only)".
 
 ### Windows
 
-The application looks for GITHUB_API_TOKEN in the process, user and machine environment variables.
-It can be added to either.
-Example on how to add (insert your token instead of "github_pat_tokenString"):
+The application looks for GITHUB_API_TOKEN in the environment variables.
+Examples below on how to add environment variable (insert your token instead of "github_pat_tokenString").
 
+Temporary in current shell:
+```PowerShell
+set GITHUB_API_TOKEN github_pat_tokenString
+```
+
+Permanent user environment variable:
 ```PowerShell
 setx GITHUB_API_TOKEN github_pat_tokenString
 ```
@@ -73,15 +78,13 @@ setx GITHUB_API_TOKEN github_pat_tokenString
 ### Mac or Linux
 
 For MacOS or Linux and it will try to fetch from environment variables defined in the shell.
-Example on how to add (insert your token instead of "github_pat_tokenString"):
+Example on how to add temporary (insert your token instead of "github_pat_tokenString"):
 
 ```bash
 export GITHUB_API_TOKEN=github_pat_tokenString
 ```
 
-NOTE: When running the "export token"-command the token will only work for the current session and not after you have closed the terminal. If you want it to work permanently you open the terminal you will have to store the token. See below for instructions:
-
-#### Zsh and Bash token storage
+#### Permanent set zsh and bash token storage 
 
 How to permanantly store the `GITHUB_API_TOKEN` will depend on which shell you use. If you use zsh (mac standard) store it in `.zshenv` and for bash (standard for most linux distributions) store it in `.bashrc`. To open the file `.zshenv` in the terminal run `$ vim ~/.zshenv` or to open in text editor run `$ touch ~/.zshenv; open ~/.zshenv`.
 

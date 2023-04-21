@@ -1,7 +1,7 @@
 namespace AutoTrust;
 
 public class WidespreadUse : ITrustCriteria {
-  public static string Title => "Package widespread use";
+  public static string Title => "Widespread use";
   public static int TotalScoreImportance => 6;
   private static readonly int VersionOldAgeInDaysThreshold = 365;
 

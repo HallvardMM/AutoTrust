@@ -113,7 +113,7 @@ catch { }
 var sortedTrustCriteriaResult = trustCriteriaResult.OrderBy(x => x.Value.Item2).ThenBy(y => y.Value.Item4).ToList();
 
 foreach (var result in sortedTrustCriteriaResult) {
-  PrettyPrint.PrintTCMessage(result.Value.Item1, result.Value.Item2, result.Value.Item3, isVerbose);
+  PrettyPrint.PrintTCMessage(result.Key, result.Value.Item1, result.Value.Item2, result.Value.Item3, isVerbose);
 }
 
 PrettyPrint.SecurityScorePrint(HelperFunctions.CalculateNumberOfStars(totalTCSecurityScore, totalPossibleTCSecurityScore));

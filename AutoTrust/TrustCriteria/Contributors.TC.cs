@@ -5,7 +5,7 @@ namespace AutoTrust;
 // TC-10: The component is being developed by an active maintainer domain
 
 public class Contributors : ITrustCriteria {
-  public static string Title => "Adequate number of contributors";
+  public static string Title => "Contributors";
   public static int TotalScoreImportance => 3;
 
   public static readonly int NumberOfContributorsThreshold = 2;

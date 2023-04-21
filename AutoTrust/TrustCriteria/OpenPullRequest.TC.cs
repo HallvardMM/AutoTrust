@@ -2,7 +2,7 @@
 namespace AutoTrust;
 
 public class OpenPullRequests : ITrustCriteria {
-  public static string Title => "Open Pull Requests";
+  public static string Title => "Open pull requests";
   public static int TotalScoreImportance => 3;
 
   public static readonly string OneYearAgoString = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);

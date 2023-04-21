@@ -1,6 +1,6 @@
 namespace AutoTrust;
 public class License : ITrustCriteria {
-  public static string Title => "Package License";
+  public static string Title => "License";
   public static int TotalScoreImportance => 7;
 
   // List of Spdx licenses: https://spdx.org/licenses/

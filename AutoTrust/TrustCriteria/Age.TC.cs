@@ -1,7 +1,7 @@
 namespace AutoTrust;
 
 public class Age : ITrustCriteria {
-  public static string Title => "Package age";
+  public static string Title => "Age";
   public static int TotalScoreImportance => 6;
 
   private static readonly int VersionAgeInDaysThreshold = 21;

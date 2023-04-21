@@ -1,7 +1,7 @@
 namespace AutoTrust;
 
 public class KnownVulnerabilities : ITrustCriteria {
-  public static string Title => "Known Vulnerabilities";
+  public static string Title => "Known vulnerabilities";
   public static int TotalScoreImportance => 10;
 
   public static (string, Status, string[]) Validate(DataHandler dataHandler) {

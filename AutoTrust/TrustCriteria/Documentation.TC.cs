@@ -1,7 +1,7 @@
 namespace AutoTrust;
 
 public class Documentation : ITrustCriteria {
-  public static string Title => "Package Documentation";
+  public static string Title => "Documentation";
   public static int TotalScoreImportance => 5;
   public static readonly int NugetFileByteSizeMinThreshold = 300;
 

@@ -3,7 +3,7 @@ namespace AutoTrust;
 using System.Globalization;
 
 public class Popularity : ITrustCriteria {
-  public static string Title => "Package Popularity";
+  public static string Title => "Popularity";
   public static int TotalScoreImportance => 7;
   private static readonly long DownloadsThreshold = 10000;
   private static readonly long StargazersCountThreshold = 2;

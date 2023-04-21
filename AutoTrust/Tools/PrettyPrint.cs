@@ -2,16 +2,16 @@
 namespace AutoTrust;
 
 public class PrettyPrint {
-  public static void PrintTCMessage(string message, Status status, string[] additionalInfo, bool isVerbose) {
+  public static void PrintTCMessage(string title, string message, Status status, string[] additionalInfo, bool isVerbose) {
     switch (status) {
       case Status.Pass:
-        SuccessPrint(message);
+        SuccessPrint($"{title}: " + message);
         break;
       case Status.Fail:
-        FailPrint(message);
+        FailPrint($"{title}: " + message);
         break;
       case Status.Error:
-        WarningPrint(message);
+        WarningPrint($"{title}: " + message);
         break;
       default:
         break;
@@ -27,12 +27,6 @@ public class PrettyPrint {
       }
       Console.WriteLine();
     }
-  }
-
-  public static void WarningPrint(string text) {
-    Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.WriteLine($"!: {text}");
-    Console.ForegroundColor = ConsoleColor.White;
   }
 
   public static void StarPrint(int numberOfStars) {
@@ -58,15 +52,21 @@ public class PrettyPrint {
     Console.ForegroundColor = ConsoleColor.White;
   }
 
+  public static void WarningPrint(string text) {
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine($"! {text}");
+    Console.ForegroundColor = ConsoleColor.White;
+  }
+
   public static void FailPrint(string text) {
     Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine($"X: {text}");
+    Console.WriteLine($"X {text}");
     Console.ForegroundColor = ConsoleColor.White;
   }
 
   public static void SuccessPrint(string text) {
     Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine($"√: {text}");
+    Console.WriteLine($"√ {text}");
     Console.ForegroundColor = ConsoleColor.White;
   }
 }

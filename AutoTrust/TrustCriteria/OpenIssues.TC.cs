@@ -1,7 +1,7 @@
 namespace AutoTrust;
 
 public class OpenIssues : ITrustCriteria {
-  public static string Title => "Open Issues";
+  public static string Title => "Open issues";
   public static int TotalScoreImportance => 3;
 
   public static readonly string OneYearAgoString = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);

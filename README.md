@@ -9,7 +9,7 @@
 AutoTrust is a Command Line Interface (CLI) tool for C# that fetches metadata about a NuGet package to help developers assess the package before installing it.
 
 <p align="center">
-  <img src="./Images/AutoTrustOutput.png" alt="Auto Trust" width="100%"/>
+  <img src="./Images/AutoTrustOutput.jpg" alt="Auto Trust" width="100%"/>
 </p>
 
 ## Getting Started
@@ -66,11 +66,13 @@ The application looks for GITHUB_API_TOKEN in the environment variables.
 Examples below on how to add environment variable (insert your token instead of "github_pat_tokenString").
 
 Temporary in current shell:
+
 ```PowerShell
 set GITHUB_API_TOKEN github_pat_tokenString
 ```
 
 Permanent user environment variable:
+
 ```PowerShell
 setx GITHUB_API_TOKEN github_pat_tokenString
 ```
@@ -84,7 +86,7 @@ Example on how to add temporary (insert your token instead of "github_pat_tokenS
 export GITHUB_API_TOKEN=github_pat_tokenString
 ```
 
-#### Permanent set zsh and bash token storage 
+#### Permanent set zsh and bash token storage
 
 How to permanantly store the `GITHUB_API_TOKEN` will depend on which shell you use. If you use zsh (mac standard) store it in `.zshenv` and for bash (standard for most linux distributions) store it in `.bashrc`. To open the file `.zshenv` in the terminal run `$ vim ~/.zshenv` or to open in text editor run `$ touch ~/.zshenv; open ~/.zshenv`.
 

@@ -127,10 +127,8 @@ autotrust add package [PackageName] -ve, --verbosity <d|detailed|diag|diagnostic
 
 ### For Windows PowerShell:
 
-Run as administrator:
-
 ```PowerShell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 Find profile file:
@@ -139,13 +137,18 @@ Find profile file:
 echo $profile
 ```
 
-Create or update profile file with command:
+If the file does not exisit in the folder create a file using:
+```PowerShell
+New-Item -path $profile -type File -force
+```
+
+Open the file and add the command:
 
 ```PowerShell
 New-Alias -Name dotnet -Value autotrust
 ```
 
-Unblock file:
+You might need to unblock the file using:
 
 ```PowerShell
 Unblock-File -Path .\PathToProfileFile

@@ -6,7 +6,7 @@
 
 ## **Auto**matic software dependency auditing using **trust** criteria
 
-AutoTrust is a Command Line Interface (CLI) tool for C# that fetches metadata about a NuGet package to help developers assess the package before installing it.
+AutoTrust is a Command Line Interface (CLI) tool for C# that fetches metadata about a NuGet package to help developers assess the package before installing it. It was made as part of a master's thesis that can be found [here](https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/3092176).
 
 <p align="center">
   <img src="./Images/AutoTrustOutput.jpg" alt="Auto Trust" width="100%"/>
